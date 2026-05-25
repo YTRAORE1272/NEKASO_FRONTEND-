@@ -7,31 +7,42 @@ export const mockUser = {
   role: 'GESTIONNAIRE', telephone: '771234567', statut: 'ACTIF'
 }
 
-// ✅ CORRIGÉ : photos[] (tableau) au lieu de photo (champ unique)
+// ✅ CORRIGÉ : données alignées avec les maquettes UI
 export const mockBiens = [
   {
-    id: 1, typeBien: 'APPARTEMENT', adresse: 'Rue 10, Mermoz, Dakar',
-    surface: 85, nombrePieces: 3, loyer: 350000, statutBien: 'LOUE',
-    description: 'Bel appartement F3 avec terrasse.', dateAjout: '2024-01-15',
-    photos: [{ id: 1, urlPhoto: null, dateUpload: '2024-01-15' }]
+    id: 1, intitule: 'Appartement Almadies', typeBien: 'APPARTEMENT', adresse: 'Rue 12, Almadies, Dakar',
+    surface: 85, nombrePieces: 3, loyer: 450000, charges: 25000, statutBien: 'LOUE',
+    description: 'Bel appartement lumineux avec vue mer.', dateAjout: '2024-01-15',
+    photos: [{ id: 1, urlPhoto: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&h=400&fit=crop', dateUpload: '2024-01-15' }],
+    locataire: { id: 6, nom: 'Diop', prenom: 'Aminata', telephone: '776543210', dateDebut: '2025-09-01', loyer: 450000 }
   },
   {
-    id: 2, typeBien: 'STUDIO', adresse: 'Avenue Cheikh Anta Diop, Dakar',
-    surface: 35, nombrePieces: 1, loyer: 150000, statutBien: 'DISPONIBLE',
-    description: 'Studio moderne proche université.', dateAjout: '2024-02-20',
-    photos: []
+    id: 2, intitule: 'Studio Plateau', typeBien: 'STUDIO', adresse: 'Av. Pompidou, Plateau, Dakar',
+    surface: 35, nombrePieces: 1, loyer: 180000, charges: 10000, statutBien: 'DISPONIBLE',
+    description: 'Studio moderne proche centre-ville.', dateAjout: '2024-02-20',
+    photos: [{ id: 2, urlPhoto: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400&h=400&fit=crop', dateUpload: '2024-02-20' }],
+    locataire: null
   },
   {
-    id: 3, typeBien: 'CHAMBRE', adresse: 'Sacré-Coeur 3, Dakar',
-    surface: 20, nombrePieces: 1, loyer: 80000, statutBien: 'RESERVE',
-    description: 'Chambre meublée.', dateAjout: '2024-03-10',
-    photos: []
+    id: 3, intitule: 'Bureau Mermoz', typeBien: 'BUREAU', adresse: 'Mermoz Sacré-Coeur, Dakar',
+    surface: 60, nombrePieces: 2, loyer: 350000, charges: 15000, statutBien: 'LOUE',
+    description: 'Bureau bien situé avec parking.', dateAjout: '2024-03-10',
+    photos: [{ id: 3, urlPhoto: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=400&fit=crop', dateUpload: '2024-03-10' }],
+    locataire: { id: 7, nom: 'Fall', prenom: 'Ibrahima', telephone: '771234567', dateDebut: '2025-06-01', loyer: 350000 }
   },
   {
-    id: 4, typeBien: 'APPARTEMENT', adresse: 'Almadies, Dakar',
-    surface: 120, nombrePieces: 4, loyer: 600000, statutBien: 'DISPONIBLE',
-    description: 'Grand appartement vue mer.', dateAjout: '2024-04-05',
-    photos: []
+    id: 4, intitule: 'Villa Ngor', typeBien: 'VILLA', adresse: 'Corniche Ouest, Ngor',
+    surface: 200, nombrePieces: 5, loyer: 1200000, charges: 50000, statutBien: 'RESERVE',
+    description: 'Magnifique villa avec piscine.', dateAjout: '2024-04-05',
+    photos: [{ id: 4, urlPhoto: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&h=400&fit=crop', dateUpload: '2024-04-05' }],
+    locataire: null
+  },
+  {
+    id: 5, intitule: 'Chambre Ouakam', typeBien: 'CHAMBRE', adresse: 'Cité Asecna, Ouakam',
+    surface: 18, nombrePieces: 1, loyer: 90000, charges: 5000, statutBien: 'DISPONIBLE',
+    description: 'Chambre meublée avec salle de bain.', dateAjout: '2024-05-15',
+    photos: [{ id: 5, urlPhoto: 'https://images.unsplash.com/photo-1630699144867-37acec97df5a?w=400&h=400&fit=crop', dateUpload: '2024-05-15' }],
+    locataire: null
   }
 ]
 
