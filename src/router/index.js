@@ -4,7 +4,7 @@ import { useAuthStore } from '@/stores/auth.store'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    { path: '/', redirect: '/gestionnaire/dashboard' },
+    { path: '/', redirect: '/login' },
 
     {
       path: '/login',
@@ -58,9 +58,16 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
+
+  // Forcer la déconnexion si l'utilisateur va sur la racine /
+  if (to.path === '/login' && from.path === '/') {
+     authStore.logout()
+  }
+
   if (to.meta.requiresAuth && !authStore.isAuthenticated) return next('/login')
   if (to.meta.role && authStore.user?.role !== to.meta.role) return next('/login')
   if (to.meta.public && authStore.isAuthenticated) return next('/gestionnaire/dashboard')
+  
   next()
 })
 
