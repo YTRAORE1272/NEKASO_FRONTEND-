@@ -15,18 +15,9 @@ export const useAuthStore = defineStore('auth', () => {
 
   // ✅ CORRIGÉ : telephone (pas email) — selon le contrat API NEKASO
   async function login(telephone, motDePasse) {
-    // Mode Mock pour le développement local
-    const mockUser = {
-      id: 1,
-      nom: 'Diallo',
-      prenom: 'Moussa',
-      role: 'GESTIONNAIRE',
-      telephone: telephone || '771234567',
-      statut: 'ACTIF'
-    }
-    
-    token.value = "mock_jwt_token_for_dev"
-    user.value  = mockUser
+    const res = await authService.login({ telephone, motDePasse })
+    token.value = res.data.token
+    user.value  = res.data.user
     localStorage.setItem('nekaso_token', token.value)
     localStorage.setItem('nekaso_user', JSON.stringify(user.value))
   }
