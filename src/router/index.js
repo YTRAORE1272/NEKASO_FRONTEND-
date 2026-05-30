@@ -16,7 +16,7 @@ const router = createRouter({
     {
       path: '/gestionnaire',
       component: () => import('@/components/layout/GestionnaireLayout.vue'),
-      meta: { title: 'NEKASO' },
+      meta: { title: 'NEKASO', requiresAuth: true },
       children: [
         {
           path: 'dashboard',
@@ -81,10 +81,10 @@ router.beforeEach((to, from, next) => {
      authStore.logout()
   }
 
-  // ⚠️ Désactivé temporairement pour le développement UI (from Youssouf branch)
-  // if (to.meta.requiresAuth && !authStore.isAuthenticated) return next('/login')
-  // if (to.meta.role && authStore.user?.role !== to.meta.role) return next('/login')
-  // if (to.meta.public && authStore.isAuthenticated) return next('/gestionnaire/dashboard')
+  // Protection réactivée
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) return next('/login')
+  if (to.meta.role && authStore.user?.role !== to.meta.role) return next('/login')
+  if (to.meta.public && authStore.isAuthenticated) return next('/gestionnaire/dashboard')
   
   next()
 })
