@@ -14,6 +14,7 @@
 	--couleur-alerte-fond: #fef2f2; /* Fond bannière alerte */
 	--couleur-alerte-texte: #991b1b;
 	--couleur-warning: #f59e0b;     /* Jaune : statut réservé, avertissements */
+	--couleur-active: #1a365d;      /* Bleu foncé : état actif, boutons principaux */
 
 	/* Couleurs de fond */
 	--fond-general: #f5f7fa;        /* Fond gris clair de la page */
@@ -38,5 +39,5 @@
 
 	/* Dimensions */
 	--sidebar-largeur: 260px;       /* Largeur de la barre latérale */
-	--header-hauteur: 64px;         /* Hauteur de la barre du haut */
+	--header-hauteur: 72px;          /* Hauteur de la barre du haut */
 }

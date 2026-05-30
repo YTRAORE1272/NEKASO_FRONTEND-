@@ -7,6 +7,13 @@ const router = createRouter({
     { path: '/', redirect: '/login' },
 
     {
+      path: '/login',
+      name: 'login',
+      component: () => import('@/views/auth/LoginView.vue'),
+      meta: { public: true },
+    },
+
+    {
       path: '/gestionnaire',
       component: () => import('@/components/layout/GestionnaireLayout.vue'),
       meta: { title: 'NEKASO' },
@@ -20,13 +27,19 @@ const router = createRouter({
         {
           path: 'biens',
           name: 'biens',
-          component: () => import('@/views/gestionnaire/PlaceholderView.vue'),
-          meta: { title: 'Biens' },
+          component: () => import('@/views/gestionnaire/BiensView.vue'),
+          meta: { title: 'Biens immobiliers' },
+        },
+        {
+          path: 'biens/:id',
+          name: 'bien-detail',
+          component: () => import('@/views/gestionnaire/BienDetailView.vue'),
+          meta: { title: 'Détails du bien' },
         },
         {
           path: 'visites',
           name: 'visites',
-          component: () => import('@/views/gestionnaire/PlaceholderView.vue'),
+          component: () => import('@/views/gestionnaire/VisitesView.vue'),
           meta: { title: 'Visites' },
         },
         {
@@ -38,13 +51,13 @@ const router = createRouter({
         {
           path: 'contrats',
           name: 'contrats',
-          component: () => import('@/views/gestionnaire/PlaceholderView.vue'),
+          component: () => import('@/views/gestionnaire/ContratsView.vue'),
           meta: { title: 'Contrats' },
         },
         {
           path: 'paiements',
           name: 'paiements',
-          component: () => import('@/views/gestionnaire/PlaceholderView.vue'),
+          component: () => import('@/views/gestionnaire/PaiementsView.vue'),
           meta: { title: 'Paiements' },
         },
         {
@@ -56,8 +69,8 @@ const router = createRouter({
       ],
     },
 
-    { path: '/:pathMatch(.*)*', redirect: '/gestionnaire/dashboard' }
-  ]
+    { path: '/:pathMatch(.*)*', redirect: '/gestionnaire/dashboard' },
+  ],
 })
 
 router.beforeEach((to, from, next) => {
@@ -68,9 +81,10 @@ router.beforeEach((to, from, next) => {
      authStore.logout()
   }
 
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) return next('/login')
-  if (to.meta.role && authStore.user?.role !== to.meta.role) return next('/login')
-  if (to.meta.public && authStore.isAuthenticated) return next('/gestionnaire/dashboard')
+  // ⚠️ Désactivé temporairement pour le développement UI (from Youssouf branch)
+  // if (to.meta.requiresAuth && !authStore.isAuthenticated) return next('/login')
+  // if (to.meta.role && authStore.user?.role !== to.meta.role) return next('/login')
+  // if (to.meta.public && authStore.isAuthenticated) return next('/gestionnaire/dashboard')
   
   next()
 })

@@ -25,7 +25,19 @@ const route = useRoute()
 const authStore = useAuthStore()
 const dashboardStore = useDashboardStore()
 
-const titre = computed(() => route.meta.title || 'NEKASO')
+const titre = computed(() => {
+  const titles = {
+    'dashboard': 'Tableau de bord NEKASO',
+    'biens': 'Biens immobiliers',
+    'bien-detail': 'Détails du bien',
+    'visites': 'Visites',
+    'demandes-location': 'Demandes de location',
+    'contrats': 'Contrats',
+    'paiements': 'Paiements',
+    'parametres': 'Paramètres'
+  }
+  return titles[route.name] || route.meta.title || 'NEKASO'
+})
 const notifications = computed(() => dashboardStore.notificationsNonLues || 2)
 </script>
 

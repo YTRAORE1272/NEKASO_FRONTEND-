@@ -1,42 +1,46 @@
 import api from './api'
 
 export const biensService = {
-  /*
-    Récupère tous les biens appartenant au gestionnaire connecté.
-    Spring Boot identifie le gestionnaire grâce au token JWT.
-    Réponse : tableau de biens
-  */
+  /**
+   * GET /api/biens/gestionnaire
+   * Récupère tous les biens du gestionnaire connecté.
+   */
   getMesBiens: () => api.get('/biens/gestionnaire'),
 
-  /*
-    Crée un nouveau bien avec photo.
-    
-    Pourquoi multipart/form-data et pas JSON ?
-    Parce qu'on envoie un fichier image (la photo du bien).
-    JSON ne peut pas transporter des fichiers binaires.
-    multipart/form-data est le format prévu pour les fichiers.
-    
-    formData est un objet FormData JavaScript :
-    const formData = new FormData()
-    formData.append('typeBien', 'APPARTEMENT')
-    formData.append('adresse', 'Rue 10, Mermoz')
-    formData.append('photo', fichierImage) ← le vrai fichier
-  */
-  creer: (formData) => api.post('/biens', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  }),
+  /**
+   * POST /api/biens
+   * Crée un nouveau bien avec photos (multipart/form-data).
+   * @param {FormData} formData - Les données du bien + photos[]
+   */
+  creer: (formData) =>
+    api.post('/biens', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
 
-  /*
-    Modifie un bien existant.
-    id : l'identifiant du bien à modifier
-    data : les nouvelles données
-  */
-  modifier: (id, data) => api.put(`/biens/${id}`, data),
+  /**
+   * PUT /api/biens/{id}
+   * Modifie un bien existant (multipart/form-data pour les nouvelles photos).
+   * @param {number} id - Identifiant du bien
+   * @param {FormData} formData - Champs à modifier + nouvelles photos
+   */
+  modifier: (id, formData) =>
+    api.put(`/biens/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
 
-  /*
-    Archive un bien (le rend invisible dans le catalogue).
-    On n'utilise pas DELETE car on veut garder l'historique.
-    PATCH = modification partielle d'une ressource
-  */
-  archiver: (id) => api.patch(`/biens/${id}/archiver`)
+  /**
+   * PATCH /api/biens/{id}/archiver
+   * Archive un bien (le rend invisible, l'historique est conservé).
+   * @param {number} id - Identifiant du bien
+   */
+  archiver: (id) => api.patch(`/biens/${id}/archiver`),
+
+  /**
+   * DELETE /api/biens/{id}/photos/{photoId}
+   * Supprime une photo spécifique d'un bien.
+   * @param {number} bienId - Identifiant du bien
+   * @param {number} photoId - Identifiant de la photo
+   */
+  supprimerPhoto: (bienId, photoId) =>
+    api.delete(`/biens/${bienId}/photos/${photoId}`),
 }

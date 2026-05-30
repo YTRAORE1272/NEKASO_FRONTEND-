@@ -70,7 +70,7 @@ const menuGestion = [
 function seDeconnecter() {
   authStore.logout()
   dashboardStore.reinitialiser()
-  router.push('/gestionnaire/dashboard')
+  router.push('/login')
 }
 </script>
 
@@ -130,7 +130,7 @@ function seDeconnecter() {
   border-radius: 10px;
   color: var(--sidebar-texte);
   text-decoration: none;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   transition: background 0.2s, color 0.2s;
   border: none;
