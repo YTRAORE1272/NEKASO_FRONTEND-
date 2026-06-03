@@ -13,9 +13,9 @@
 	--couleur-warning: #ffc107;     /* Jaune : statut réservé, avertissements */
 
 	/* Couleurs de fond */
-	--fond-general: #f5f7fa;        /* Fond gris clair de la page */
+	--fond-general: #ffffff;        /* Fond blanc de la page */
 	--fond-carte: #ffffff;          /* Fond blanc des cartes */
-	--fond-sidebar: #ffffff;        /* Fond de la barre latérale - blanc */
+	--fond-sidebar: #ffffff;        /* Fond blanc de la barre latérale */
 
 	/* Couleurs de texte */
 	--texte-principal: #1f2937;     /* Texte foncé pour les titres et contenus */
