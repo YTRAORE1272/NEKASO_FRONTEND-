@@ -6,23 +6,16 @@
 */
 :root {
 	/* Couleurs principales de NEKASO */
-	--couleur-primaire: #1a2234;    /* Bleu marine : sidebar, cartes KPI, boutons */
-	--couleur-accent: #e8a020;      /* Orange : accents secondaires */
-	--couleur-succes: #22c55e;      /* Vert : tendances positives */
-	--couleur-succes-clair: #86efac; /* Vert clair : graphiques */
+	--couleur-primaire: #212d4d;    /* Bleu très sombre : boutons, sidebar, titres importants */
+	--couleur-accent: #212d4d;      /* Même couleur que primaire pour les actions principales */
+	--couleur-succes: #00d15a;      /* Vert vif NEKASO : confirmation, succès */
 	--couleur-danger: #ef4444;      /* Rouge : erreurs, retards de paiement */
-	--couleur-alerte-fond: #fef2f2; /* Fond bannière alerte */
-	--couleur-alerte-texte: #991b1b;
 	--couleur-warning: #f59e0b;     /* Jaune : statut réservé, avertissements */
-	--couleur-active: #1a365d;      /* Bleu foncé : état actif, boutons principaux */
 
 	/* Couleurs de fond */
 	--fond-general: #f5f7fa;        /* Fond gris clair de la page */
 	--fond-carte: #ffffff;          /* Fond blanc des cartes */
-	--fond-sidebar: #ffffff;        /* Sidebar blanche (maquette) */
-	--sidebar-bordure: #e5e7eb;
-	--sidebar-texte: #4b5563;
-	--sidebar-texte-actif: #ffffff;
+	--fond-sidebar: #1a2e4a;        /* Fond de la barre latérale */
 
 	/* Couleurs de texte */
 	--texte-principal: #1f2937;     /* Texte foncé pour les titres et contenus */
@@ -39,5 +32,5 @@
 
 	/* Dimensions */
 	--sidebar-largeur: 260px;       /* Largeur de la barre latérale */
-	--header-hauteur: 72px;          /* Hauteur de la barre du haut */
+	--header-hauteur: 64px;         /* Hauteur de la barre du haut */
 }
