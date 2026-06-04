@@ -52,28 +52,22 @@ export const mockBiens = [
 
 export const mockVisites = [
   {
-    id: 1,
-    statut: 'EN_ATTENTE',
-    dateCreation: '2026-05-03',
-    locataire: { id: 3, nom: 'Sow', prenom: 'Moussa', telephone: '771234567' },
-    bien: { id: 2, adresse: 'Plateau, Dakar', typeBien: 'STUDIO', loyer: 150000 },
+    id: 1, statut: 'EN_ATTENTE', dateCreation: '2026-05-01',
+    dateVisite: '2026-05-03', heureVisite: '10:00',
+    candidat: { id: 3, nom: 'Moussa Sow', telephone: '+221 77 123 45 67' },
+    bien: { id: 2, adresse: 'Studio Plateau', typeBien: 'STUDIO', loyer: 180000 }
   },
   {
-    id: 10,
-    statut: 'EN_ATTENTE',
-    dateCreation: '2024-05-15',
-    locataire: { id: 3, nom: 'Sow', prenom: 'Fatou', telephone: '771234567' },
-    bien: { id: 2, adresse: 'Avenue Cheikh Anta Diop', typeBien: 'STUDIO', loyer: 150000 },
+    id: 2, statut: 'CONFIRMEE', dateCreation: '2026-05-02',
+    dateVisite: '2026-05-05', heureVisite: '15:30',
+    candidat: { id: 4, nom: 'Fatou Ndiaye', telephone: '+221 76 987 65 43' },
+    bien: { id: 5, adresse: 'Chambre Ouakam', typeBien: 'CHAMBRE', loyer: 90000 }
   },
   {
-    id: 2, statut: 'EN_ATTENTE', dateCreation: '2024-05-16',
-    locataire: { id: 4, nom: 'Ndiaye', prenom: 'Ibrahima', telephone: '785432167' },
-    bien: { id: 4, adresse: 'Almadies', typeBien: 'APPARTEMENT', loyer: 600000 }
-  },
-  {
-    id: 3, statut: 'CONFIRMEE', dateCreation: '2024-05-10',
-    locataire: { id: 5, nom: 'Fall', prenom: 'Aminata', telephone: '776543210' },
-    bien: { id: 3, adresse: 'Sacré-Coeur 3', typeBien: 'CHAMBRE', loyer: 80000 }
+    id: 3, statut: 'REFUSEE', dateCreation: '2026-04-25',
+    dateVisite: '2026-04-28', heureVisite: '11:00',
+    candidat: { id: 5, nom: 'Ibrahima Ba', telephone: '+221 78 222 33 44' },
+    bien: { id: 2, adresse: 'Studio Plateau', typeBien: 'STUDIO', loyer: 180000 }
   }
 ]
 
