@@ -1,499 +1,184 @@
 <template>
-  <div class="login-container">
-    <!-- LEFT PANEL -->
-    <div class="login-left">
-      <div class="left-content">
-        <h1 class="brand-title">
-          Gérez votre patrimoine <span class="text-green">immobilier</span> en toute simplicité.
-        </h1>
-        <p class="brand-subtitle">
-          Suivi des biens, contrats, paiements Mobile Money — tout centralisé dans une seule
-          plateforme.
-        </p>
-
-        <div class="stats-container">
-          <div class="stat-item">
-            <span class="stat-value text-green">500+</span>
-            <span class="stat-label">Biens gérés</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value text-green">98%</span>
-            <span class="stat-label">Taux de recouvrement</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value text-green">3x</span>
-            <span class="stat-label">Gain de productivité</span>
-          </div>
-        </div>
+  <div class="auth-layout">
+    <HeaderPublic />
+    
+    <div class="auth-content">
+      <!-- BANNER (Contextual) -->
+      <div v-if="authStore.pendingAction" class="alert-banner">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+        </svg>
+        Inscription rapide (< 1 min) — votre demande sera traitée juste après.
       </div>
-    </div>
 
-    <!-- RIGHT PANEL -->
-    <div class="login-right">
-      <div class="login-box">
-        <div class="logo-container">
-          <img src="@/assets/logo.png" alt="NEKASO Logo" class="app-logo" />
+      <div class="auth-card">
+        <!-- TABS -->
+        <div class="tabs">
+          <button class="tab" :class="{ 'tab-active': activeTab === 'login' }" @click="switchTab('login')">Connexion</button>
+          <button class="tab" :class="{ 'tab-active': activeTab === 'register' }" @click="switchTab('register')">Inscription</button>
         </div>
 
-        <h2 class="login-title">Connexion</h2>
-        <p class="login-subtitle">Entrez vos identifiants pour accéder à votre espace.</p>
+        <div class="auth-body">
+          <!-- ================= LOGIN TAB ================= -->
+          <div v-if="activeTab === 'login'">
+            <h1 class="auth-title">Bon retour !</h1>
+            <p class="auth-subtitle">Connectez-vous à votre compte NEKASO</p>
 
-        <form @submit.prevent="handleLogin" class="login-form">
-          <div class="form-group">
-            <label>Numéro de téléphone</label>
-            <div class="input-wrapper">
-              <span class="input-icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path
-                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
-                  ></path>
-                </svg>
-              </span>
-              <input
-                type="tel"
-                v-model="loginForm.telephone"
-                placeholder="+221 77 000 00 00"
-                required
-              />
-            </div>
-          </div>
+            <form @submit.prevent="handleLogin" class="auth-form">
+              <div class="form-group">
+                <label>Téléphone</label>
+                <div class="input-wrapper">
+                  <span class="input-prefix">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                    </svg>
+                    <span>+221</span>
+                  </span>
+                  <input type="tel" v-model="loginForm.telephone" placeholder="77 123 45 67" required />
+                </div>
+              </div>
 
-          <div class="form-group">
-            <div class="password-header">
-              <label>Mot de passe</label>
-              <a href="#" @click.prevent="openForgotPasswordModal" class="forgot-link text-green"
-                >Mot de passe oublié ?</a
-              >
-            </div>
-            <div class="input-wrapper">
-              <span class="input-icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                </svg>
-              </span>
-              <input
-                :type="showPassword ? 'text' : 'password'"
-                v-model="loginForm.motDePasse"
-                placeholder="••••••••"
-                required
-              />
-              <button type="button" class="toggle-password" @click="showPassword = !showPassword">
-                <svg
-                  v-if="!showPassword"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                  <circle cx="12" cy="12" r="3"></circle>
-                </svg>
-                <svg
-                  v-else
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path
-                    d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
-                  ></path>
-                  <line x1="1" y1="1" x2="23" y2="23"></line>
+              <div class="form-group">
+                <label>Mot de passe</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                  </span>
+                  <input :type="showPassword ? 'text' : 'password'" v-model="loginForm.motDePasse" placeholder="••••••••" required />
+                </div>
+              </div>
+
+              <button type="submit" class="btn-submit" :disabled="authStore.isLoading">
+                {{ authStore.isLoading ? 'Connexion...' : 'Se connecter' }}
+                <svg v-if="!authStore.isLoading" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
                 </svg>
               </button>
-            </div>
+            </form>
           </div>
 
-          <button type="submit" class="btn-submit" :disabled="authStore.isLoading">
-            {{ authStore.isLoading ? 'Connexion...' : 'Se connecter' }}
-          </button>
-        </form>
-      </div>
-    </div>
-
-    <!-- FORGOT PASSWORD MODAL -->
-    <div v-if="isModalOpen" class="modal-overlay-custom">
-      <div class="forgot-modal">
-        <div class="modal-header-custom">
-          <div>
-            <span class="modal-supertitle">RÉINITIALISATION</span>
-            <h3 class="modal-title-custom">Mot de passe oublié</h3>
-          </div>
-          <button class="btn-close-custom" @click="closeModal">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
-        </div>
-
-        <div class="modal-steps">
-          <!-- Step 1 Indicator -->
-          <div
-            class="step"
-            :class="{ 'step-completed': currentStep > 1, 'step-current': currentStep === 1 }"
-          >
-            <span class="step-icon">
-              <svg
-                v-if="currentStep > 1"
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="3"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-              <svg
-                v-else
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
-                ></path>
-              </svg>
-            </span>
-            Numéro
-          </div>
-          <div class="step-line" :class="{ 'line-active': currentStep > 1 }"></div>
-
-          <!-- Step 2 Indicator -->
-          <div
-            class="step"
-            :class="{
-              'step-completed': currentStep > 2,
-              'step-current': currentStep === 2,
-              'step-pending': currentStep < 2,
-            }"
-          >
-            <span class="step-icon">
-              <svg
-                v-if="currentStep > 2"
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="3"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-              <svg
-                v-else
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-              </svg>
-            </span>
-            Vérification
-          </div>
-          <div class="step-line" :class="{ 'line-active': currentStep > 2 }"></div>
-
-          <!-- Step 3 Indicator -->
-          <div
-            class="step"
-            :class="{ 'step-current': currentStep === 3, 'step-pending': currentStep < 3 }"
-          >
-            <span class="step-icon">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"
-                ></path>
-              </svg>
-            </span>
-            Nouveau MDP
-          </div>
-        </div>
-
-        <div class="modal-body-custom">
-          <!-- STEP 1 -->
-          <div v-if="currentStep === 1" class="step-content">
-            <p class="step-desc">
-              Entrez votre numéro de téléphone. Vous recevrez un code à 6 chiffres par WhatsApp.
-            </p>
-            <div class="form-group mt-6">
-              <label>Numéro de téléphone</label>
-              <div class="input-wrapper">
-                <input
-                  type="tel"
-                  v-model="forgotForm.telephone"
-                  class="input-reset"
-                  placeholder="+221 77 000 00 00"
-                />
+          <!-- ================= REGISTER TAB ================= -->
+          <div v-if="activeTab === 'register'">
+            <!-- STEPS INDICATOR -->
+            <div class="step-indicator">
+              <div class="step" :class="{ 'step-active': currentStep === 1, 'step-completed': currentStep > 1 }">
+                <span class="step-circle">
+                  <svg v-if="currentStep > 1" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span v-else>1</span>
+                </span>
+              </div>
+              <div class="step-line" :class="{ 'line-completed': currentStep > 1 }"></div>
+              
+              <div class="step" :class="{ 'step-active': currentStep === 2, 'step-completed': currentStep > 2 }">
+                <span class="step-circle">
+                  <svg v-if="currentStep > 2" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span v-else>2</span>
+                </span>
+              </div>
+              <div class="step-line" :class="{ 'line-completed': currentStep > 2 }"></div>
+              
+              <div class="step" :class="{ 'step-active': currentStep === 3 }">
+                <span class="step-circle">3</span>
               </div>
             </div>
-            <button class="btn-modal-submit mt-6" @click="nextStep">Envoyer le code</button>
-          </div>
 
-          <!-- STEP 2 -->
-          <div v-if="currentStep === 2" class="step-content">
-            <p class="step-desc">
-              Un code à 6 chiffres a été envoyé par WhatsApp au
-              <strong>{{ forgotForm.telephone }}</strong
-              >.
-            </p>
-            <div class="code-inputs mt-6">
-              <input
-                v-for="(digit, index) in 6"
-                :key="index"
-                type="text"
-                maxlength="1"
-                class="code-input"
-                v-model="forgotForm.code[index]"
-                @input="handleCodeInput(index, $event)"
-                @keydown="handleCodeKeydown(index, $event)"
-                :ref="
-                  (el) => {
-                    if (el) codeInputRefs[index] = el
-                  }
-                "
-              />
+            <!-- CONTENT STEP 1 -->
+            <div v-if="currentStep === 1" class="step-content">
+              <h2 class="auth-title">Votre identité</h2>
+              
+              <form @submit.prevent="submitStep1" class="auth-form">
+                <div class="form-group">
+                  <label>Nom complet</label>
+                  <div class="input-wrapper">
+                    <span class="input-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </span>
+                    <input type="text" v-model="registerForm.nom" placeholder="Aminata Diop" required />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Téléphone WhatsApp</label>
+                  <div class="input-wrapper">
+                    <span class="input-prefix">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                      <span>+221</span>
+                    </span>
+                    <input type="tel" v-model="registerForm.telephone" placeholder="77 123 45 67" required />
+                  </div>
+                </div>
+
+                <button type="submit" class="btn-submit" :disabled="authStore.isLoading">
+                  {{ authStore.isLoading ? 'Envoi...' : 'Recevoir le code WhatsApp' }}
+                  <svg v-if="!authStore.isLoading" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </button>
+              </form>
             </div>
-            <button
-              class="btn-modal-submit mt-6"
-              :class="{ 'btn-disabled': !isCodeComplete }"
-              @click="nextStep"
-              :disabled="!isCodeComplete"
-            >
-              Vérifier le code
-            </button>
-            <div class="text-center mt-4">
-              <a href="#" @click.prevent="currentStep = 1" class="link-back">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  style="vertical-align: middle; margin-right: 4px"
-                >
-                  <line x1="19" y1="12" x2="5" y2="12"></line>
-                  <polyline points="12 19 5 12 12 5"></polyline>
+
+            <!-- CONTENT STEP 2 -->
+            <div v-if="currentStep === 2" class="step-content text-center">
+              <div class="whatsapp-bubble">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
                 </svg>
-                Changer de numéro
-              </a>
-            </div>
-          </div>
+              </div>
+              
+              <h2 class="auth-title">Vérification WhatsApp</h2>
+              <p class="auth-subtitle">Code envoyé au +221 {{ registerForm.telephone }}</p>
 
-          <!-- STEP 3 -->
-          <div v-if="currentStep === 3" class="step-content">
-            <p class="step-desc">Choisissez un nouveau mot de passe sécurisé pour votre compte.</p>
-            <div class="form-group mt-6">
-              <label>Nouveau mot de passe</label>
-              <div class="input-wrapper">
-                <span class="input-icon">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                  </svg>
-                </span>
-                <input
-                  :type="showNewPassword ? 'text' : 'password'"
-                  class="input-reset"
-                  v-model="forgotForm.newPassword"
-                  placeholder="••••••••"
-                />
-                <button
-                  type="button"
-                  class="toggle-password"
-                  @click="showNewPassword = !showNewPassword"
-                >
-                  <svg
-                    v-if="!showNewPassword"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                    <circle cx="12" cy="12" r="3"></circle>
-                  </svg>
-                  <svg
-                    v-else
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path
-                      d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
-                    ></path>
-                    <line x1="1" y1="1" x2="23" y2="23"></line>
-                  </svg>
-                </button>
+              <div class="code-inputs">
+                <input v-for="(digit, index) in 4" :key="index" type="text" maxlength="1" class="code-input" 
+                  v-model="registerForm.code[index]" @input="handleCodeInput(index, $event)" 
+                  @keydown="handleCodeKeydown(index, $event)" :ref="el => { if (el) codeInputRefs[index] = el }" />
+              </div>
+
+              <button class="btn-submit" @click="submitStep2" :disabled="!isCodeComplete || authStore.isLoading">
+                Vérifier
+              </button>
+
+              <div class="resend-link">
+                Pas reçu ? <a href="#" @click.prevent="resendCode" class="link-bold">Renvoyer</a>
               </div>
             </div>
-            <div class="form-group">
-              <label>Confirmer le mot de passe</label>
-              <div class="input-wrapper">
-                <span class="input-icon">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                  </svg>
-                </span>
-                <input
-                  :type="showConfirmPassword ? 'text' : 'password'"
-                  class="input-reset"
-                  v-model="forgotForm.confirmPassword"
-                  placeholder="••••••••"
-                />
-                <button
-                  type="button"
-                  class="toggle-password"
-                  @click="showConfirmPassword = !showConfirmPassword"
-                >
-                  <svg
-                    v-if="!showConfirmPassword"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                    <circle cx="12" cy="12" r="3"></circle>
-                  </svg>
-                  <svg
-                    v-else
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path
-                      d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
-                    ></path>
-                    <line x1="1" y1="1" x2="23" y2="23"></line>
-                  </svg>
+
+            <!-- CONTENT STEP 3 -->
+            <div v-if="currentStep === 3" class="step-content">
+              <h2 class="auth-title">Créez votre mot de passe</h2>
+
+              <form @submit.prevent="submitStep3" class="auth-form">
+                <div class="form-group">
+                  <label>Mot de passe</label>
+                  <div class="input-wrapper">
+                    <span class="input-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    </span>
+                    <input :type="showPassword ? 'text' : 'password'" v-model="registerForm.motDePasse" placeholder="Minimum 8 caractères" required />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Confirmer le mot de passe</label>
+                  <div class="input-wrapper">
+                    <span class="input-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    </span>
+                    <input :type="showPassword ? 'text' : 'password'" v-model="registerForm.confirmPassword" placeholder="••••••••" required />
+                  </div>
+                </div>
+
+                <button type="submit" class="btn-submit btn-success" :disabled="!canSubmit || authStore.isLoading">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Créer mon compte
                 </button>
-              </div>
+              </form>
             </div>
-            <button
-              class="btn-modal-submit mt-6"
-              :class="{ 'btn-disabled': !canSubmitNewPassword }"
-              @click="submitNewPassword"
-              :disabled="!canSubmitNewPassword"
-            >
-              Réinitialiser le mot de passe
-            </button>
           </div>
         </div>
       </div>
@@ -502,235 +187,225 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { useToast } from 'vue-toastification'
+import HeaderPublic from '@/components/layout/HeaderPublic.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const toast = useToast()
 
-// Login State
+const activeTab = ref('login')
+const showPassword = ref(false)
+
+// Login state
 const loginForm = reactive({
   telephone: '',
   motDePasse: '',
 })
-const showPassword = ref(false)
+
+// Register state
+const currentStep = ref(1)
+const codeInputRefs = ref([])
+const registerForm = reactive({
+  nom: '',
+  telephone: '',
+  code: ['', '', '', ''],
+  motDePasse: '',
+  confirmPassword: ''
+})
+
+const isCodeComplete = computed(() => registerForm.code.every(digit => digit.length === 1))
+const canSubmit = computed(() => registerForm.motDePasse.length >= 8 && registerForm.motDePasse === registerForm.confirmPassword)
+
+onMounted(() => {
+  // Si une action est en attente (demande visite/location), on ouvre directement l'inscription
+  // pour respecter le parcours stepper en 3 étapes.
+  if (authStore.pendingAction) {
+    activeTab.value = 'register'
+  }
+})
+
+const switchTab = (tab) => {
+  activeTab.value = tab
+}
+
+const handlePostAuthRedirect = (userRole) => {
+  if (authStore.pendingAction) {
+    // Si une demande de visite ou location était en attente, retourner sur la fiche bien
+    router.push(`/biens/${authStore.pendingAction.bienId}`)
+  } else {
+    // Redirection classique
+    if (userRole === 'GESTIONNAIRE') {
+      router.push('/gestionnaire/dashboard')
+    } else {
+      router.push('/locataire/mes-locations')
+    }
+  }
+}
 
 const handleLogin = async () => {
-  // Validation des champs obligatoires
   if (!loginForm.telephone || !loginForm.motDePasse) {
     toast.error('Veuillez remplir tous les champs')
     return
   }
 
-  // Appel au backend NEKASO
   const result = await authStore.login(loginForm.telephone, loginForm.motDePasse)
 
-  // Selon le contrat API :
-  // - Réponse 200 : connexion réussie, redirection vers dashboard
-  // - Réponse 401 : identifiants incorrects
-  // - Réponse 400 : champs manquants
-  // - Réponse 500 : erreur serveur
   if (result.success) {
     toast.success('Connexion réussie')
-    router.push('/gestionnaire/dashboard')
+    handlePostAuthRedirect(result.user.role)
   } else {
-    // Le message d'erreur vient du store (géré par authStore.error)
-    toast.error(result.error)
+    toast.error(result.error || 'Erreur de connexion')
   }
 }
 
-// Forgot Password Modal State
-const isModalOpen = ref(false)
-const currentStep = ref(1)
-const forgotForm = reactive({
-  telephone: '',
-  code: ['', '', '', '', '', ''],
-  newPassword: '',
-  confirmPassword: '',
-})
-const showNewPassword = ref(false)
-const showConfirmPassword = ref(false)
-const codeInputRefs = ref([])
-
-const openForgotPasswordModal = () => {
-  isModalOpen.value = true
-  currentStep.value = 1
-  forgotForm.telephone = loginForm.telephone // Pre-fill if already typed
-  forgotForm.code = ['', '', '', '', '', '']
-  forgotForm.newPassword = ''
-  forgotForm.confirmPassword = ''
-}
-
-const closeModal = () => {
-  isModalOpen.value = false
-}
-
-const nextStep = () => {
-  if (currentStep.value === 1) {
-    if (!forgotForm.telephone) {
-      toast.error('Veuillez entrer un numéro de téléphone')
-      return
-    }
-    // TODO: Appel API pour envoyer le code WhatsApp
-    toast.info('Code WhatsApp envoyé au ' + forgotForm.telephone)
-    currentStep.value = 2
-    // Focus first input automatically
-    setTimeout(() => {
-      if (codeInputRefs.value[0]) codeInputRefs.value[0].focus()
-    }, 100)
-  } else if (currentStep.value === 2) {
-    if (!isCodeComplete.value) return
-    // TODO: Appel API pour vérifier le code
-    currentStep.value = 3
+// Register methods
+const submitStep1 = async () => {
+  if (!registerForm.nom || !registerForm.telephone) {
+    toast.error('Veuillez remplir tous les champs')
+    return
   }
+  toast.info('Code envoyé au ' + registerForm.telephone)
+  currentStep.value = 2
+  setTimeout(() => {
+    if (codeInputRefs.value[0]) codeInputRefs.value[0].focus()
+  }, 100)
 }
 
-const submitNewPassword = () => {
-  if (!canSubmitNewPassword.value) return
-  if (forgotForm.newPassword !== forgotForm.confirmPassword) {
+const submitStep2 = async () => {
+  if (!isCodeComplete.value) return
+  toast.success('Code vérifié')
+  currentStep.value = 3
+}
+
+const submitStep3 = async () => {
+  if (!canSubmit.value) return
+  if (registerForm.motDePasse !== registerForm.confirmPassword) {
     toast.error('Les mots de passe ne correspondent pas')
     return
   }
-  // TODO: Appel API pour réinitialiser le mot de passe
-  toast.success('Mot de passe réinitialisé avec succès')
-  closeModal()
+  const result = await authStore.register(registerForm.nom, registerForm.telephone, registerForm.motDePasse)
+  if (result.success) {
+    toast.success('Compte créé avec succès')
+    handlePostAuthRedirect('LOCATAIRE')
+  } else {
+    toast.error(result.error || 'Erreur lors de la création du compte')
+  }
 }
 
-// Code Input Logic
-const isCodeComplete = computed(() => {
-  return forgotForm.code.every((digit) => digit.length === 1)
-})
-
-const canSubmitNewPassword = computed(() => {
-  return forgotForm.newPassword.length >= 6 && forgotForm.newPassword === forgotForm.confirmPassword
-})
+const resendCode = () => {
+  toast.info('Code renvoyé par WhatsApp')
+}
 
 const handleCodeInput = (index, event) => {
   const value = event.target.value
-  // Keep only digits
-  forgotForm.code[index] = value.replace(/\D/g, '').slice(0, 1)
-
-  if (forgotForm.code[index] && index < 5) {
-    // Focus next input
+  registerForm.code[index] = value.replace(/\D/g, '').slice(0, 1)
+  if (registerForm.code[index] && index < 3) {
     codeInputRefs.value[index + 1].focus()
   }
 }
 
 const handleCodeKeydown = (index, event) => {
-  if (event.key === 'Backspace' && !forgotForm.code[index] && index > 0) {
-    // Focus previous input on backspace if current is empty
+  if (event.key === 'Backspace' && !registerForm.code[index] && index > 0) {
     codeInputRefs.value[index - 1].focus()
   }
 }
 </script>
 
 <style scoped>
-/* Reset and base styles for this component to not conflict with global */
-.login-container {
-  display: flex;
-  height: 100vh;
-  width: 100%;
-  font-family: 'Inter', sans-serif;
-}
-
-/* --- LEFT PANEL --- */
-.login-left {
-  flex: 1;
-  background-color: var(--couleur-primaire, #1a2234);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-}
-
-.left-content {
-  max-width: 480px;
-}
-
-.brand-title {
-  font-size: 42px;
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: 24px;
-}
-
-.text-green {
-  color: var(--couleur-succes, #22c55e);
-}
-
-.brand-subtitle {
-  font-size: 16px;
-  color: #9ca3af;
-  line-height: 1.6;
-  margin-bottom: 60px;
-}
-
-.stats-container {
-  display: flex;
-  gap: 40px;
-}
-
-.stat-item {
+.auth-layout {
+  min-height: 100vh;
+  background-color: #f8fafc;
   display: flex;
   flex-direction: column;
 }
 
-.stat-value {
-  font-size: 24px;
+.auth-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+/* BANNER */
+.alert-banner {
+  background-color: #fff7ed;
+  border: 1px solid #fdba74;
+  color: #c2410c;
+  padding: 12px 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 24px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 480px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.tab {
+  flex: 1;
+  padding: 16px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-active {
+  color: #1e293b;
+  border-bottom-color: #22c55e;
+}
+
+.tab:hover:not(.tab-active) {
+  color: #475569;
+}
+
+/* BODY */
+.auth-body {
+  padding: 32px 40px 40px;
+}
+
+.auth-title {
+  font-size: 20px;
   font-weight: 700;
+  color: #1e293b;
   margin-bottom: 4px;
 }
 
-.stat-label {
-  font-size: 13px;
-  color: #9ca3af;
-}
-
-/* --- RIGHT PANEL --- */
-.login-right {
-  flex: 1;
-  background-color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-}
-
-.login-box {
-  width: 100%;
-  max-width: 400px;
-}
-
-.logo-container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 40px;
-}
-
-.app-logo {
-  width: 200px;
-  height: auto;
-  object-fit: contain;
-}
-
-.login-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 8px;
-}
-
-.login-subtitle {
+.auth-subtitle {
   font-size: 14px;
-  color: #6b7280;
-  margin-bottom: 32px;
+  color: #64748b;
+  margin-bottom: 24px;
 }
 
-.login-form {
+/* FORM */
+.auth-form {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -743,98 +418,87 @@ const handleCodeKeydown = (index, event) => {
 }
 
 .form-group label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #374151;
-}
-
-.password-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.forgot-link {
   font-size: 12px;
-  font-weight: 500;
-  text-decoration: none;
-}
-
-.forgot-link:hover {
-  text-decoration: underline;
+  font-weight: 600;
+  color: #475569;
 }
 
 .input-wrapper {
-  position: relative;
   display: flex;
   align-items: center;
-  background-color: #f9fafb;
-  border: 1px solid #e5e7eb;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+  transition: all 0.2s;
 }
 
 .input-wrapper:focus-within {
-  border-color: var(--couleur-succes, #22c55e);
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+  border-color: #22c55e;
   background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+.input-prefix {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  color: #64748b;
+  font-weight: 500;
+  font-size: 14px;
+  border-right: 1px solid #e2e8f0;
 }
 
 .input-icon {
-  padding: 0 12px;
-  color: #9ca3af;
   display: flex;
+  align-items: center;
+  padding: 0 12px;
+  color: #94a3b8;
 }
 
 .input-wrapper input {
   flex: 1;
   border: none;
   background: transparent;
-  padding: 12px 12px 12px 0;
+  padding: 12px;
   font-size: 14px;
-  color: #111827;
+  color: #1e293b;
   outline: none;
+  width: 100%;
 }
 
-.input-reset {
-  /* Override global styles that might interfere */
-  border: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
-  margin: 0 !important;
-  width: 100% !important;
+.input-wrapper input::placeholder {
+  color: #94a3b8;
 }
 
-.toggle-password {
-  background: none;
-  border: none;
-  padding: 0 12px;
-  color: #9ca3af;
-  cursor: pointer;
-  display: flex;
-}
-
-.toggle-password:hover {
-  color: #4b5563;
-}
-
+/* BUTTON */
 .btn-submit {
-  background-color: var(--couleur-primaire, #1a2234);
-  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #1e293b;
+  color: #ffffff;
   border: none;
   border-radius: 8px;
   padding: 14px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.2s;
-  margin-top: 10px;
+  margin-top: 8px;
+  transition: background-color 0.2s;
 }
 
 .btn-submit:hover:not(:disabled) {
-  opacity: 0.9;
+  background-color: #0f172a;
+}
+
+.btn-submit.btn-success {
+  background-color: #22c55e;
+}
+
+.btn-submit.btn-success:hover:not(:disabled) {
+  background-color: #16a34a;
 }
 
 .btn-submit:disabled {
@@ -842,242 +506,137 @@ const handleCodeKeydown = (index, event) => {
   cursor: not-allowed;
 }
 
-/* --- FORGOT PASSWORD MODAL --- */
-.modal-overlay-custom {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+/* STEPS INDICATOR */
+.step-indicator {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  backdrop-filter: blur(4px);
-}
-
-.forgot-modal {
-  background-color: var(--couleur-primaire, #1a2234);
-  border-radius: 16px;
-  width: 100%;
-  max-width: 480px;
-  overflow: hidden;
-  box-shadow:
-    0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
-
-.modal-header-custom {
-  padding: 24px 32px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.modal-supertitle {
-  font-size: 10px;
-  font-weight: 600;
-  color: #9ca3af;
-  letter-spacing: 1px;
-  margin-bottom: 4px;
-  display: block;
-}
-
-.modal-title-custom {
-  font-size: 20px;
-  font-weight: 600;
-  color: white;
-  margin: 0;
-}
-
-.btn-close-custom {
-  background: none;
-  border: none;
-  color: #9ca3af;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-}
-
-.btn-close-custom:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: white;
-}
-
-.modal-steps {
-  display: flex;
-  align-items: center;
-  padding: 0 32px 24px;
+  margin-bottom: 32px;
 }
 
 .step {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
-  font-weight: 500;
+  position: relative;
 }
 
-.step-completed,
-.step-current {
-  color: white;
-}
-
-.step-pending {
-  color: #6b7280;
-}
-
-.step-icon {
+.step-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #f1f5f9;
+  color: #94a3b8;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s;
+  border: 2px solid transparent;
 }
 
-.step-completed .step-icon {
-  background-color: var(--couleur-succes, #22c55e);
-  color: white;
+.step-active .step-circle {
+  background-color: #eff6ff;
+  color: #3b82f6;
+  border-color: #3b82f6;
 }
 
-.step-current .step-icon {
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
-}
-
-.step-pending .step-icon {
-  background-color: transparent;
-  border: 1px solid #4b5563;
-  color: #6b7280;
+.step-completed .step-circle {
+  background-color: #22c55e;
+  color: #ffffff;
 }
 
 .step-line {
   flex: 1;
-  height: 1px;
-  background-color: #374151;
+  height: 2px;
+  background-color: #e2e8f0;
   margin: 0 12px;
+  margin-bottom: 16px;
+  max-width: 60px;
+  transition: background-color 0.3s;
 }
 
-.line-active {
-  background-color: var(--couleur-succes, #22c55e);
+.step-line.line-completed {
+  background-color: #22c55e;
 }
 
-.modal-body-custom {
-  background-color: white;
-  padding: 32px;
-  border-radius: 16px;
+.step-content {
+  animation: fadeIn 0.3s ease;
 }
 
-.step-desc {
-  font-size: 14px;
-  color: #6b7280;
-  line-height: 1.5;
-  margin: 0;
-}
-
-.mt-6 {
-  margin-top: 24px;
-}
-
-.btn-modal-submit {
-  width: 100%;
-  padding: 14px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
-}
-
-.btn-modal-submit {
-  background-color: #9ca3af;
-  color: white;
-}
-
-.btn-modal-submit.btn-active,
-.step-content > .btn-modal-submit:not(.btn-disabled) {
-  background-color: #9ca3af; /* Fallback */
-}
-
-/* Active states for buttons in steps */
-.step-content:nth-child(1) .btn-modal-submit,
-.btn-modal-submit.btn-active {
-  background-color: #9ca3af;
-}
-
-.step-content:nth-child(1) .btn-modal-submit {
-  background-color: #9ca3af; /* We want a grey button like in design until conditions are met, wait no, screenshot shows it greyish purple, let's use a standard grey/purple */
-  background-color: #8ca3af;
-}
-
-/* Looking at the screenshots, the "Vérifier le code", "Envoyer le code", "Réinitialiser" buttons in the modal are a muted grayish blue (#8892a3 or similar) */
-.btn-modal-submit {
-  background-color: #949eb0;
-  color: white;
-}
-
-.btn-modal-submit:hover:not(:disabled) {
-  opacity: 0.9;
-  background-color: #7b8599;
-}
-
-.code-inputs {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.code-input {
-  width: 48px;
-  height: 56px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 24px;
-  font-weight: 600;
-  text-align: center;
-  outline: none;
-  transition: all 0.2s;
-}
-
-.code-input:focus {
-  border-color: var(--couleur-succes, #22c55e);
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .text-center {
   text-align: center;
 }
 
-.mt-4 {
-  margin-top: 16px;
+/* WHATSAPP VERIFICATION */
+.whatsapp-bubble {
+  width: 56px;
+  height: 56px;
+  background-color: #dcfce7;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
 }
 
-.link-back {
-  font-size: 14px;
-  color: #6b7280;
+.whatsapp-bubble svg {
+  color: #22c55e;
+}
+
+.code-inputs {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 32px 0;
+}
+
+.code-input {
+  width: 48px;
+  height: 56px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  color: #0f172a;
+  background-color: #f8fafc;
+  transition: all 0.2s;
+}
+
+.code-input:focus {
+  border-color: #22c55e;
+  background-color: #ffffff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+.resend-link {
+  margin-top: 24px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.link-bold {
+  color: #1e293b;
+  font-weight: 700;
   text-decoration: none;
-  font-weight: 500;
 }
 
-.link-back:hover {
-  color: #111827;
+.link-bold:hover {
+  text-decoration: underline;
 }
 
-@media (max-width: 768px) {
-  .login-container {
-    flex-direction: column;
-  }
-
-  .login-left {
-    display: none; /* Hide left panel on mobile */
-  }
-
-  .login-right {
-    padding: 24px;
+@media (max-width: 640px) {
+  .auth-body {
+    padding: 24px 20px 32px;
   }
 }
 </style>

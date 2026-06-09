@@ -36,12 +36,11 @@ export const authService = {
     }
 
     // --- MOCK CONNEXION POUR LE DÉVELOPPEMENT ---
-    // Si on utilise le numéro de test, on simule un succès sans appeler le backend
     if (telephone === '771234567') {
       return new Promise((resolve) => {
         setTimeout(() => {
           resolve({
-            token: 'fake-jwt-token-pour-le-developpement-ui',
+            token: 'fake-jwt-token-gestionnaire',
             user: {
               id: 1,
               nom: 'Sarr',
@@ -51,7 +50,26 @@ export const authService = {
               statut: 'ACTIF',
             }
           })
-        }, 1000) // 1 seconde de faux chargement pour voir le loader
+        }, 1000)
+      })
+    }
+    
+    // Mock pour LOCATAIRE
+    if (telephone === '770000000') {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({
+            token: 'fake-jwt-token-locataire',
+            user: {
+              id: 2,
+              nom: 'Diop',
+              prenom: 'Moussa',
+              role: 'LOCATAIRE',
+              telephone: '770000000',
+              statut: 'ACTIF',
+            }
+          })
+        }, 1000)
       })
     }
     // --------------------------------------------
