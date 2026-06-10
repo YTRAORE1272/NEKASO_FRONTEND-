@@ -225,3 +225,139 @@ export const mockStats = {
     },
   ],
 }
+
+/**
+ * Biens publics pour le catalogue et la landing page.
+ * Structure alignée avec CarteBienPublic.vue.
+ */
+export const mockBiensPublics = [
+  {
+    id: 1,
+    titre: 'Appartement moderne - Vue sur mer',
+    type: 'Appartement',
+    statut: 'disponible',
+    loyer: 450000,
+    description: 'Superbe appartement moderne avec vue imprenable sur la mer. Lumineux et spacieux, idéal pour une famille ou des professionnels. Cuisine équipée, salon double, terrasse.',
+    adresse: { quartier: 'Almadies', ville: 'Dakar' },
+    caracteristiques: { nombreChambres: 3, nombreSallesDeBain: 2, surface: 110 },
+    photos: [
+      'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=400&fit=crop',
+    ],
+    equipements: ['Climatisation', 'Parking', 'Terrasse', 'Cuisine équipée', 'Gardien', 'Ascenseur'],
+    gestionnaire: { nom: 'Awa Sarr', telephone: '+221 77 123 45 67' }
+  },
+  {
+    id: 2,
+    titre: 'Studio meublé centre-ville',
+    type: 'Studio',
+    statut: 'disponible',
+    loyer: 200000,
+    description: 'Studio entièrement meublé au cœur du Plateau. Proche de tous les commerces et transports. Idéal pour étudiants ou jeunes professionnels.',
+    adresse: { quartier: 'Plateau', ville: 'Dakar' },
+    caracteristiques: { nombreChambres: 1, nombreSallesDeBain: 1, surface: 35 },
+    photos: [
+      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=600&h=400&fit=crop',
+    ],
+    equipements: ['Climatisation', 'Wi-Fi', 'Cuisine équipée', 'Machine à laver'],
+    gestionnaire: { nom: 'Awa Sarr', telephone: '+221 77 123 45 67' }
+  },
+  {
+    id: 3,
+    titre: 'Villa 4 chambres avec jardin',
+    type: 'Villa',
+    statut: 'reserve',
+    loyer: 850000,
+    description: 'Magnifique villa avec jardin privatif et piscine. 4 chambres spacieuses, salon double, cuisine américaine. Quartier résidentiel calme.',
+    adresse: { quartier: 'Ngor', ville: 'Dakar' },
+    caracteristiques: { nombreChambres: 4, nombreSallesDeBain: 3, surface: 220 },
+    photos: [
+      'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=600&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop',
+    ],
+    equipements: ['Piscine', 'Jardin', 'Parking', 'Climatisation', 'Gardien', 'Groupe électrogène'],
+    gestionnaire: { nom: 'Awa Sarr', telephone: '+221 77 123 45 67' }
+  },
+  {
+    id: 4,
+    titre: 'Chambre étudiante',
+    type: 'Chambre',
+    statut: 'disponible',
+    loyer: 90000,
+    description: 'Chambre meublée dans une résidence calme. Salle de bain privée, accès cuisine partagée. Idéale pour étudiants.',
+    adresse: { quartier: 'Mermoz', ville: 'Dakar' },
+    caracteristiques: { nombreChambres: 1, nombreSallesDeBain: 1, surface: 18 },
+    photos: [
+      'https://images.unsplash.com/photo-1630699144867-37acec97df5a?w=600&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=600&h=400&fit=crop',
+    ],
+    equipements: ['Wi-Fi', 'Meublé', 'Salle de bain privée'],
+    gestionnaire: { nom: 'Awa Sarr', telephone: '+221 77 123 45 67' }
+  },
+  {
+    id: 5,
+    titre: 'Appartement familial',
+    type: 'Appartement',
+    statut: 'loue',
+    loyer: 350000,
+    description: 'Grand appartement familial dans un quartier résidentiel. 3 chambres, 2 salles de bain, salon et salle à manger. Proche des écoles.',
+    adresse: { quartier: 'Sacré-Cœur', ville: 'Dakar' },
+    caracteristiques: { nombreChambres: 3, nombreSallesDeBain: 2, surface: 95 },
+    photos: [
+      'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=400&fit=crop',
+    ],
+    equipements: ['Climatisation', 'Parking', 'Balcon', 'Cuisine équipée'],
+    gestionnaire: { nom: 'Awa Sarr', telephone: '+221 77 123 45 67' }
+  },
+  {
+    id: 6,
+    titre: 'Studio moderne avec balcon',
+    type: 'Studio',
+    statut: 'disponible',
+    loyer: 180000,
+    description: 'Studio moderne avec balcon offrant une vue dégagée. Entièrement rénové, finitions haut de gamme.',
+    adresse: { quartier: 'Point E', ville: 'Dakar' },
+    caracteristiques: { nombreChambres: 1, nombreSallesDeBain: 1, surface: 40 },
+    photos: [
+      'https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=600&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop',
+    ],
+    equipements: ['Balcon', 'Climatisation', 'Cuisine équipée', 'Machine à laver'],
+    gestionnaire: { nom: 'Awa Sarr', telephone: '+221 77 123 45 67' }
+  },
+  {
+    id: 7,
+    titre: 'Appartement 2 pièces',
+    type: 'Appartement',
+    statut: 'disponible',
+    loyer: 220000,
+    description: 'Appartement 2 pièces bien agencé. Salon lumineux, chambre spacieuse, cuisine séparée. Quartier calme et bien desservi.',
+    adresse: { quartier: 'Yoff', ville: 'Dakar' },
+    caracteristiques: { nombreChambres: 2, nombreSallesDeBain: 1, surface: 65 },
+    photos: [
+      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=400&fit=crop',
+    ],
+    equipements: ['Climatisation', 'Parking', 'Cuisine séparée'],
+    gestionnaire: { nom: 'Awa Sarr', telephone: '+221 77 123 45 67' }
+  },
+  {
+    id: 8,
+    titre: 'Chambre en colocation',
+    type: 'Chambre',
+    statut: 'disponible',
+    loyer: 110000,
+    description: 'Chambre dans une colocation conviviale. Espaces communs partagés (cuisine, salon). Ambiance jeune et dynamique.',
+    adresse: { quartier: 'Fann', ville: 'Dakar' },
+    caracteristiques: { nombreChambres: 1, nombreSallesDeBain: 1, surface: 22 },
+    photos: [
+      'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=600&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1630699144867-37acec97df5a?w=600&h=400&fit=crop',
+    ],
+    equipements: ['Wi-Fi', 'Meublé', 'Cuisine partagée', 'Machine à laver'],
+    gestionnaire: { nom: 'Awa Sarr', telephone: '+221 77 123 45 67' }
+  },
+]

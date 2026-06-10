@@ -2,17 +2,7 @@
   <aside class="sidebar">
     <!-- Logo et nom de l'application -->
     <div class="sidebar-logo-wrapper">
-      <div class="logo-box">
-        <div class="logo-circle">
-          <div class="logo-text">
-            <span>NEK</span>
-            <svg class="logo-house" viewBox="0 0 24 24" fill="#00d15a" width="20" height="20">
-              <path d="M12 3L4 10h3v9h4v-6h2v6h4v-9h3L12 3z" />
-            </svg>
-            <span>SO</span>
-          </div>
-        </div>
-      </div>
+      <img src="/logo-nekaso.png?v=2" alt="NEKASO" class="sidebar-logo" />
     </div>
 
     <!-- Liens de navigation -->
@@ -235,42 +225,16 @@ function seDeconnecter() {
 
 /* ===== LOGO BLOCK ===== */
 .sidebar-logo-wrapper {
-  padding: 32px 24px;
+  padding: 28px 24px 24px;
   display: flex;
   justify-content: center;
 }
 
-.logo-box {
-  width: 140px;
-  height: 140px;
-  background-color: #27344f;
-  border-radius: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.logo-circle {
-  width: 110px;
-  height: 110px;
-  background-color: #ffffff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.logo-text {
-  display: flex;
-  align-items: center;
-  color: #27344f;
-  font-weight: 600;
-  font-size: 19px;
-  letter-spacing: 0.5px;
-}
-
-.logo-house {
-  margin: 0 1px;
+.sidebar-logo {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+  display: block;
 }
 
 /* ===== NAVIGATION ===== */

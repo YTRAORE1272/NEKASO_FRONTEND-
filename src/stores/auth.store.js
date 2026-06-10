@@ -2,12 +2,16 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { authService } from '@/services/auth.service'
 import { mockUser } from '@/services/mockData'
+import { getToken, setToken, removeToken, getUser, setUser, removeUser } from '@/services/storage'
 
 export const useAuthStore = defineStore('auth', () => {
-  const token = ref(localStorage.getItem('nekaso_token') || null)
-  const user = ref(JSON.parse(localStorage.getItem('nekaso_user') || 'null'))
+  const token = ref(getToken())
+  const user = ref(getUser())
   const isLoading = ref(false)
   const error = ref(null)
+
+  // Contexte pour la reprise d'action post-authentification (ex: visite ou location)
+  const pendingAction = ref(JSON.parse(localStorage.getItem('nekaso_pending_action') || 'null'))
 
   const utilisateurCourant = computed(() => user.value ?? mockUser)
   const isAuthenticated = computed(() => !!token.value)
@@ -41,9 +45,9 @@ export const useAuthStore = defineStore('auth', () => {
       token.value = newToken
       user.value = newUser
 
-      // Stockage persistant (localStorage)
-      localStorage.setItem('nekaso_token', newToken)
-      localStorage.setItem('nekaso_user', JSON.stringify(newUser))
+      // Stockage persistant via helper (utilise sessionStorage par défaut)
+      setToken(newToken)
+      setUser(newUser)
 
       return { success: true, user: newUser }
     } catch (err) {
@@ -68,6 +72,42 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /**
+   * Inscription d'un nouveau locataire.
+   */
+  async function register(nom, telephone, motDePasse) {
+    isLoading.value = true
+    error.value = null
+
+    try {
+      // Mock d'inscription
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          const newUser = {
+            id: Date.now(),
+            nom: nom,
+            prenom: '',
+            role: 'LOCATAIRE',
+            telephone: telephone,
+            statut: 'ACTIF',
+          }
+          const newToken = 'fake-jwt-token-new-locataire'
+
+          token.value = newToken
+          user.value = newUser
+          setToken(newToken)
+          setUser(newUser)
+
+          isLoading.value = false
+          resolve({ success: true, user: newUser })
+        }, 1500)
+      })
+    } catch (err) {
+      isLoading.value = false
+      return { success: false, error: "Erreur lors de l'inscription" }
+    }
+  }
+
+  /**
    * Déconnecter l'utilisateur actuel.
    * Supprime le token et les infos utilisateur du localStorage et de la mémoire.
    */
@@ -75,8 +115,19 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = null
     user.value = null
     error.value = null
-    localStorage.removeItem('nekaso_token')
-    localStorage.removeItem('nekaso_user')
+    removeToken()
+    removeUser()
+    clearPendingAction()
+  }
+
+  function setPendingAction(action) {
+    pendingAction.value = action
+    localStorage.setItem('nekaso_pending_action', JSON.stringify(action))
+  }
+
+  function clearPendingAction() {
+    pendingAction.value = null
+    localStorage.removeItem('nekaso_pending_action')
   }
 
   return {
@@ -89,6 +140,10 @@ export const useAuthStore = defineStore('auth', () => {
     isLoading,
     error,
     login,
+    register,
     logout,
+    pendingAction,
+    setPendingAction,
+    clearPendingAction,
   }
 })

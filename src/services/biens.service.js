@@ -5,7 +5,7 @@ export const biensService = {
    * GET /api/biens/gestionnaire
    * Récupère tous les biens du gestionnaire connecté.
    */
-  getMesBiens: () => api.get('/biens/gestionnaire'),
+  getMesBiens: (params) => api.get('/biens/gestionnaire', { params }),
 
   /**
    * POST /api/biens
@@ -41,6 +41,5 @@ export const biensService = {
    * @param {number} bienId - Identifiant du bien
    * @param {number} photoId - Identifiant de la photo
    */
-  supprimerPhoto: (bienId, photoId) =>
-    api.delete(`/biens/${bienId}/photos/${photoId}`),
+  supprimerPhoto: (bienId, photoId) => api.delete(`/biens/${bienId}/photos/${photoId}`),
 }

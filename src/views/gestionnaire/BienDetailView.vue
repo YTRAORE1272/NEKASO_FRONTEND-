@@ -304,7 +304,7 @@ function getInitial(locataire) {
 
 // Actions
 const handleEditSave = (data) => {
-  console.log('Modifié:', data)
+  if (import.meta.env.DEV) console.log('Modifié:', data)
   showEditModal.value = false
 }
 

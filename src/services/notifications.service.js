@@ -1,7 +1,7 @@
 import api from './api'
 
 export const notificationsService = {
-  getListe:   ()   => api.get('/notifications'),
+  getListe: (params) => api.get('/notifications', { params }),
   marquerLue: (id) => api.patch(`/notifications/${id}/lire`),
-  toutLire:   ()   => api.patch('/notifications/tout-lire')
+  toutLire: () => api.patch('/notifications/tout-lire'),
 }

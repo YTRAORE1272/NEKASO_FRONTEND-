@@ -4,7 +4,7 @@
   <!-- White circle -->
   <circle cx="100" cy="100" r="70" fill="white"/>
   <!-- NEKASO text -->
-  <text x="100" y="108" text-anchor="middle" font-family="'Inter', 'Segoe UI', sans-serif" font-size="28" font-weight="700" fill="#1a2e4a" letter-spacing="2">
+  <text x="100" y="108" text-anchor="middle" font-family="'Belleza', 'Segoe UI', sans-serif" font-size="28" font-weight="700" fill="#1a2e4a" letter-spacing="2">
     <tspan>NEK</tspan><tspan fill="#1a2e4a">SO</tspan>
   </text>
   <!-- Green house icon replacing 'A' -->

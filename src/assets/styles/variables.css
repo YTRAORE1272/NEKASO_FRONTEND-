@@ -5,32 +5,71 @@
 	qu'ici et ça change partout dans l'application.
 */
 :root {
-	/* Couleurs principales de NEKASO */
-	--couleur-primaire: #212d4d;    /* Bleu très sombre : boutons, sidebar, titres importants */
-	--couleur-accent: #212d4d;      /* Même couleur que primaire pour les actions principales */
-	--couleur-succes: #00d15a;      /* Vert vif NEKASO : confirmation, succès */
-	--couleur-danger: #ef4444;      /* Rouge : erreurs, retards de paiement */
-	--couleur-warning: #f59e0b;     /* Jaune : statut réservé, avertissements */
+  /* Couleurs principales de NEKASO */
+  --couleur-primaire: #212d4d; /* Bleu très sombre : boutons, sidebar, titres importants */
+  --couleur-accent: #212d4d; /* Même couleur que primaire pour les actions principales */
+  --couleur-succes: #00d15a; /* Vert vif NEKASO : confirmation, succès */
+  --couleur-danger: #ef4444; /* Rouge : erreurs, retards de paiement */
+  --couleur-warning: #f59e0b; /* Jaune : statut réservé, avertissements */
 
-	/* Couleurs de fond */
-	--fond-general: #f5f7fa;        /* Fond gris clair de la page */
-	--fond-carte: #ffffff;          /* Fond blanc des cartes */
-	--fond-sidebar: #1a2e4a;        /* Fond de la barre latérale */
+  /* Couleurs de fond */
+  --fond-general: #f5f7fa; /* Fond gris clair de la page */
+  --fond-carte: #ffffff; /* Fond blanc des cartes */
+  --fond-sidebar: #1a2e4a; /* Fond de la barre latérale */
 
-	/* Couleurs de texte */
-	--texte-principal: #1f2937;     /* Texte foncé pour les titres et contenus */
-	--texte-secondaire: #6b7280;    /* Texte gris pour les informations secondaires */
-	--texte-blanc: #ffffff;
+  /* Couleurs de texte */
+  --texte-principal: #1f2937; /* Texte foncé pour les titres et contenus */
+  --texte-secondaire: #6b7280; /* Texte gris pour les informations secondaires */
+  --texte-blanc: #ffffff;
 
-	/* Bordures et arrondis */
-	--bordure: #e5e7eb;             /* Couleur des bordures */
-	--bordure-radius: 12px;         /* Arrondi des coins des cartes */
-	--bordure-radius-petit: 8px;    /* Arrondi des coins des boutons */
+  /* Bordures et arrondis */
+  --bordure: #e5e7eb; /* Couleur des bordures */
+  --bordure-radius: 12px; /* Arrondi des coins des cartes */
+  --bordure-radius-petit: 8px; /* Arrondi des coins des boutons */
 
-	/* Ombres */
-	--ombre-carte: 0 2px 8px rgba(0, 0, 0, 0.08);
+  /* Ombres */
+  --ombre-carte: 0 2px 8px rgba(0, 0, 0, 0.08);
 
-	/* Dimensions */
-	--sidebar-largeur: 260px;       /* Largeur de la barre latérale */
-	--header-hauteur: 64px;         /* Hauteur de la barre du haut */
+  /* Dimensions */
+  --sidebar-largeur: 260px; /* Largeur de la barre latérale */
+  --header-hauteur: 64px; /* Hauteur de la barre du haut */
+
+  /* Typographie */
+  --font-family-system: 'Belleza', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-size-base: 16px; /* taille de base utilisée partout */
+  --font-size-sm: 14px;
+  --font-size-lg: 18px;
+  --font-size-xl: 24px;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Espace (scale) */
+  --space-xxs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-xxl: 48px;
+
+  /* Conteneurs */
+  --container-max-width: 1180px;
+  --page-gutter: 24px;
+
+  /* Breakpoints */
+  --bp-mobile: 480px;
+  --bp-tablet: 768px;
+  --bp-desktop: 1024px;
+
+  /* Z-index */
+  --z-header: 900;
+  --z-sidebar: 800;
+  --z-modal: 1000;
+
+  /* Transitions */
+  --transition-fast: 0.12s;
+  --transition-medium: 0.2s;
+  --transition-slow: 0.3s;
 }

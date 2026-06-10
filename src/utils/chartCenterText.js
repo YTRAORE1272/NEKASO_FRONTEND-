@@ -15,9 +15,9 @@ export const centerTextPlugin = {
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     ctx.fillStyle = '#1a2234'
-    ctx.font = '600 13px Inter, sans-serif'
+    ctx.font = '600 13px Belleza, sans-serif'
     ctx.fillText('Total', centerX, centerY - 8)
-    ctx.font = '700 22px Inter, sans-serif'
+    ctx.font = '700 22px Belleza, sans-serif'
     ctx.fillText(text, centerX, centerY + 14)
     ctx.restore()
   },
