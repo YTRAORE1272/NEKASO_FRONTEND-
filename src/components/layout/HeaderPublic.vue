@@ -3,23 +3,7 @@
     <div class="header-container">
       <!-- LOGO -->
       <router-link to="/" class="logo" @click="handleLogoClick">
-        <div class="logo-icon">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#1e3a5f"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-            <circle cx="12" cy="12" r="3" />
-          </svg>
-        </div>
-        <span class="logo-text">NEKASO</span>
+        <img src="/logo-nekaso.png?v=2" alt="NEKASO" class="logo-icon" />
       </router-link>
 
       <!-- NAV CENTRE -->
@@ -109,7 +93,7 @@ const handleLogoClick = () => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px;
-  height: 64px;
+  height: 82px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -119,26 +103,17 @@ const handleLogoClick = () => {
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
   text-decoration: none;
   color: #ffffff;
   flex-shrink: 0;
+  min-width: 96px;
 }
 
 .logo-icon {
-  width: 34px;
-  height: 34px;
-  background-color: #ffffff;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.logo-text {
-  font-weight: 700;
-  font-size: 17px;
-  letter-spacing: -0.3px;
+  width: 78px;
+  height: 78px;
+  object-fit: contain;
+  display: block;
 }
 
 /* ── NAV CENTRE ── */

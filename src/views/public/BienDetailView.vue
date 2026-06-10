@@ -453,6 +453,8 @@ import HeaderPublic from '@/components/layout/HeaderPublic.vue'
 import HeaderLocataire from '@/components/layout/HeaderLocataire.vue'
 import BadgeStatut from '@/components/common/BadgeStatut.vue'
 import ChargementSpinner from '@/components/common/ChargementSpinner.vue'
+import { visitesLocataireService } from '@/services/visites-locataire.service'
+import { demandesLocationService } from '@/services/demandes-location.service'
 
 const route = useRoute()
 const router = useRouter()
@@ -529,10 +531,15 @@ const demanderVisite = () => {
 const confirmerVisite = async () => {
   showModalVisite.value = false
 
-  // TODO: Brancher la création réelle de la demande visite.
-  // Pour le moment, on conserve le comportement existant.
-  // (La mise en production doit remplacer ce redirect par un call service/store.)
-  router.push(`/locataire/succes-visite/${bien.value.id}`)
+  try {
+    const idLocataire = authStore.user?.id ?? authStore.utilisateurCourant?.id
+    await visitesLocataireService.demander({ idBien: Number(bien.value.id), idLocataire })
+    router.push(`/locataire/succes-visite/${bien.value.id}`)
+  } catch (err) {
+    console.error(err)
+    const msg = err.response?.data?.message || 'Erreur lors de la création de la demande de visite'
+    alert(msg)
+  }
 }
 
 const demanderLocation = () => {
@@ -544,9 +551,19 @@ const demanderLocation = () => {
   }
 }
 
-const confirmerLocation = () => {
+const confirmerLocation = async () => {
   showModalLocation.value = false
-  router.push(`/locataire/succes-location/${bien.value.id}`)
+
+  try {
+    const idLocataire = authStore.user?.id ?? authStore.utilisateurCourant?.id
+    await demandesLocationService.creer({ idBien: Number(bien.value.id), idLocataire })
+    router.push(`/locataire/succes-location/${bien.value.id}`)
+  } catch (err) {
+    console.error(err)
+    const msg =
+      err.response?.data?.message || 'Erreur lors de la création de la demande de location'
+    alert(msg)
+  }
 }
 
 const contacterWhatsApp = () => {

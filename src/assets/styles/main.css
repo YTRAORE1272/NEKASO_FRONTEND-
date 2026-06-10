@@ -26,6 +26,13 @@ body {
   line-height: 1.6; /* Espace entre les lignes de texte */
 }
 
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
 /* ===== HEADER / NAV GLOBAL ===== */
 .site-header {
   height: var(--header-hauteur);

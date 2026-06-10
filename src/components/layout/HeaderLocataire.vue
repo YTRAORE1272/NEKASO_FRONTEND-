@@ -2,15 +2,7 @@
   <header class="header-locataire">
     <div class="container">
       <router-link to="/" class="logo">
-        <div class="logo-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
-            <path d="M9 9h6"></path>
-            <path d="M9 15h6"></path>
-            <path d="M9 12h6"></path>
-          </svg>
-        </div>
-        <span class="logo-text">NEKASO</span>
+        <img src="/logo-nekaso.png?v=2" alt="NEKASO" class="logo-icon" />
       </router-link>
 
       <nav class="nav">
@@ -57,7 +49,7 @@ const logout = async () => {
   position: sticky;
   top: 0;
   z-index: 100;
-  height: 64px;
+  height: 82px;
   display: flex;
   align-items: center;
 }
@@ -75,27 +67,16 @@ const logout = async () => {
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
   text-decoration: none;
   color: white;
-  font-weight: 700;
-  font-size: 18px;
+  min-width: 96px;
 }
 
 .logo-icon {
-  width: 32px;
-  height: 32px;
-  background-color: white;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #1e293b;
-}
-
-.logo-text {
-  font-weight: 700;
-  letter-spacing: -0.5px;
+  width: 78px;
+  height: 78px;
+  object-fit: contain;
+  display: block;
 }
 
 .nav {

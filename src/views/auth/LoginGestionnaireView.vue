@@ -37,9 +37,7 @@
 
       <div class="login-container">
         <div class="app-logo">
-          <div class="logo-box">
-            <span class="logo-text">NEK<span class="text-success">A</span>SO</span>
-          </div>
+          <img src="/logo-nekaso.png?v=2" alt="NEKASO" class="login-logo" />
         </div>
 
         <h2 class="login-title">Connexion</h2>
@@ -386,25 +384,15 @@ const finishReset = () => {
 .app-logo {
   display: flex;
   justify-content: center;
-  margin-bottom: 40px;
+  margin-bottom: 32px;
 }
 
-.logo-box {
-  width: 90px;
-  height: 90px;
-  background-color: #1e293b;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 10px 15px -3px rgba(30, 41, 59, 0.1);
-}
-
-.logo-text {
-  color: #ffffff;
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: -0.5px;
+.login-logo {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 10px 15px rgba(30, 41, 59, 0.12));
 }
 
 .login-title {

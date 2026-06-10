@@ -5,7 +5,15 @@
     <div class="page-content">
       <div class="container">
         <router-link :to="`/biens/${bien?.id}`" class="btn-back">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
           </svg>
@@ -15,14 +23,18 @@
         <div class="form-container">
           <div class="form-header">
             <h1 class="form-title">Demander une location</h1>
-            <p class="form-subtitle">Remplissez ce formulaire pour soumettre votre demande de location</p>
+            <p class="form-subtitle">
+              Remplissez ce formulaire pour soumettre votre demande de location
+            </p>
           </div>
 
           <div class="bien-preview" v-if="bien">
             <img :src="bien.photos?.[0]" :alt="bien.titre" class="bien-image" />
             <div>
               <h3 class="bien-titre">{{ bien.titre }}</h3>
-              <div class="bien-location">{{ bien.adresse?.quartier }}, {{ bien.adresse?.ville }}</div>
+              <div class="bien-location">
+                {{ bien.adresse?.quartier }}, {{ bien.adresse?.ville }}
+              </div>
               <div class="bien-prix">{{ formatMontant(bien.loyer) }}/mois</div>
             </div>
           </div>
@@ -30,7 +42,7 @@
           <form @submit.prevent="submitDemande" class="form">
             <div class="form-section">
               <h3 class="section-title">Informations personnelles</h3>
-              
+
               <div class="form-group">
                 <label>Nom complet *</label>
                 <input type="text" v-model="form.nom" placeholder="Votre nom complet" required />
@@ -38,7 +50,12 @@
 
               <div class="form-group">
                 <label>Téléphone WhatsApp *</label>
-                <input type="tel" v-model="form.telephone" placeholder="+221 77 123 45 67" required />
+                <input
+                  type="tel"
+                  v-model="form.telephone"
+                  placeholder="+221 77 123 45 67"
+                  required
+                />
               </div>
 
               <div class="form-group">
@@ -49,7 +66,7 @@
 
             <div class="form-section">
               <h3 class="section-title">Détails de la location</h3>
-              
+
               <div class="form-row">
                 <div class="form-group">
                   <label>Date d'entrée souhaitée *</label>
@@ -70,31 +87,54 @@
 
               <div class="form-group">
                 <label>Nombre d'occupants *</label>
-                <input type="number" v-model.number="form.nombreOccupants" min="1" placeholder="Ex: 2" required />
+                <input
+                  type="number"
+                  v-model.number="form.nombreOccupants"
+                  min="1"
+                  placeholder="Ex: 2"
+                  required
+                />
               </div>
             </div>
 
             <div class="form-section">
               <h3 class="section-title">Informations complémentaires</h3>
-              
+
               <div class="form-group">
                 <label>Profession / Activité</label>
-                <input type="text" v-model="form.profession" placeholder="Ex: Ingénieur, Étudiant..." />
+                <input
+                  type="text"
+                  v-model="form.profession"
+                  placeholder="Ex: Ingénieur, Étudiant..."
+                />
               </div>
 
               <div class="form-group">
                 <label>Message ou demandes spécifiques</label>
-                <textarea v-model="form.message" placeholder="Informations supplémentaires..." rows="4"></textarea>
+                <textarea
+                  v-model="form.message"
+                  placeholder="Informations supplémentaires..."
+                  rows="4"
+                ></textarea>
               </div>
             </div>
 
             <div class="info-box">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="12" y1="16" x2="12" y2="12"></line>
                 <line x1="12" y1="8" x2="12.01" y2="8"></line>
               </svg>
-              Votre demande sera étudiée par le gestionnaire. Vous recevrez une réponse sous 48h maximum.
+              Votre demande sera étudiée par le gestionnaire. Vous recevrez une réponse sous 48h
+              maximum.
             </div>
 
             <button type="submit" class="btn-submit" :disabled="isSubmitting">
@@ -114,6 +154,8 @@ import { useBiensPublicsStore } from '@/stores/biensPublics.store'
 import { useDemandesLocataireStore } from '@/stores/demandesLocataire.store'
 import { useToast } from 'vue-toastification'
 import HeaderPublic from '@/components/layout/HeaderPublic.vue'
+import { useAuthStore } from '@/stores/auth.store'
+import { demandesLocationService } from '@/services/demandes-location.service'
 
 const route = useRoute()
 const router = useRouter()
@@ -132,12 +174,14 @@ const form = reactive({
   duree: '',
   nombreOccupants: 1,
   profession: '',
-  message: ''
+  message: '',
 })
+
+const authStore = useAuthStore()
 
 onMounted(async () => {
   await biensStore.chargerBiens()
-  bien.value = biensStore.biens.find(b => b.id === route.params.id)
+  bien.value = biensStore.biens.find((b) => b.id === route.params.id)
 })
 
 const formatMontant = (montant) => {
@@ -147,15 +191,20 @@ const formatMontant = (montant) => {
 
 const submitDemande = async () => {
   isSubmitting.value = true
-  
+
   try {
-    // TODO: API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
+    if (authStore.isAuthenticated) {
+      const idLocataire = authStore.user?.id ?? authStore.utilisateurCourant?.id
+      await demandesLocationService.creer({ idBien: Number(bien.value.id), idLocataire })
+    } else {
+      // Ancien comportement pour non-auth: garder le mock
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+    }
+
     toast.success('Demande de location envoyée')
     router.push({ name: 'succes-location', params: { bienId: bien.value.id } })
   } catch (error) {
-    toast.error('Erreur lors de l\'envoi de la demande')
+    toast.error(error.response?.data?.message || "Erreur lors de l'envoi de la demande")
   } finally {
     isSubmitting.value = false
   }

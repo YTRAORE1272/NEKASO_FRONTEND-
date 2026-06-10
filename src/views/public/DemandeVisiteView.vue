@@ -5,7 +5,15 @@
     <div class="page-content">
       <div class="container">
         <router-link to="/catalogue" class="btn-back">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
           </svg>
@@ -22,7 +30,9 @@
             <img :src="bien.photos?.[0]" :alt="bien.titre" class="bien-image" />
             <div>
               <h3 class="bien-titre">{{ bien.titre }}</h3>
-              <div class="bien-location">{{ bien.adresse?.quartier }}, {{ bien.adresse?.ville }}</div>
+              <div class="bien-location">
+                {{ bien.adresse?.quartier }}, {{ bien.adresse?.ville }}
+              </div>
             </div>
           </div>
 
@@ -54,7 +64,11 @@
 
             <div class="form-group">
               <label>Message (optionnel)</label>
-              <textarea v-model="form.message" placeholder="Informations complémentaires..." rows="4"></textarea>
+              <textarea
+                v-model="form.message"
+                placeholder="Informations complémentaires..."
+                rows="4"
+              ></textarea>
             </div>
 
             <button type="submit" class="btn-submit" :disabled="isSubmitting">
@@ -74,6 +88,8 @@ import { useBiensPublicsStore } from '@/stores/biensPublics.store'
 import { useVisitesLocataireStore } from '@/stores/visitesLocataire.store'
 import { useToast } from 'vue-toastification'
 import HeaderPublic from '@/components/layout/HeaderPublic.vue'
+import { useAuthStore } from '@/stores/auth.store'
+import { visitesLocataireService } from '@/services/visites-locataire.service'
 
 const route = useRoute()
 const router = useRouter()
@@ -89,25 +105,33 @@ const form = reactive({
   telephone: '',
   date: '',
   heure: '',
-  message: ''
+  message: '',
 })
+
+const authStore = useAuthStore()
 
 onMounted(async () => {
   await biensStore.chargerBiens()
-  bien.value = biensStore.biens.find(b => b.id === route.params.id)
+  bien.value = biensStore.biens.find((b) => b.id === route.params.id)
 })
 
 const submitDemande = async () => {
   isSubmitting.value = true
-  
+
   try {
-    // TODO: API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
+    if (authStore.isAuthenticated) {
+      // Envoi minimal selon contrat: { idBien, idLocataire }
+      const idLocataire = authStore.user?.id ?? authStore.utilisateurCourant?.id
+      await visitesLocataireService.demander({ idBien: Number(bien.value.id), idLocataire })
+    } else {
+      // Ancien comportement pour utilisateur non-authentifié (mock)
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+    }
+
     toast.success('Demande de visite envoyée')
     router.push({ name: 'succes-visite', params: { bienId: bien.value.id } })
   } catch (error) {
-    toast.error('Erreur lors de l\'envoi de la demande')
+    toast.error(error.response?.data?.message || "Erreur lors de l'envoi de la demande")
   } finally {
     isSubmitting.value = false
   }
