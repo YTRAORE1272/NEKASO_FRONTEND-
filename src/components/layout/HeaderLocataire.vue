@@ -1,7 +1,7 @@
 <template>
   <header class="header-locataire">
     <div class="container">
-      <router-link to="/" class="logo">
+      <router-link to="/locataire/mes-locations" class="logo">
         <img src="/logo-nekaso.png?v=2" alt="NEKASO" class="logo-icon" />
       </router-link>
 

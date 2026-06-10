@@ -1,6 +1,7 @@
 <template>
   <div class="demande-location">
-    <HeaderPublic />
+    <HeaderLocataire v-if="authStore.isAuthenticated && authStore.user?.role === 'LOCATAIRE'" />
+    <HeaderPublic v-else />
 
     <div class="page-content">
       <div class="container">
@@ -154,6 +155,7 @@ import { useBiensPublicsStore } from '@/stores/biensPublics.store'
 import { useDemandesLocataireStore } from '@/stores/demandesLocataire.store'
 import { useToast } from 'vue-toastification'
 import HeaderPublic from '@/components/layout/HeaderPublic.vue'
+import HeaderLocataire from '@/components/layout/HeaderLocataire.vue'
 import { useAuthStore } from '@/stores/auth.store'
 import { demandesLocationService } from '@/services/demandes-location.service'
 

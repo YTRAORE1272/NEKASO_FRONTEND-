@@ -1,6 +1,7 @@
 <template>
   <div class="landing">
-    <HeaderPublic />
+    <HeaderLocataire v-if="authStore.isAuthenticated && authStore.user?.role === 'LOCATAIRE'" />
+    <HeaderPublic v-else />
 
     <!-- ══════ HERO ══════ -->
     <section class="hero">
@@ -128,12 +129,15 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBiensPublicsStore } from '@/stores/biensPublics.store'
+import { useAuthStore } from '@/stores/auth.store'
 import HeaderPublic from '@/components/layout/HeaderPublic.vue'
+import HeaderLocataire from '@/components/layout/HeaderLocataire.vue'
 import CarteBienPublic from '@/components/locataire/CarteBienPublic.vue'
 import ChargementSpinner from '@/components/common/ChargementSpinner.vue'
 
 const router = useRouter()
 const biensStore = useBiensPublicsStore()
+const authStore = useAuthStore()
 
 const searchQuery = ref('')
 const quartiers = ['Plateau', 'Almadies', 'Mermoz', 'Ngor', 'Yoff', 'Sacré-Cœur']

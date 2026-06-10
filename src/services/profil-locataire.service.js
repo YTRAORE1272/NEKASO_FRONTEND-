@@ -1,28 +1,21 @@
+import api from './api'
+
 export const profilLocataireService = {
   async getProfil() {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve({
-          nom: 'Diop',
-          prenom: 'Aminata',
-          telephone: '+221 77 123 45 67',
-          whatsapp: '+221 77 123 45 67',
-          email: 'aminata.diop@example.com',
-          notifications: {
-            email: true,
-            whatsapp: true,
-            sms: false
-          }
-        })
-      }, 500)
-    })
+    try {
+      const res = await api.get('/locataire/profil')
+      return res.data
+    } catch (e) {
+      throw e
+    }
   },
-  
+
   async updateProfil(data) {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve({ success: true, data })
-      }, 500)
-    })
-  }
+    try {
+      const res = await api.put('/locataire/profil', data)
+      return { success: true, data: res.data }
+    } catch (e) {
+      throw e
+    }
+  },
 }

@@ -1,6 +1,6 @@
 <template>
   <div class="catalogue">
-    <HeaderLocataire v-if="authStore.isAuthenticated" />
+    <HeaderLocataire v-if="authStore.isAuthenticated && authStore.user?.role === 'LOCATAIRE'" />
     <HeaderPublic v-else />
 
     <div class="catalogue-content">

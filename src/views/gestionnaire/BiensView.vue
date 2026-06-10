@@ -57,22 +57,66 @@
         </div>
       </div>
 
-      <!-- Grid -->
-      <div class="biens-grid">
-        <CarteBien
-          v-for="bien in biensPagines"
-          :key="bien.id"
-          :bien="bien"
-          @view="viewDetails"
-          @edit="openEditModal"
-          @archive="openArchiveModal"
-        />
-      </div>
-      
-      <div v-if="biensAffiches.length === 0" class="empty-state">
-        <div class="empty-content">
-          <p>Aucun bien trouvé</p>
-        </div>
+      <!-- Table -->
+      <div class="table-responsive">
+        <table class="biens-table">
+          <thead>
+            <tr>
+              <th>Photo</th>
+              <th>Intitulé</th>
+              <th>Localisation</th>
+              <th>Type</th>
+              <th>Loyer</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="bien in biensPagines" :key="bien.id">
+              <td>
+                <div class="bien-photo">
+                  <img :src="getPhoto(bien)" :alt="getIntitule(bien)" />
+                </div>
+              </td>
+              <td class="bien-intitule">{{ getIntitule(bien) }}</td>
+              <td class="bien-localisation">{{ bien.adresse }}</td>
+              <td class="bien-type">{{ formatTypeBien(bien.typeBien) }}</td>
+              <td class="bien-loyer">{{ formatMontant(bien.loyer) }} FCFA</td>
+              <td>
+                <span :class="['status-badge', getStatutClass(bien.statutBien)]">
+                  {{ formatStatut(bien.statutBien) }}
+                </span>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button class="action-btn" title="Voir les détails" @click="viewDetails(bien.id)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </button>
+                  <button class="action-btn" title="Modifier" @click="openEditModal(bien)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                    </svg>
+                  </button>
+                  <button class="action-btn action-btn--orange" title="Archiver" @click="openArchiveModal(bien)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr v-if="biensAffiches.length === 0">
+              <td colspan="7" class="empty-state">
+                <div class="empty-content">
+                  <p>Aucun bien trouvé</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -133,7 +177,6 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBiensStore } from '@/stores/biens.store'
 import { useFormat } from '@/composables/useFormat'
-import CarteBien from '@/components/biens/CarteBien.vue'
 import FormulaireBien from '@/components/biens/FormulaireBien.vue'
 import ModalConfirmation from '@/components/common/ModalConfirmation.vue'
 
@@ -389,10 +432,131 @@ const viewDetails = (id) => {
   outline: none;
 }
 
-.biens-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+.biens-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.biens-table thead th {
+  background-color: white;
+  border-bottom: 1px solid #f1f5f9;
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.biens-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.biens-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.biens-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.biens-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.bien-photo {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.bien-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bien-intitule {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.bien-localisation {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.bien-type, .bien-loyer {
+  color: #334155;
+  font-size: 14px;
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 90px;
+  padding: 6px 0;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+}
+
+.status-badge--loue {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+.status-badge--disponible {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.status-badge--reserve {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.status-badge--archive {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+/* Action buttons */
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  color: #334155;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  border-radius: 6px;
+}
+
+.action-btn:hover {
+  background-color: #f1f5f9;
+}
+
+.action-btn--orange {
+  color: #f59e0b;
+}
+
+.action-btn--orange:hover {
+  background-color: #fffbeb;
 }
 
 /* Empty state */

@@ -1,6 +1,6 @@
 <template>
   <div class="bien-detail">
-    <HeaderLocataire v-if="authStore.isAuthenticated" />
+    <HeaderLocataire v-if="authStore.isAuthenticated && authStore.user?.role === 'LOCATAIRE'" />
     <HeaderPublic v-else />
 
     <div class="detail-content">
