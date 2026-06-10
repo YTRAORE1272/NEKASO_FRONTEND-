@@ -1,13 +1,13 @@
 import api from './api'
 
 export const contratsService = {
-  getListe: () => api.get('/contrats/gestionnaire'),
+  getListe: (params) => api.get('/contrats/gestionnaire', { params }),
 
   /*
     Récupère la liste des candidats (visites confirmées)
     pour le wizard de création de contrat.
   */
-  getCandidats: () => api.get('/visites/confirmees'),
+  getCandidats: (params) => api.get('/visites/confirmees', { params }),
 
   /*
     Crée un nouveau contrat de bail.
@@ -24,7 +24,8 @@ export const contratsService = {
     
     'blob' signifie "Binary Large Object" : des données binaires brutes.
   */
-  telechargerPDF: (id) => api.get(`/contrats/${id}/pdf`, {
-    responseType: 'blob'
-  })
+  telechargerPDF: (id) =>
+    api.get(`/contrats/${id}/pdf`, {
+      responseType: 'blob',
+    }),
 }

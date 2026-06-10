@@ -10,14 +10,24 @@
           <div class="hero-badge">🇸🇳 Plateforme sénégalaise</div>
           <h1 class="hero-title">Trouvez votre logement à Dakar</h1>
           <p class="hero-subtitle">
-            NEKASO simplifie la location immobilière au Sénégal. Chambres, studios,
-            appartements et villas — dans les meilleurs quartiers de Dakar.
+            NEKASO simplifie la location immobilière au Sénégal. Chambres, studios, appartements et
+            villas — dans les meilleurs quartiers de Dakar.
           </p>
 
           <!-- SEARCH BAR -->
           <div class="search-bar">
             <div class="search-input-wrapper">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <circle cx="11" cy="11" r="8"></circle>
                 <path d="m21 21-4.35-4.35"></path>
               </svg>
@@ -39,7 +49,15 @@
               class="location-tag"
               @click="searchByQuartier(quartier)"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
                 <circle cx="12" cy="10" r="3"></circle>
               </svg>
@@ -57,7 +75,17 @@
           <!-- Biens vérifiés -->
           <div class="feature-card">
             <div class="feature-icon feature-icon--blue">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
               </svg>
@@ -69,7 +97,17 @@
           <!-- Paiements validés -->
           <div class="feature-card">
             <div class="feature-icon feature-icon--green">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                 <path d="m9 12 2 2 4-4"></path>
               </svg>
@@ -81,8 +119,20 @@
           <!-- Support WhatsApp -->
           <div class="feature-card">
             <div class="feature-icon feature-icon--amber">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
+                ></path>
               </svg>
             </div>
             <h3 class="feature-title">Support WhatsApp</h3>
@@ -100,9 +150,7 @@
             <h2 class="section-title">Biens en vedette</h2>
             <p class="section-subtitle">Sélection de logements disponibles à Dakar</p>
           </div>
-          <router-link to="/catalogue" class="link-voir-tout">
-            Voir tout →
-          </router-link>
+          <router-link to="/catalogue" class="link-voir-tout"> Voir tout → </router-link>
         </div>
 
         <div class="properties-grid" v-if="featuredBiens.length > 0">
@@ -144,8 +192,8 @@ const quartiers = ['Plateau', 'Almadies', 'Mermoz', 'Ngor', 'Yoff', 'Sacré-Cœu
 const featuredBiens = ref([])
 
 onMounted(async () => {
-  await biensStore.chargerBiens()
-  featuredBiens.value = biensStore.biens.filter(b => b.statut === 'disponible').slice(0, 3)
+  await biensStore.chargerBiens({ page: 1, size: 20 })
+  featuredBiens.value = biensStore.biens.filter((b) => b.statut === 'disponible').slice(0, 3)
 })
 
 const handleSearch = () => {

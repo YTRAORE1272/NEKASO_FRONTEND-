@@ -11,7 +11,6 @@
     <div class="visites-header">
       <div>
         <h2 class="visites-titre">Demandes de visites</h2>
-        <p class="visites-sous-titre">Demandes et planification</p>
       </div>
       <div class="visites-header-actions">
         <button
@@ -19,9 +18,19 @@
           class="btn-demandes-location"
           @click="$router.push('/gestionnaire/demandes-location')"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-            <path d="M16 3h-8l-2 4h12l-2-4z"/>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+            <path d="M16 3h-8l-2 4h12l-2-4z" />
           </svg>
           Demandes de location
           <span v-if="nbDemandesLocation > 0" class="badge-compteur">{{ nbDemandesLocation }}</span>
@@ -39,16 +48,25 @@
       <div class="carte-toolbar">
         <select v-model="filtreStatut" class="filtre-select" aria-label="Filtrer par statut">
           <option value="">Tous statuts</option>
-          <option value="EN_ATTENTE">En attente</option>
           <option value="CONFIRMEE">Confirmée</option>
           <option value="REFUSEE">Refusée</option>
         </select>
         <button type="button" class="btn-export" @click="exporterCalendrier">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-            <line x1="16" y1="2" x2="16" y2="6"/>
-            <line x1="8" y1="2" x2="8" y2="6"/>
-            <line x1="3" y1="10" x2="21" y2="10"/>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
           </svg>
           Exporter calendrier
         </button>
@@ -69,7 +87,9 @@
           </thead>
           <tbody>
             <tr v-for="visite in visitesFiltrees" :key="visite.id">
-              <td><strong>{{ visite.candidat?.nom || '—' }}</strong></td>
+              <td>
+                <strong>{{ visite.candidat?.nom || '—' }}</strong>
+              </td>
               <td>{{ visite.candidat?.telephone || '—' }}</td>
               <td>{{ visite.bien?.adresse || '—' }}</td>
               <td>{{ visite.dateVisite || '—' }}</td>
@@ -77,16 +97,44 @@
               <td><BadgeStatut :statut="visite.statut" /></td>
               <td class="cellule-actions">
                 <template v-if="visite.statut === 'EN_ATTENTE'">
-                  <button type="button" class="btn-action btn-action--confirmer" @click="confirmer(visite.id)">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <polyline points="20 6 9 17 4 12"/>
+                  <button
+                    type="button"
+                    class="btn-action btn-action--confirmer"
+                    @click="confirmer(visite.id)"
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
                     </svg>
                     Confirmer
                   </button>
-                  <button type="button" class="btn-action btn-action--refuser" @click="refuser(visite.id)">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <line x1="18" y1="6" x2="6" y2="18"/>
-                      <line x1="6" y1="6" x2="18" y2="18"/>
+                  <button
+                    type="button"
+                    class="btn-action btn-action--refuser"
+                    @click="refuser(visite.id)"
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
                     </svg>
                     Refuser
                   </button>
@@ -98,21 +146,39 @@
                     class="btn-action btn-action--attribuer"
                     @click="$router.push('/gestionnaire/demandes-location')"
                   >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                      <polyline points="14 2 14 8 20 8"/>
-                      <line x1="16" y1="13" x2="8" y2="13"/>
-                      <line x1="16" y1="17" x2="8" y2="17"/>
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                      <line x1="16" y1="13" x2="8" y2="13" />
+                      <line x1="16" y1="17" x2="8" y2="17" />
                     </svg>
                     Attribuer
                   </button>
-                  <button type="button" class="btn-action btn-action--texte" @click="ouvrirModaleReprogrammation(visite)">
+                  <button
+                    type="button"
+                    class="btn-action btn-action--texte"
+                    @click="ouvrirModaleReprogrammation(visite)"
+                  >
                     Reprogrammer
                   </button>
                 </template>
 
                 <template v-else-if="visite.statut === 'REFUSEE'">
-                  <button type="button" class="btn-action btn-action--texte" @click="ouvrirModaleReprogrammation(visite)">
+                  <button
+                    type="button"
+                    class="btn-action btn-action--texte"
+                    @click="ouvrirModaleReprogrammation(visite)"
+                  >
                     Reprogrammer
                   </button>
                 </template>
@@ -122,12 +188,7 @@
         </table>
       </div>
 
-      <MessageVide
-        v-else
-        icone="📅"
-        texte="Aucune demande de visite"
-        class="visites-vide"
-      />
+      <MessageVide v-else icone="📅" texte="Aucune demande de visite" class="visites-vide" />
     </div>
 
     <ModalNouvelleVisite
@@ -162,18 +223,18 @@ const formulaireVide = () => ({
   contact: '',
   bienId: mockBiens[0]?.id ?? '',
   date: '',
-  heure: ''
+  heure: '',
 })
 
 const formulaire = ref(formulaireVide())
 
-const nbDemandesLocation = computed(() =>
-  mockDemandesLocation.filter(d => d.statut === 'EN_ATTENTE').length
+const nbDemandesLocation = computed(
+  () => mockDemandesLocation.filter((d) => d.statut === 'EN_ATTENTE').length,
 )
 
 const visitesFiltrees = computed(() => {
   if (!filtreStatut.value) return visitesStore.visites
-  return visitesStore.visites.filter(v => v.statut === filtreStatut.value)
+  return visitesStore.visites.filter((v) => v.statut === filtreStatut.value)
 })
 
 function confirmer(id) {
@@ -197,7 +258,7 @@ function ouvrirModaleReprogrammation(visite) {
     contact: visite.candidat?.telephone || '',
     bienId: visite.bien?.id ?? '',
     date: visite.dateVisite || '',
-    heure: visite.heureVisite || ''
+    heure: visite.heureVisite || '',
   }
   modaleVisible.value = true
 }
@@ -208,16 +269,21 @@ function fermerModale() {
 }
 
 async function enregistrer() {
-  const bienChoisi = biensDisponibles.value.find(b => b.id === Number(formulaire.value.bienId))
+  const bienChoisi = biensDisponibles.value.find((b) => b.id === Number(formulaire.value.bienId))
   const bienPayload = bienChoisi
-    ? { id: bienChoisi.id, adresse: bienChoisi.adresse.split(',')[0].trim(), typeBien: bienChoisi.typeBien, loyer: bienChoisi.loyer }
+    ? {
+        id: bienChoisi.id,
+        adresse: bienChoisi.adresse.split(',')[0].trim(),
+        typeBien: bienChoisi.typeBien,
+        loyer: bienChoisi.loyer,
+      }
     : null
 
   if (visiteEnEdition.value) {
     await visitesStore.reprogrammer(
       visiteEnEdition.value,
       formulaire.value.date,
-      formulaire.value.heure
+      formulaire.value.heure,
     )
   } else {
     await visitesStore.creer({
@@ -225,9 +291,9 @@ async function enregistrer() {
       heureVisite: formulaire.value.heure,
       candidat: {
         nom: formulaire.value.candidat,
-        telephone: formulaire.value.contact
+        telephone: formulaire.value.contact,
       },
-      bien: bienPayload
+      bien: bienPayload,
     })
   }
 
@@ -235,7 +301,7 @@ async function enregistrer() {
 }
 
 function exporterCalendrier() {
-  const evenements = visitesFiltrees.value.map(v => {
+  const evenements = visitesFiltrees.value.map((v) => {
     const date = (v.dateVisite || '').replace(/-/g, '')
     const heure = (v.heureVisite || '09:00').replace(':', '') + '00'
     return [
@@ -244,10 +310,16 @@ function exporterCalendrier() {
       `DTSTART:${date}T${heure}`,
       `SUMMARY:Visite - ${v.candidat?.nom || 'Candidat'}`,
       `DESCRIPTION:${v.bien?.adresse || ''}`,
-      'END:VEVENT'
+      'END:VEVENT',
     ].join('\r\n')
   })
-  const contenu = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//NEKASO//FR', ...evenements, 'END:VCALENDAR'].join('\r\n')
+  const contenu = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//NEKASO//FR',
+    ...evenements,
+    'END:VCALENDAR',
+  ].join('\r\n')
   const blob = new Blob([contenu], { type: 'text/calendar;charset=utf-8' })
   const url = URL.createObjectURL(blob)
   const lien = document.createElement('a')
@@ -264,28 +336,26 @@ onMounted(() => visitesStore.charger())
 .visites-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 20px;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-shrink: 0;
 }
-
 .visites-titre {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--couleur-primaire);
   margin: 0;
 }
-
 .visites-sous-titre {
   font-size: 13px;
   color: var(--texte-secondaire);
-  margin: 4px 0 0;
+  margin: 2px 0 0;
 }
-
+/* Aligner les actions (icônes / profil) sur la même ligne que le titre */
 .visites-header-actions {
   display: flex;
-  gap: 10px;
   align-items: center;
-  flex-shrink: 0;
+  gap: 12px;
 }
 
 .btn-visites-primaire {
@@ -413,7 +483,10 @@ onMounted(() => visitesStore.charger())
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
-  transition: opacity 0.2s, background-color 0.2s, color 0.2s;
+  transition:
+    opacity 0.2s,
+    background-color 0.2s,
+    color 0.2s;
 }
 
 .btn-action--confirmer,

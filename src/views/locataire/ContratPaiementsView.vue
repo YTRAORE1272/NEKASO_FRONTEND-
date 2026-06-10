@@ -1,152 +1,250 @@
 <template>
-    <div class="contrat-paiements">
-      <div class="container">
-        <div class="page-header">
-          <h1 class="page-title">Contrat & Paiements</h1>
-          <p class="page-subtitle">Consultez votre bail et l'historique des loyers validés par votre gestionnaire.</p>
+  <div class="contrat-paiements">
+    <div class="container">
+      <div class="page-header">
+        <h1 class="page-title">Contrat & Paiements</h1>
+        <p class="page-subtitle">
+          Consultez votre bail et l'historique des loyers validés par votre gestionnaire.
+        </p>
+      </div>
+
+      <!-- TABS (Pills) -->
+      <div class="tabs-container">
+        <div class="tabs">
+          <button
+            class="tab"
+            :class="{ active: activeTab === 'contrat' }"
+            @click="activeTab = 'contrat'"
+          >
+            Contrat
+          </button>
+          <button
+            class="tab"
+            :class="{ active: activeTab === 'historique' }"
+            @click="activeTab = 'historique'"
+          >
+            Historique
+          </button>
         </div>
+      </div>
 
-        <!-- TABS (Pills) -->
-        <div class="tabs-container">
-          <div class="tabs">
-            <button class="tab" :class="{ active: activeTab === 'contrat' }" @click="activeTab = 'contrat'">
-              Contrat
-            </button>
-            <button class="tab" :class="{ active: activeTab === 'historique' }" @click="activeTab = 'historique'">
-              Historique
-            </button>
-          </div>
-        </div>
-
-        <!-- CONTRAT TAB -->
-        <div v-if="activeTab === 'contrat'" class="tab-content">
-          <div class="contrat-card">
-            <div class="contrat-header">
-              <div class="header-left">
-                <div class="contrat-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                    <polyline points="10 9 9 9 8 9"></polyline>
-                  </svg>
-                </div>
-                <div class="contrat-title-block">
-                  <h2 class="contrat-title">Bail de location résidentielle</h2>
-                  <div class="contrat-ref">Référence: {{ contrat?.reference || 'NKS-2025-P5' }}</div>
-                </div>
-              </div>
-              <button class="btn-download" @click="telechargerPDF">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="7 10 12 15 17 10"></polyline>
-                  <line x1="12" y1="15" x2="12" y2="3"></line>
-                </svg>
-                Télécharger PDF
-              </button>
-            </div>
-
-            <div class="contrat-grid">
-              <div class="contrat-section">
-                <div class="section-label">Bien loué</div>
-                <div class="section-value">{{ contrat?.bien?.titre || 'Appartement familial' }}</div>
-              </div>
-
-              <div class="contrat-section">
-                <div class="section-label">Adresse</div>
-                <div class="section-value">{{ contrat?.bien?.adresse?.quartier || 'Sacré-Cœur' }}, {{ contrat?.bien?.adresse?.ville || 'Dakar' }}</div>
-              </div>
-
-              <div class="contrat-section">
-                <div class="section-label">Loyer mensuel</div>
-                <div class="section-value">{{ formatMontant(contrat?.loyerMensuel || 350000) }}</div>
-              </div>
-
-              <div class="contrat-section">
-                <div class="section-label">Caution</div>
-                <div class="section-value">{{ formatMontant(contrat?.caution || 700000) }}</div>
-              </div>
-
-              <div class="contrat-section">
-                <div class="section-label">Date de début</div>
-                <div class="section-value">{{ formatDate(contrat?.dateDebut) || '01/09/2025' }}</div>
-              </div>
-
-              <div class="contrat-section">
-                <div class="section-label">Date de fin</div>
-                <div class="section-value">{{ formatDate(contrat?.dateFin) || '31/08/2026' }}</div>
-              </div>
-
-              <div class="contrat-section">
-                <div class="section-label">Gestionnaire</div>
-                <div class="section-value">{{ contrat?.gestionnaire?.nom || 'Mme Faye' }}</div>
-              </div>
-
-              <div class="contrat-section">
-                <div class="section-label">Contact</div>
-                <div class="section-value">{{ contrat?.gestionnaire?.telephone || '+221 77 567 89 01' }}</div>
-              </div>
-            </div>
-
-            <div class="info-banner bottom-banner">
-              <div class="alert-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="16" x2="12" y2="12"></line>
-                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+      <!-- CONTRAT TAB -->
+      <div v-if="activeTab === 'contrat'" class="tab-content">
+        <div class="contrat-card">
+          <div class="contrat-header">
+            <div class="header-left">
+              <div class="contrat-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
                 </svg>
               </div>
-              Pour toute modification, contactez directement votre gestionnaire via WhatsApp.
+              <div class="contrat-title-block">
+                <h2 class="contrat-title">Bail de location résidentielle</h2>
+                <div class="contrat-ref">Référence: {{ contrat?.reference || 'NKS-2025-P5' }}</div>
+              </div>
+            </div>
+            <button class="btn-download" @click="telechargerPDF">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Télécharger PDF
+            </button>
+          </div>
+
+          <div class="contrat-grid">
+            <div class="contrat-section">
+              <div class="section-label">Bien loué</div>
+              <div class="section-value">{{ contrat?.bien?.titre || 'Appartement familial' }}</div>
+            </div>
+
+            <div class="contrat-section">
+              <div class="section-label">Adresse</div>
+              <div class="section-value">
+                {{ contrat?.bien?.adresse?.quartier || 'Sacré-Cœur' }},
+                {{ contrat?.bien?.adresse?.ville || 'Dakar' }}
+              </div>
+            </div>
+
+            <div class="contrat-section">
+              <div class="section-label">Loyer mensuel</div>
+              <div class="section-value">{{ formatMontant(contrat?.loyerMensuel || 350000) }}</div>
+            </div>
+
+            <div class="contrat-section">
+              <div class="section-label">Caution</div>
+              <div class="section-value">{{ formatMontant(contrat?.caution || 700000) }}</div>
+            </div>
+
+            <div class="contrat-section">
+              <div class="section-label">Date de début</div>
+              <div class="section-value">{{ formatDate(contrat?.dateDebut) || '01/09/2025' }}</div>
+            </div>
+
+            <div class="contrat-section">
+              <div class="section-label">Date de fin</div>
+              <div class="section-value">{{ formatDate(contrat?.dateFin) || '31/08/2026' }}</div>
+            </div>
+
+            <div class="contrat-section">
+              <div class="section-label">Gestionnaire</div>
+              <div class="section-value">{{ contrat?.gestionnaire?.nom || 'Mme Faye' }}</div>
+            </div>
+
+            <div class="contrat-section">
+              <div class="section-label">Contact</div>
+              <div class="section-value">
+                {{ contrat?.gestionnaire?.telephone || '+221 77 567 89 01' }}
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- HISTORIQUE TAB -->
-        <div v-if="activeTab === 'historique'" class="tab-content">
-          <div class="info-banner top-banner">
+          <div class="info-banner bottom-banner">
             <div class="alert-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="12" y1="16" x2="12" y2="12"></line>
                 <line x1="12" y1="8" x2="12.01" y2="8"></line>
               </svg>
             </div>
-            Historique validé par votre gestionnaire. Les paiements s'effectuent en Orange Money, Wave ou espèces — aucune transaction en ligne.
-          </div>
-
-          <div class="paiements-table-container">
-            <table class="paiements-table">
-              <thead>
-                <tr>
-                  <th>MOIS</th>
-                  <th>MONTANT</th>
-                  <th>DATE DE VALIDATION</th>
-                  <th>STATUT</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="paiement in displayPaiements" :key="paiement.id">
-                  <td class="font-medium">{{ paiement.mois }}</td>
-                  <td class="font-bold">{{ formatMontant(paiement.montant) }}</td>
-                  <td>{{ paiement.dateValidation ? paiement.dateValidation : '—' }}</td>
-                  <td>
-                    <div class="status-pill" :class="getPaiementStatusClass(paiement.statut)">
-                      <svg v-if="paiement.statut === 'paye'" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                      <svg v-else-if="paiement.statut === 'attente'" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                      <svg v-else xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                      {{ formatPaiementStatus(paiement.statut) }}
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            Pour toute modification, contactez directement votre gestionnaire via WhatsApp.
           </div>
         </div>
-
-        <ChargementSpinner v-if="isLoading" />
       </div>
+
+      <!-- HISTORIQUE TAB -->
+      <div v-if="activeTab === 'historique'" class="tab-content">
+        <div class="info-banner top-banner">
+          <div class="alert-icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+          </div>
+          Historique validé par votre gestionnaire. Les paiements s'effectuent en Orange Money, Wave
+          ou espèces — aucune transaction en ligne.
+        </div>
+
+        <div class="paiements-table-container">
+          <table class="paiements-table">
+            <thead>
+              <tr>
+                <th>MOIS</th>
+                <th>MONTANT</th>
+                <th>DATE DE VALIDATION</th>
+                <th>STATUT</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="paiement in displayPaiements" :key="paiement.id">
+                <td class="font-medium">{{ paiement.mois }}</td>
+                <td class="font-bold">{{ formatMontant(paiement.montant) }}</td>
+                <td>{{ paiement.dateValidation ? paiement.dateValidation : '—' }}</td>
+                <td>
+                  <div class="status-pill" :class="getPaiementStatusClass(paiement.statut)">
+                    <svg
+                      v-if="paiement.statut === 'paye'"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <svg
+                      v-else-if="paiement.statut === 'attente'"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <svg
+                      v-else
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="8" x2="12" y2="12"></line>
+                      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    {{ formatPaiementStatus(paiement.statut) }}
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <ChargementSpinner v-if="isLoading" />
     </div>
+  </div>
 </template>
 
 <script setup>
@@ -178,19 +276,19 @@ const mockPaiements = [
 
 onMounted(async () => {
   isLoading.value = true
-  await contratsStore.chargerContratsActifs()
-  
+  await contratsStore.chargerContratsActifs({ page: 1, size: 20 })
+
   if (route.params.id) {
-    contrat.value = contratsStore.contratsActifs.find(c => c.id == route.params.id)
+    contrat.value = contratsStore.contratsActifs.find((c) => c.id == route.params.id)
   } else if (contratsStore.contratsActifs.length > 0) {
     contrat.value = contratsStore.contratsActifs[0]
   }
 
   if (contrat.value) {
-    await paiementsStore.chargerPaiements(contrat.value.id)
+    await paiementsStore.chargerPaiements(contrat.value.id, { page: 1, size: 20 })
     paiements.value = paiementsStore.paiements
   }
-  
+
   isLoading.value = false
 })
 
@@ -205,7 +303,11 @@ const formatMontant = (montant) => {
 
 const formatDate = (date) => {
   if (!date) return ''
-  return new Date(date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  return new Date(date).toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  })
 }
 
 const telechargerPDF = () => {
@@ -214,9 +316,9 @@ const telechargerPDF = () => {
 
 const formatPaiementStatus = (statut) => {
   const statuts = {
-    'attente': 'Attente',
-    'paye': 'Payé',
-    'retard': 'Retard'
+    attente: 'Attente',
+    paye: 'Payé',
+    retard: 'Retard',
   }
   return statuts[statut] || statut
 }
@@ -295,7 +397,9 @@ const getPaiementStatusClass = (statut) => {
 .tab-content {
   background-color: white;
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.05),
+    0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .contrat-card {

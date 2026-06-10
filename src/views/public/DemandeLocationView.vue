@@ -182,7 +182,7 @@ const form = reactive({
 const authStore = useAuthStore()
 
 onMounted(async () => {
-  await biensStore.chargerBiens()
+  await biensStore.chargerBiens({ page: 1, size: 20 })
   bien.value = biensStore.biens.find((b) => b.id === route.params.id)
 })
 

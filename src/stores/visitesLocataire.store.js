@@ -6,10 +6,10 @@ export const useVisitesLocataireStore = defineStore('visitesLocataire', () => {
   const visites = ref([])
   const chargement = ref(false)
 
-  async function chargerVisites() {
+  async function chargerVisites(params = {}) {
     chargement.value = true
     try {
-      visites.value = await visitesLocataireService.getVisites()
+      visites.value = await visitesLocataireService.getVisites(params)
     } catch (e) {
       console.error(e)
     } finally {

@@ -1,9 +1,9 @@
 import api from './api'
 
 export const visitesLocataireService = {
-  async getVisites() {
+  async getVisites(params) {
     try {
-      const res = await api.get('/visites/mes-demandes')
+      const res = await api.get('/visites/mes-demandes', { params })
       return res.data
     } catch (e) {
       throw e
@@ -11,6 +11,17 @@ export const visitesLocataireService = {
   },
 
   // Créer une demande de visite (locataire)
-  // Corps attendu : { idBien: number, idLocataire: number }
-  demander: (data) => api.post('/visites/demander', data),
+  // On n'envoie que les champs autorisés par le contrat : { idBien, idLocataire }
+  demander: async (data) => {
+    const payload = {
+      idBien: Number(data.idBien),
+      idLocataire: Number(data.idLocataire),
+    }
+    try {
+      const res = await api.post('/visites/demander', payload)
+      return res.data
+    } catch (e) {
+      throw e
+    }
+  },
 }

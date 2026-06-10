@@ -12,18 +12,11 @@
         </div>
 
         <!-- FILTRES -->
-        <FiltreCatalogue
-          v-model:recherche="searchQuery"
-          v-model:type-actif="selectedType"
-        />
+        <FiltreCatalogue v-model:recherche="searchQuery" v-model:type-actif="selectedType" />
 
         <!-- GRILLE DE BIENS -->
         <div class="biens-grid" v-if="!biensStore.chargement && filteredBiens.length > 0">
-          <CarteBienPublic
-            v-for="bien in filteredBiens"
-            :key="bien.id"
-            :bien="bien"
-          />
+          <CarteBienPublic v-for="bien in filteredBiens" :key="bien.id" :bien="bien" />
         </div>
 
         <!-- LOADING -->
@@ -64,7 +57,7 @@ const searchQuery = ref('')
 const selectedType = ref(null)
 
 onMounted(async () => {
-  await biensStore.chargerBiens()
+  await biensStore.chargerBiens({ page: 1, size: 20 })
 
   // Pre-fill from query params
   if (route.query.q) {
@@ -80,19 +73,18 @@ const filteredBiens = computed(() => {
 
   // Filter by type
   if (selectedType.value) {
-    result = result.filter(b =>
-      b.type?.toLowerCase() === selectedType.value.toLowerCase()
-    )
+    result = result.filter((b) => b.type?.toLowerCase() === selectedType.value.toLowerCase())
   }
 
   // Filter by search query
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.toLowerCase()
-    result = result.filter(b =>
-      b.titre?.toLowerCase().includes(query) ||
-      b.adresse?.quartier?.toLowerCase().includes(query) ||
-      b.adresse?.ville?.toLowerCase().includes(query) ||
-      b.type?.toLowerCase().includes(query)
+    result = result.filter(
+      (b) =>
+        b.titre?.toLowerCase().includes(query) ||
+        b.adresse?.quartier?.toLowerCase().includes(query) ||
+        b.adresse?.ville?.toLowerCase().includes(query) ||
+        b.type?.toLowerCase().includes(query),
     )
   }
 

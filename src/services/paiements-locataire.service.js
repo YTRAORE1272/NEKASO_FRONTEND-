@@ -1,9 +1,9 @@
 import api from './api'
 
 export const paiementsLocataireService = {
-  async getHistorique() {
+  async getHistorique(params) {
     try {
-      const res = await api.get('/paiements/mes-paiements')
+      const res = await api.get('/paiements/mes-paiements', { params })
       return res.data
     } catch (e) {
       throw e

@@ -6,10 +6,10 @@ export const usePaiementsLocataireStore = defineStore('paiementsLocataire', () =
   const paiements = ref([])
   const chargement = ref(false)
 
-  async function chargerHistorique() {
+  async function chargerHistorique(params = {}) {
     chargement.value = true
     try {
-      paiements.value = await paiementsLocataireService.getHistorique()
+      paiements.value = await paiementsLocataireService.getHistorique(params)
     } catch (e) {
       console.error(e)
     } finally {

@@ -1,9 +1,9 @@
 import api from './api'
 
 export const demandesLocataireService = {
-  async getDemandes() {
+  async getDemandes(params) {
     try {
-      const res = await api.get('/demandes-location/mes-demandes')
+      const res = await api.get('/demandes-location/mes-demandes', { params })
       return res.data
     } catch (e) {
       throw e

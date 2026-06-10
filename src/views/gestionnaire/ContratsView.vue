@@ -14,20 +14,10 @@
     <div class="contrats-header">
       <p class="contrats-compteur">{{ contratsStore.contrats.length }} contrat(s)</p>
 
-      <button
-        v-if="!modeWizard"
-        class="btn-primaire"
-        @click="ouvrirWizard"
-      >
+      <button v-if="!modeWizard" class="btn-primaire" @click="ouvrirWizard">
         + Nouveau contrat
       </button>
-      <button
-        v-else
-        class="btn-primaire"
-        @click="fermerWizard"
-      >
-        Voir la liste
-      </button>
+      <button v-else class="btn-primaire" @click="fermerWizard">Voir la liste</button>
     </div>
 
     <!-- ═══════════ Contenu ═══════════ -->
@@ -75,7 +65,7 @@ function ouvrirWizard() {
   modeWizard.value = true
   // Charger les données nécessaires pour le wizard
   contratsStore.chargerCandidats()
-  contratsStore.chargerBiens()
+  contratsStore.chargerBiens({ page: 1, size: 20 })
 }
 
 function fermerWizard() {

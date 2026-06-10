@@ -471,7 +471,7 @@ const equipements = computed(() => {
 })
 
 onMounted(async () => {
-  await biensStore.chargerBiens()
+  await biensStore.chargerBiens({ page: 1, size: 20 })
   bien.value = biensStore.biens.find((b) => b.id === route.params.id)
 
   if (!bien.value) {
@@ -568,7 +568,8 @@ const confirmerLocation = async () => {
 
 const contacterWhatsApp = () => {
   const tel = bien.value.gestionnaire?.telephone || '+221771234567'
-  window.open(`https://wa.me/${tel.replace(/\s/g, '')}`, '_blank')
+  const win = window.open(`https://wa.me/${tel.replace(/\s/g, '')}`, '_blank')
+  if (win) win.opener = null
 }
 
 const appeler = () => {

@@ -1,6 +1,7 @@
 import api from './api'
 import { mockStats, mockBiens, mockPaiements, mockVisites } from './mockData'
 import { enrichDashboardStats } from '@/utils/dashboard.mapper'
+import { getToken } from './storage'
 
 const USE_MOCK_ONLY = import.meta.env.VITE_USE_MOCK === 'true'
 
@@ -51,7 +52,7 @@ export const dashboardService = {
       return getMockDashboard()
     }
 
-    const token = localStorage.getItem('nekaso_token')
+    const token = getToken()
     if (!token) {
       return getMockDashboard()
     }

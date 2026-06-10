@@ -6,10 +6,10 @@ export const useDemandesLocataireStore = defineStore('demandesLocataire', () => 
   const demandes = ref([])
   const chargement = ref(false)
 
-  async function chargerDemandes() {
+  async function chargerDemandes(params = {}) {
     chargement.value = true
     try {
-      demandes.value = await demandesLocataireService.getDemandes()
+      demandes.value = await demandesLocataireService.getDemandes(params)
     } catch (e) {
       console.error(e)
     } finally {
