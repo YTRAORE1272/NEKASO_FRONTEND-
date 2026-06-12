@@ -13,15 +13,15 @@
           Demandes de location
           <span class="btn-badge">1</span>
         </button>
-        <button type="button" class="btn-outline">
+        <button type="button" class="btn-outline" @click="$router.push('/gestionnaire/biens')">
           <AppIcon name="plus" :size="16" />
           Bien
         </button>
-        <button type="button" class="btn-outline">
+        <button type="button" class="btn-outline" @click="$router.push('/gestionnaire/visites')">
           <AppIcon name="plus" :size="16" />
           Visite
         </button>
-        <button type="button" class="btn-primary-dash">
+        <button type="button" class="btn-primary-dash" @click="$router.push('/gestionnaire/contrats')">
           <AppIcon name="plus" :size="16" />
           Nouveau contrat
         </button>
@@ -133,7 +133,7 @@
                 <strong>{{ loyer.locataire }}</strong>
                 <span>Échéance: {{ loyer.echeance }} — {{ formatMontant(loyer.montant) }} FCFA</span>
               </div>
-              <button type="button" class="btn-relancer">Relancer</button>
+              <button type="button" class="btn-relancer" @click="$router.push('/gestionnaire/paiements')">Relancer</button>
             </li>
           </ul>
           <p v-else class="list-panel__vide">Aucun loyer en retard</p>

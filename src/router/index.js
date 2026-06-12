@@ -38,9 +38,7 @@ const router = createRouter({
     },
     {
       path: '/login-gestionnaire',
-      name: 'login-gestionnaire',
-      component: () => import('@/views/auth/LoginGestionnaireView.vue'),
-      meta: { guest: true },
+      redirect: '/login',
     },
     {
       path: '/inscription',
@@ -131,6 +129,18 @@ const router = createRouter({
           name: 'profil-locataire',
           component: () => import('@/views/locataire/ProfilView.vue'),
           meta: { title: 'Mon profil' },
+        },
+        {
+          path: 'mes-demandes-visites',
+          name: 'mes-demandes-visites',
+          component: () => import('@/views/locataire/MesDemandesVisitesView.vue'),
+          meta: { title: 'Mes demandes de visite' },
+        },
+        {
+          path: 'mes-demandes-locations',
+          name: 'mes-demandes-locations',
+          component: () => import('@/views/locataire/MesDemandesLocationsView.vue'),
+          meta: { title: 'Mes demandes de location' },
         },
         {
           path: 'succes-visite/:bienId',

@@ -147,7 +147,7 @@
 
         <!-- Action Buttons -->
         <div class="action-buttons-stack">
-          <button class="btn-primary-dark">
+          <button class="btn-primary-dark" @click="telechargerContrat">
             <svg
               width="16"
               height="16"
@@ -156,15 +156,13 @@
               stroke="currentColor"
               stroke-width="2"
             >
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-              <line x1="16" y1="13" x2="8" y2="13"></line>
-              <line x1="16" y1="17" x2="8" y2="17"></line>
-              <polyline points="10 9 9 9 8 9"></polyline>
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
             </svg>
-            Générer contrat
+            Télécharger le contrat
           </button>
-          <button class="btn-secondary">
+          <button class="btn-secondary" @click="router.push('/gestionnaire/paiements')">
             <svg
               width="16"
               height="16"
@@ -176,22 +174,7 @@
               <rect x="2" y="5" width="20" height="14" rx="2"></rect>
               <line x1="2" y1="10" x2="22" y2="10"></line>
             </svg>
-            Créer quittance
-          </button>
-          <button class="btn-danger-outline" @click="showArchiveModal = true">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <polyline points="21 8 21 21 3 21 3 8"></polyline>
-              <rect x="1" y="3" width="22" height="5"></rect>
-              <line x1="10" y1="12" x2="14" y2="12"></line>
-            </svg>
-            Archiver le bien
+            Historique des paiements
           </button>
         </div>
       </div>
@@ -206,11 +189,6 @@
       @save="handleEditSave"
     />
 
-    <ModalConfirmation
-      :show="showArchiveModal"
-      @cancel="showArchiveModal = false"
-      @confirm="handleArchiveConfirm"
-    />
   </div>
 </template>
 
@@ -220,7 +198,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useBiensStore } from '@/stores/biens.store'
 import { useFormat } from '@/composables/useFormat'
 import FormulaireBien from '@/components/biens/FormulaireBien.vue'
-import ModalConfirmation from '@/components/common/ModalConfirmation.vue'
+import { useNotification } from '@/composables/useNotification'
 
 const router = useRouter()
 const route = useRoute()
@@ -228,7 +206,11 @@ const biensStore = useBiensStore()
 const { formatMontant } = useFormat()
 
 const showEditModal = ref(false)
-const showArchiveModal = ref(false)
+const { succes } = useNotification()
+
+function telechargerContrat() {
+  succes('Téléchargement du contrat en cours...')
+}
 
 // Charger les biens si pas encore fait
 onMounted(async () => {
@@ -308,13 +290,6 @@ const handleEditSave = (data) => {
   showEditModal.value = false
 }
 
-const handleArchiveConfirm = () => {
-  if (bien.value) {
-    biensStore.archiver(bien.value.id)
-  }
-  showArchiveModal.value = false
-  router.push('/gestionnaire/biens')
-}
 </script>
 
 <style scoped>

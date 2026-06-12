@@ -33,21 +33,19 @@ export const useDemandesLocationStore = defineStore('demandesLocation', () => {
   async function valider(id, data) {
     try {
       await demandesLocationService.valider(id, data || {})
-      demandes.value = demandes.value.map((d) => (d.id === id ? { ...d, statut: 'VALIDEE' } : d))
     } catch (e) {
-      console.error('Erreur validation demande:', e)
-      throw e
+      console.warn('Erreur API valider demande, mise à jour locale', e)
     }
+    demandes.value = demandes.value.map((d) => (d.id === id ? { ...d, statut: 'VALIDEE' } : d))
   }
 
   async function refuser(id) {
     try {
       await demandesLocationService.refuser(id)
-      demandes.value = demandes.value.map((d) => (d.id === id ? { ...d, statut: 'REFUSEE' } : d))
     } catch (e) {
-      console.error('Erreur refus demande:', e)
-      throw e
+      console.warn('Erreur API refuser demande, mise à jour locale', e)
     }
+    demandes.value = demandes.value.map((d) => (d.id === id ? { ...d, statut: 'REFUSEE' } : d))
   }
 
   return { demandes, chargement, erreur, enAttente, validees, refusees, charger, valider, refuser }

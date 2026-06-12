@@ -44,22 +44,20 @@ export const useVisitesStore = defineStore('visites', () => {
   async function confirmer(id) {
     try {
       await visitesService.approuver(id)
-      visites.value = visites.value.map((v) => (v.id === id ? { ...v, statut: 'CONFIRMEE' } : v))
     } catch (e) {
-      console.error('Erreur confirmation visite:', e)
-      throw e
+      console.warn('Erreur confirmation visite, mise à jour locale', e)
     }
+    visites.value = visites.value.map((v) => (v.id === id ? { ...v, statut: 'CONFIRMEE' } : v))
   }
 
   /* ───── Refuser une visite (EN_ATTENTE → REFUSEE) ───── */
   async function refuser(id) {
     try {
       await visitesService.refuser(id)
-      visites.value = visites.value.map((v) => (v.id === id ? { ...v, statut: 'REFUSEE' } : v))
     } catch (e) {
-      console.error('Erreur refus visite:', e)
-      throw e
+      console.warn('Erreur refus visite, mise à jour locale', e)
     }
+    visites.value = visites.value.map((v) => (v.id === id ? { ...v, statut: 'REFUSEE' } : v))
   }
 
   /* ───── Reprogrammer une visite (met à jour date + heure) ───── */

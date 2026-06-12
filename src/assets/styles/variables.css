@@ -28,7 +28,7 @@
   --bordure-radius-petit: 8px; /* Arrondi des coins des boutons */
 
   /* Ombres */
-  --ombre-carte: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --ombre-carte: 0 4px 20px rgba(0, 0, 0, 0.10);
 
   /* Dimensions */
   --sidebar-largeur: 260px; /* Largeur de la barre latérale */

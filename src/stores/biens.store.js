@@ -136,16 +136,25 @@ export const useBiensStore = defineStore('biens', () => {
   // ─── PATCH /api/biens/{id}/archiver (MOCK) ───────────────────────────────
   async function archiver(id) {
     try {
-      if (import.meta.env.DEV) console.log(`Mock API - PATCH /biens/${id}/archiver`)
       await new Promise((resolve) => setTimeout(resolve, 300))
-
       const bien = biens.value.find((b) => b.id === id)
       if (bien) bien.statutBien = 'ARCHIVE'
     } catch (e) {
       erreur.value = "Impossible d'archiver le bien."
-      console.error('Erreur archivage bien:', e)
       throw e
     }
+  }
+
+  // ─── Passe un bien à LOUE (à appeler lors de la création d'un contrat) ───
+  function louer(id) {
+    const bien = biens.value.find((b) => b.id === id)
+    if (bien) bien.statutBien = 'LOUE'
+  }
+
+  // ─── Remet un bien à DISPONIBLE (fin de contrat ou résiliation) ──────────
+  function remettreDispo(id) {
+    const bien = biens.value.find((b) => b.id === id)
+    if (bien) bien.statutBien = 'DISPONIBLE'
   }
 
   // ─── DELETE /api/biens/{bienId}/photos/{photoId} (MOCK) ──────────────────
@@ -194,6 +203,8 @@ export const useBiensStore = defineStore('biens', () => {
     creer,
     modifier,
     archiver,
+    louer,
+    remettreDispo,
     supprimerPhoto,
   }
 })

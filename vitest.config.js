@@ -14,5 +14,12 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./test/setup.js'],
     include: ['test/**/*.spec.js'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html', 'lcov'],
+      include: ['src/**/*.{js,vue}'],
+      exclude: ['src/assets/**', 'src/services/mockData.js', 'src/main.js'],
+      thresholds: { lines: 70, functions: 70, branches: 60 },
+    },
   },
 })

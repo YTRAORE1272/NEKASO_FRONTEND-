@@ -8,12 +8,11 @@
 
       <!-- NAV CENTRE -->
       <nav class="nav-centre">
-        <router-link to="/catalogue" class="nav-pill">Liste des biens</router-link>
+        <router-link to="/" class="nav-pill">Accueil</router-link>
       </nav>
 
       <!-- ACTIONS DROITE -->
       <div class="header-actions">
-        <router-link to="/login-gestionnaire" class="btn-partner">Espace Gestionnaire</router-link>
         <router-link to="/login" class="btn-login">Se connecter</router-link>
         <router-link to="/inscription" class="btn-signup">Créer un compte</router-link>
       </div>
@@ -43,11 +42,8 @@
     <!-- MOBILE MENU -->
     <Transition name="slide">
       <div v-if="mobileOpen" class="mobile-menu">
-        <router-link to="/catalogue" class="mobile-link" @click="mobileOpen = false"
-          >Liste des biens</router-link
-        >
-        <router-link to="/login-gestionnaire" class="mobile-link" @click="mobileOpen = false"
-          >Espace Gestionnaire</router-link
+        <router-link to="/" class="mobile-link" @click="mobileOpen = false"
+          >Accueil</router-link
         >
         <router-link to="/login" class="mobile-link" @click="mobileOpen = false"
           >Se connecter</router-link

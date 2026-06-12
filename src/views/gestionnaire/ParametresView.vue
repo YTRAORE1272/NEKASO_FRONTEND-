@@ -20,16 +20,16 @@
             <thead>
               <tr>
                 <th>Nom</th>
-                <th>Email</th>
+                <th>Téléphone</th>
                 <th>Rôle</th>
                 <th>Statut</th>
                 <th style="text-align:right">Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="user in users" :key="user.email">
+              <tr v-for="user in users" :key="user.nom">
                 <td class="td-nom">{{ user.nom }}</td>
-                <td class="td-email">{{ user.email }}</td>
+                <td class="td-email">{{ user.telephone }}</td>
                 <td class="td-role">{{ user.role }}</td>
                 <td>
                   <span :class="['badge', user.statut === 'Actif' ? 'badge--actif' : 'badge--inactif']">
@@ -98,14 +98,13 @@
             <input type="text" v-model="newUser.nom" class="form-input" placeholder="Ex: Awa Sarr" />
           </div>
           <div class="form-group">
-            <label>Email *</label>
-            <input type="email" v-model="newUser.email" class="form-input" placeholder="awa@nekaso.sn" />
+            <label>Numéro de téléphone *</label>
+            <input type="tel" v-model="newUser.telephone" class="form-input" placeholder="+221 77 000 00 00" />
           </div>
           <div class="form-group">
             <label>Rôle</label>
             <select v-model="newUser.role" class="form-input">
               <option value="Gestionnaire">Gestionnaire</option>
-              <option value="Admin">Admin</option>
             </select>
           </div>
           <div class="form-group">
@@ -155,12 +154,12 @@ const showAddUserModal = ref(false)
 const showConfirmModal = ref(false)
 const selectedUser = ref(null)
 
-const newUser = ref({ nom: '', email: '', role: 'Gestionnaire', password: '' })
+const newUser = ref({ nom: '', telephone: '', role: 'Gestionnaire', password: '' })
 
 const users = ref([
-  { nom: 'Awa Sarr', email: 'awa@nekaso.sn', role: 'Gestionnaire', statut: 'Actif' },
-  { nom: 'Cheikh Diallo', email: 'cheikh@nekaso.sn', role: 'Gestionnaire', statut: 'Actif' },
-  { nom: 'Mariama Fall', email: 'mariama@nekaso.sn', role: 'Admin', statut: 'Inactif' },
+  { nom: 'Awa Sarr', telephone: '+221 77 123 45 67', role: 'Gestionnaire', statut: 'Actif' },
+  { nom: 'Cheikh Diallo', telephone: '+221 78 234 56 78', role: 'Gestionnaire', statut: 'Actif' },
+  { nom: 'Mariama Fall', telephone: '+221 76 345 67 89', role: 'Gestionnaire', statut: 'Inactif' },
 ])
 
 const systeme = ref({
@@ -172,19 +171,19 @@ const systeme = ref({
 })
 
 function addUser() {
-  if (!newUser.value.nom || !newUser.value.email || !newUser.value.password) {
+  if (!newUser.value.nom || !newUser.value.telephone || !newUser.value.password) {
     erreur('Veuillez remplir tous les champs obligatoires')
     return
   }
   users.value.push({
     nom: newUser.value.nom,
-    email: newUser.value.email,
+    telephone: newUser.value.telephone,
     role: newUser.value.role,
     statut: 'Actif',
   })
   succes('Utilisateur créé avec succès')
   showAddUserModal.value = false
-  newUser.value = { nom: '', email: '', role: 'Gestionnaire', password: '' }
+  newUser.value = { nom: '', telephone: '', role: 'Gestionnaire', password: '' }
 }
 
 function openConfirmModal(user) {
@@ -201,7 +200,7 @@ function confirmStatusChange() {
 }
 
 function resetPassword(user) {
-  succes(`Email de réinitialisation envoyé à ${user.email}`)
+  succes(`Lien de réinitialisation envoyé au ${user.telephone}`)
 }
 
 function saveAll() {

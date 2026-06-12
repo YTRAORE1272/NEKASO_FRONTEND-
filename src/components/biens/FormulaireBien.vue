@@ -3,8 +3,8 @@
     <div class="form-content">
       <h2 class="form-title">{{ isEdit ? 'Modifier le bien' : 'Nouveau bien immobilier' }}</h2>
 
-      <!-- Photos section (création uniquement) -->
-      <div v-if="!isEdit" class="form-section">
+      <!-- Photos section -->
+      <div class="form-section">
         <label class="form-label">Photos du bien</label>
         <div class="photos-container">
           <!-- Photos existantes -->
@@ -176,6 +176,8 @@ watch(() => props.show, (newVal) => {
         charges: props.initialData.charges || '',
         description: props.initialData.description || ''
       }
+      const existing = props.initialData.photos || []
+      photos.value = existing.map((p) => ({ url: typeof p === 'string' ? p : p.url, file: null }))
     } else {
       formData.value = { ...defaultData }
       photos.value = []
@@ -206,18 +208,19 @@ function handleFileSelect(event) {
 }
 
 function removePhoto(index) {
-  // Libérer l'URL blob pour éviter les fuites mémoire
-  URL.revokeObjectURL(photos.value[index].url)
+  const photo = photos.value[index]
+  if (photo.file) URL.revokeObjectURL(photo.url)
   photos.value.splice(index, 1)
 }
 
 function buildFormData() {
   const fd = new FormData()
 
-  // Ajouter chaque photo sous la clé "photos"
   for (const photo of photos.value) {
     if (photo.file) {
       fd.append('photos', photo.file, photo.file.name)
+    } else {
+      fd.append('photosExistantes', photo.url)
     }
   }
 

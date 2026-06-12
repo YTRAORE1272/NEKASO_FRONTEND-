@@ -23,7 +23,12 @@ body {
   background-color: var(--fond-general);
   color: var(--texte-principal);
   font-size: var(--font-size-base);
-  line-height: 1.6; /* Espace entre les lignes de texte */
+  line-height: 1.6;
+  font-synthesis: weight style;
+}
+
+* {
+  font-family: inherit;
 }
 
 button,
