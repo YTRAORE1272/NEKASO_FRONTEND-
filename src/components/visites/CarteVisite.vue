@@ -26,7 +26,7 @@
     <!-- Si déjà traitée -->
     <div v-else class="visite-statut-final">
       <span v-if="visite.statut === 'CONFIRMEE'" style="color: var(--couleur-succes)">
-        Confirmée
+        Confirmées
       </span>
       <span v-else style="color: var(--couleur-danger); font-weight: 600">Refusée</span>
     </div>
