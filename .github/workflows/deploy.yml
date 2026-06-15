@@ -1,9 +1,7 @@
 name: Deploy Front
-
 on:
   push:
     branches: [main]
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -13,8 +11,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Image en minuscules
-        run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+      - name: Set image name
+        run: echo "IMAGE=ghcr.io/${{ github.repository_owner }}/nekaso-frontend" >> $GITHUB_ENV
 
       - name: Login GHCR
         uses: docker/login-action@v3
