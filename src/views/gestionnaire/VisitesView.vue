@@ -1,23 +1,30 @@
 <template>
   <div class="visites-page">
-    <!-- En-tête (sans boutons) -->
-    <div class="visites-header">
-      <h2 class="visites-titre">Demandes de visites</h2>
+    <!-- En-tête -->
+    <div class="page-header">
+      <h1 class="page-title">Demandes de visites</h1>
+      <p class="page-subtitle">Gérez les visites en attente et consultez les visites confirmées</p>
     </div>
 
     <ChargementSpinner v-if="visitesStore.chargement" message="Chargement des visites..." />
 
     <template v-else>
-      <!-- Section 1 : En attente -->
-      <div class="carte section-carte">
-        <div class="section-header">
-          <h3 class="section-title">
+      <!-- Onglets -->
+      <div class="tabs-container">
+        <div class="tabs">
+          <button class="tab" :class="{ active: ongletActif === 'attente' }" @click="ongletActif = 'attente'">
             En attente
-            <span v-if="visitesEnAttente.length > 0" class="badge-count">{{
-              visitesEnAttente.length
-            }}</span>
-          </h3>
+            <span v-if="visitesEnAttente.length > 0" class="tab-badge">{{ visitesEnAttente.length }}</span>
+          </button>
+          <button class="tab" :class="{ active: ongletActif === 'confirmees' }" @click="ongletActif = 'confirmees'">
+            Confirmées
+            <span v-if="visitesTraitees.length > 0" class="tab-badge tab-badge--green">{{ visitesTraitees.length }}</span>
+          </button>
         </div>
+      </div>
+
+      <!-- Onglet : En attente -->
+      <div v-if="ongletActif === 'attente'" class="carte section-carte">
         <div v-if="visitesEnAttente.length > 0" class="tableau-wrapper">
           <table class="tableau">
             <thead>
@@ -107,15 +114,9 @@
         <MessageVide v-else icone="📅" texte="Aucune demande en attente" class="visites-vide" />
       </div>
 
-      <!-- Section 2 : Visites confirmées (avec pagination) -->
-      <div class="carte section-carte">
-        <div class="section-header">
-          <h3 class="section-title">
-            Visites confirmées
-            <span v-if="visitesTraitees.length > 0" class="badge-count badge-count--green">{{
-              visitesTraitees.length
-            }}</span>
-          </h3>
+      <!-- Onglet : Visites confirmées (avec pagination) -->
+      <div v-if="ongletActif === 'confirmees'" class="carte section-carte">
+        <div v-if="visitesTraitees.length > 0" class="export-bar">
           <button type="button" class="btn-export" @click="exporterCalendrier">
             <svg
               width="14"
@@ -205,6 +206,8 @@ import MessageVide from '@/components/biens/common/MessageVide.vue'
 
 const visitesStore = useVisitesStore()
 
+const ongletActif = ref('attente')
+
 const visitesEnAttente = computed(() =>
   visitesStore.visites.filter((v) => v.statut === 'EN_ATTENTE'),
 )
@@ -277,20 +280,6 @@ onMounted(() => visitesStore.charger())
 </script>
 
 <style scoped>
-.visites-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.visites-titre {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--couleur-primaire);
-  margin: 0;
-}
-
 /* Sections */
 .section-carte {
   margin-bottom: 20px;
@@ -298,25 +287,41 @@ onMounted(() => visitesStore.charger())
   overflow: hidden;
 }
 
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid #f3f4f6;
+/* Onglets (pilules) */
+.tabs-container {
+  margin-bottom: 20px;
 }
-
-.section-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0;
-  display: flex;
+.tabs {
+  display: inline-flex;
+  background-color: #ffffff;
+  padding: 4px;
+  border-radius: 30px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f5f9;
+}
+.tab {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
+  background: transparent;
+  border: none;
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
 }
-
-.badge-count {
+.tab.active {
+  background-color: #1e293b;
+  color: #ffffff;
+}
+.tab:hover:not(.active) {
+  color: #1e293b;
+}
+.tab-badge {
   background: #e2e8f0;
   color: #475569;
   border-radius: 20px;
@@ -324,10 +329,20 @@ onMounted(() => visitesStore.charger())
   font-size: 12px;
   font-weight: 600;
 }
-
-.badge-count--green {
+.tab.active .tab-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+.tab-badge--green {
   background: #dcfce7;
   color: #16a34a;
+}
+
+/* Barre d'export */
+.export-bar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 20px 0;
 }
 
 /* Tableau */
@@ -448,10 +463,6 @@ onMounted(() => visitesStore.charger())
 }
 
 @media (max-width: 768px) {
-  .visites-header {
-    flex-direction: column;
-    gap: 12px;
-  }
   .cellule-actions {
     flex-wrap: wrap;
     justify-content: flex-start;

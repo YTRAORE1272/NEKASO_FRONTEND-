@@ -99,6 +99,12 @@ const router = createRouter({
           component: () => import('@/views/gestionnaire/ParametresView.vue'),
           meta: { title: 'Paramètres' },
         },
+        {
+          path: 'profil',
+          name: 'profil-gestionnaire',
+          component: () => import('@/views/gestionnaire/ProfilView.vue'),
+          meta: { title: 'Mon profil' },
+        },
       ],
     },
 

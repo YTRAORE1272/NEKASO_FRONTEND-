@@ -74,7 +74,7 @@ export const useAuthStore = defineStore('auth', () => {
   /**
    * Inscription d'un nouveau locataire.
    */
-  async function register(nom, telephone, motDePasse) {
+  async function register(nom, prenom, telephone, motDePasse) {
     isLoading.value = true
     error.value = null
 
@@ -85,7 +85,7 @@ export const useAuthStore = defineStore('auth', () => {
           const newUser = {
             id: Date.now(),
             nom: nom,
-            prenom: '',
+            prenom: prenom,
             role: 'LOCATAIRE',
             telephone: telephone,
             statut: 'ACTIF',

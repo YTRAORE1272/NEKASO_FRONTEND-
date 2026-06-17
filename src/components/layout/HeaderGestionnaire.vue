@@ -31,7 +31,7 @@
         </div>
       </div>
 
-      <div class="user-profile">
+      <RouterLink to="/gestionnaire/profil" class="user-profile">
         <div class="avatar">
           <svg
             width="18"
@@ -47,22 +47,26 @@
             <circle cx="12" cy="7" r="4" />
           </svg>
         </div>
-        <span class="user-name">Awa Sarr</span>
-      </div>
+        <span class="user-name">{{ nomAffiche }}</span>
+      </RouterLink>
     </div>
   </header>
 </template>
 
 <script setup>
 import { computed, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 import { useNotificationsStore } from '@/stores/notifications.store'
+import { useAuthStore } from '@/stores/auth.store'
 
 const route = useRoute()
 const open = ref(false)
 const notificationsStore = useNotificationsStore()
 const notifications = computed(() => notificationsStore.notifications)
 const compteur = computed(() => notificationsStore.compteur)
+
+const authStore = useAuthStore()
+const nomAffiche = computed(() => authStore.nomComplet || 'Gestionnaire')
 
 const titresRoutes = {
   dashboard: 'Tableau de bord',
@@ -72,6 +76,7 @@ const titresRoutes = {
   contrats: 'Contrats',
   paiements: 'Paiements',
   parametres: 'Paramètres',
+  'profil-gestionnaire': 'Mon profil',
 }
 
 const pageTitle = computed(() => titresRoutes[route.name] ?? 'Tableau de bord')
@@ -158,6 +163,8 @@ const pageTitle = computed(() => titresRoutes[route.name] ?? 'Tableau de bord')
   padding: 6px 10px;
   border-radius: 8px;
   transition: background 0.15s;
+  text-decoration: none;
+  color: inherit;
 }
 
 .user-profile:hover {

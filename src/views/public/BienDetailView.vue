@@ -32,7 +32,8 @@
                 <img
                   :src="
                     selectedImage ||
-                    bien.photos?.[0]?.urlPhoto || bien.photos?.[0] ||
+                    bien.photos?.[0]?.urlPhoto ||
+                    bien.photos?.[0] ||
                     'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=500&fit=crop'
                   "
                   :alt="bien.libelle || bien.titre"
@@ -71,13 +72,22 @@
                   <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
                   <circle cx="12" cy="10" r="3"></circle>
                 </svg>
-                {{ typeof bien.adresse === 'string' ? bien.adresse : (bien.adresse?.quartier ? `${bien.adresse.quartier}, ${bien.adresse.ville || 'Dakar'}` : (bien.adresse || 'Dakar')) }}
+                {{
+                  typeof bien.adresse === 'string'
+                    ? bien.adresse
+                    : bien.adresse?.quartier
+                      ? `${bien.adresse.quartier}, ${bien.adresse.ville || 'Dakar'}`
+                      : bien.adresse || 'Dakar'
+                }}
               </div>
             </div>
 
             <!-- SPECS GRID -->
             <div class="specs-list">
-              <div class="spec-item" v-if="bien.nombrePieces || bien.caracteristiques?.nombreChambres">
+              <div
+                class="spec-item"
+                v-if="bien.nombrePieces || bien.caracteristiques?.nombreChambres"
+              >
                 <div class="spec-icon">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -96,7 +106,9 @@
                   </svg>
                 </div>
                 <div class="spec-info">
-                  <span class="spec-value">{{ bien.nombrePieces || bien.caracteristiques?.nombreChambres }}</span>
+                  <span class="spec-value">{{
+                    bien.nombrePieces || bien.caracteristiques?.nombreChambres
+                  }}</span>
                   <span class="spec-label">Pièces</span>
                 </div>
               </div>
@@ -120,7 +132,9 @@
                   </svg>
                 </div>
                 <div class="spec-info">
-                  <span class="spec-value">{{ bien.surface || bien.caracteristiques?.surface }}</span>
+                  <span class="spec-value">{{
+                    bien.surface || bien.caracteristiques?.surface
+                  }}</span>
                   <span class="spec-label">m²</span>
                 </div>
               </div>
@@ -191,7 +205,9 @@
                   </svg>
                   Demander une visite
                 </button>
-                <p v-if="erreurVisite" style="color:#dc2626;font-size:13px;margin:6px 0 0;">{{ erreurVisite }}</p>
+                <p v-if="erreurVisite" style="color: #dc2626; font-size: 13px; margin: 6px 0 0">
+                  {{ erreurVisite }}
+                </p>
 
                 <button class="btn-location" @click="demanderLocation">
                   <svg
@@ -213,7 +229,9 @@
                   </svg>
                   Demander une location
                 </button>
-                <p v-if="erreurLocation" style="color:#dc2626;font-size:13px;margin:6px 0 0;">{{ erreurLocation }}</p>
+                <p v-if="erreurLocation" style="color: #dc2626; font-size: 13px; margin: 6px 0 0">
+                  {{ erreurLocation }}
+                </p>
 
                 <button class="btn-whatsapp" @click="contacterWhatsApp">
                   <svg
@@ -450,7 +468,8 @@ const equipements = computed(() => {
 })
 
 onMounted(async () => {
-  bien.value = biensStore.biens.find((b) => String(b.id) === String(route.params.id)) || biensStore.bienCourant
+  bien.value =
+    biensStore.biens.find((b) => String(b.id) === String(route.params.id)) || biensStore.bienCourant
 
   if (!bien.value) {
     bien.value = {
@@ -504,18 +523,29 @@ const demanderVisite = () => {
 const confirmerVisite = async () => {
   showModalVisite.value = false
   erreurVisite.value = ''
+
+  // Si l'utilisateur n'est pas connecté, on enregistre l'action en attente
+  if (!authStore.isAuthenticated) {
+    authStore.setPendingAction({ type: 'visite', bienId: route.params.id })
+    router.push('/login')
+    return
+  }
+
   try {
-    const res = await visitesLocataireService.demander(1, Number(bien.value.id))
+    const res = await visitesLocataireService.demander(authStore.user?.id, Number(bien.value.id))
     const message = res?.message || ''
-    router.push({ path: `/locataire/succes-visite/${bien.value.id}`, query: message ? { message } : {} })
+    router.push({
+      path: `/locataire/succes-visite/${bien.value.id}`,
+      query: message ? { message } : {},
+    })
   } catch (err) {
     const status = err?.response?.status
     if (status === 409) {
       erreurVisite.value = 'Vous avez déjà une demande de visite pour ce bien.'
     } else if (status === 400) {
-      erreurVisite.value = 'Ce bien n\'est pas disponible pour les visites.'
+      erreurVisite.value = "Ce bien n'est pas disponible pour les visites."
     } else if (status === 404) {
-      erreurVisite.value = 'Ce bien n\'existe pas.'
+      erreurVisite.value = "Ce bien n'existe pas."
     } else {
       erreurVisite.value = 'Une erreur est survenue. Réessayez.'
     }
@@ -529,17 +559,24 @@ const demanderLocation = () => {
 const confirmerLocation = async () => {
   showModalLocation.value = false
   erreurLocation.value = ''
+
+  if (!authStore.isAuthenticated) {
+    authStore.setPendingAction({ type: 'location', bienId: route.params.id })
+    router.push('/login')
+    return
+  }
+
   try {
-    await demandesLocationService.creer(1, Number(bien.value.id))
+    await demandesLocationService.creer(authStore.user?.id, Number(bien.value.id))
     router.push(`/locataire/succes-location/${bien.value.id}`)
   } catch (err) {
     const status = err?.response?.status
     if (status === 409) {
       erreurLocation.value = 'Vous avez déjà une demande de location pour ce bien.'
     } else if (status === 400) {
-      erreurLocation.value = 'Ce bien n\'est pas disponible pour les locations.'
+      erreurLocation.value = "Ce bien n'est pas disponible pour les locations."
     } else if (status === 404) {
-      erreurLocation.value = 'Ce bien n\'existe pas.'
+      erreurLocation.value = "Ce bien n'existe pas."
     } else {
       erreurLocation.value = 'Une erreur est survenue. Réessayez.'
     }

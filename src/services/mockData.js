@@ -94,7 +94,7 @@ export const mockContrats = [
     id: 1, dateSignature: '2025-09-01', dateDebut: '2025-09-01', dateFin: '2026-08-31',
     montantLoyer: 450000, montantCaution: 900000,
     conditions: 'Pas d\'animaux. Paiement avant le 5 de chaque mois.',
-    statut: 'EN_COURS', cheminPDF: '/contrats/contrat_1.pdf', demandeLocationId: 1,
+    statut: 'EN_COURS', cheminPDF: 'https://res.cloudinary.com/dx2imkeka/raw/upload/v1781570714/contrats/contrat_bail_15.pdf', demandeLocationId: 1,
     locataire: { id: 3, nom: 'Diop', prenom: 'Aminata', telephone: '771234567' },
     bien: { id: 4, adresse: 'Almadies, Dakar', typeBien: 'APPARTEMENT', loyer: 450000 }
   },
@@ -102,7 +102,7 @@ export const mockContrats = [
     id: 2, dateSignature: '2025-06-15', dateDebut: '2025-06-15', dateFin: '2027-06-14',
     montantLoyer: 350000, montantCaution: 700000,
     conditions: 'Entretien des espaces communs à la charge du locataire.',
-    statut: 'EN_COURS', cheminPDF: '/contrats/contrat_2.pdf', demandeLocationId: 2,
+    statut: 'EN_COURS', cheminPDF: 'https://res.cloudinary.com/dx2imkeka/raw/upload/v1781570714/contrats/contrat_bail_15.pdf', demandeLocationId: 2,
     locataire: { id: 7, nom: 'SARL Teranga Tech', prenom: '', telephone: '338001234' },
     bien: { id: 1, adresse: 'Rue 10, Mermoz, Dakar', typeBien: 'BUREAU', loyer: 350000 }
   }

@@ -213,31 +213,55 @@
             <div v-if="currentStep === 1" class="step-content">
               <h2 class="auth-title">Votre identité</h2>
               <form @submit.prevent="submitStep1" class="auth-form">
-                <div class="form-group">
-                  <label>Nom complet</label>
-                  <div class="input-wrapper">
-                    <span class="input-icon">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      >
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                      </svg>
-                    </span>
-                    <input
-                      type="text"
-                      v-model="registerForm.nom"
-                      placeholder="Aminata Diop"
-                      required
-                    />
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Nom</label>
+                    <div class="input-wrapper">
+                      <span class="input-icon">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                      </span>
+                      <input type="text" v-model="registerForm.nom" placeholder="Diop" required />
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Prénom</label>
+                    <div class="input-wrapper">
+                      <span class="input-icon">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                      </span>
+                      <input
+                        type="text"
+                        v-model="registerForm.prenom"
+                        placeholder="Aminata"
+                        required
+                      />
+                    </div>
                   </div>
                 </div>
                 <div class="form-group">
@@ -311,6 +335,7 @@
               </div>
               <h2 class="auth-title">Vérification WhatsApp</h2>
               <p class="auth-subtitle">Code envoyé au +221 {{ registerForm.telephone }}</p>
+              <p class="demo-code-hint">Code démo : <strong>{{ codeDemo }}</strong></p>
               <div class="code-inputs">
                 <input
                   v-for="(digit, index) in 4"
@@ -440,11 +465,13 @@ const activeTab = ref('login')
 const showPassword = ref(false)
 const currentStep = ref(1)
 const codeInputRefs = ref([])
+const codeDemo = ref('1234')
 
 const loginForm = reactive({ telephone: '', motDePasse: '' })
 
 const registerForm = reactive({
   nom: '',
+  prenom: '',
   telephone: '',
   code: ['', '', '', ''],
   motDePasse: '',
@@ -497,7 +524,7 @@ async function handleLogin() {
 }
 
 async function submitStep1() {
-  if (!registerForm.nom || !registerForm.telephone) {
+  if (!registerForm.nom || !registerForm.prenom || !registerForm.telephone) {
     toast.error('Veuillez remplir tous les champs')
     return
   }
@@ -518,6 +545,7 @@ async function submitStep3() {
   if (!canSubmit.value) return
   const result = await authStore.register(
     registerForm.nom,
+    registerForm.prenom,
     registerForm.telephone,
     registerForm.motDePasse,
   )
@@ -637,11 +665,30 @@ function handleCodeKeydown(index, event) {
   margin-bottom: 24px;
 }
 
+.demo-code-hint {
+  font-size: 13px;
+  color: #b45309;
+  background-color: #fffbeb;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 24px;
+}
+
 /* ── Form ─────────────────────────────────────────────────── */
 .auth-form {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.form-row .form-group {
+  flex: 1;
+  min-width: 0;
 }
 
 .form-group {
@@ -1072,6 +1119,11 @@ function handleCodeKeydown(index, event) {
 
 /* ══════════════ RESPONSIVE ══════════════════════════════════ */
 @media (max-width: 520px) {
+  .form-row {
+    flex-direction: column;
+    gap: 20px;
+  }
+
   .auth-content {
     padding: 20px 12px;
   }

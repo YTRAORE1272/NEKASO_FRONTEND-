@@ -1,9 +1,9 @@
 <!--
   WizardContrat — Assistant de création de contrat en 4 étapes.
   Étape 1 : Sélection du candidat + informations de base
-  Étape 2 : Clauses du contrat
+  Étape 2 : Conditions particulières
   Étape 3 : Aperçu du contrat
-  Étape 4 : Confirmation et signature
+  Étape 4 : Confirmation
 -->
 <template>
   <div class="carte wizard">
@@ -36,15 +36,28 @@
 
       <div class="grille-2">
         <div class="champ">
-          <label>Locataire *</label>
+          <label>Nom *</label>
           <input
-            v-model="form.locataire"
+            v-model="form.nom"
             type="text"
             placeholder="Nom du locataire"
             readonly
             class="input-readonly"
           />
         </div>
+        <div class="champ">
+          <label>Prénom *</label>
+          <input
+            v-model="form.prenom"
+            type="text"
+            placeholder="Prénom du locataire"
+            readonly
+            class="input-readonly"
+          />
+        </div>
+      </div>
+
+      <div class="grille-2">
         <div class="champ">
           <label>Bien *</label>
           <select v-model="form.bienId">
@@ -57,48 +70,31 @@
             </option>
           </select>
         </div>
-      </div>
-
-      <div class="grille-2">
         <div class="champ">
           <label>Date début *</label>
           <input v-model="form.dateDebut" type="date" />
         </div>
+      </div>
+
+      <div class="grille-2">
         <div class="champ">
           <label>Loyer mensuel *</label>
           <input v-model.number="form.montantLoyer" type="number" min="0" placeholder="0" />
         </div>
-      </div>
-
-      <div class="champ" style="max-width: 48%;">
-        <label>Caution</label>
-        <input v-model.number="form.montantCaution" type="number" min="0" placeholder="0" />
+        <div class="champ">
+          <label>Caution</label>
+          <input v-model.number="form.montantCaution" type="number" min="0" placeholder="0" />
+        </div>
       </div>
     </div>
 
-    <!-- ═══════════ ÉTAPE 2 : Clauses ═══════════ -->
+    <!-- ═══════════ ÉTAPE 2 : Conditions ═══════════ -->
     <div v-if="etape === 2" class="wizard-body">
-      <h4 class="section-label">Clauses standards</h4>
-
-      <div class="clauses-liste">
-        <label
-          v-for="clause in clausesStandards" :key="clause.id"
-          class="clause-item"
-        >
-          <input
-            type="checkbox"
-            :value="clause.texte"
-            v-model="form.clausesSelectionnees"
-          />
-          <span>{{ clause.texte }}</span>
-        </label>
-      </div>
-
-      <div class="champ" style="margin-top: 24px;">
+      <div class="champ champ-conditions">
         <label>Conditions particulières</label>
         <textarea
           v-model="form.conditionsParticulieres"
-          rows="4"
+          rows="12"
           placeholder="Décrivez les conditions spécifiques au contrat..."
         ></textarea>
       </div>
@@ -113,7 +109,7 @@
 
         <p class="apercu-ligne">
           Entre le bailleur représenté par NEKASO et
-          <strong>{{ form.locataire }}</strong>, locataire :
+          <strong>{{ form.prenom }} {{ form.nom }}</strong>, locataire :
         </p>
 
         <p class="apercu-ligne">
@@ -130,12 +126,10 @@
           — Caution : {{ formatMontant(form.montantCaution) }} FCFA
         </p>
         <p class="apercu-ligne">
-          Clauses :
-          <span v-if="toutesLesClauses.length === 0" class="texte-secondaire">Aucune clause définie</span>
+          Conditions particulières :
+          <span v-if="!form.conditionsParticulieres.trim()" class="texte-secondaire">Aucune condition définie</span>
         </p>
-        <ul v-if="toutesLesClauses.length > 0" class="apercu-clauses">
-          <li v-for="(clause, i) in toutesLesClauses" :key="i">{{ clause }}</li>
-        </ul>
+        <p v-if="form.conditionsParticulieres.trim()" class="apercu-conditions">{{ form.conditionsParticulieres }}</p>
       </div>
     </div>
 
@@ -148,24 +142,6 @@
         </svg>
       </div>
       <p class="confirmation-texte">Prêt à confirmer le contrat</p>
-
-      <div class="confirmation-actions">
-        <button class="btn-secondaire" @click="$emit('telecharger-pdf-preview')">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-          Télécharger PDF
-        </button>
-        <button class="btn-secondaire">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-          </svg>
-          Signer électroniquement
-        </button>
-      </div>
     </div>
 
     <!-- ═══════════ Navigation ═══════════ -->
@@ -210,14 +186,15 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 const props = defineProps({
   candidats: { type: Array, default: () => [] },
-  biens:     { type: Array, default: () => [] }
+  biens:     { type: Array, default: () => [] },
+  demandePreselectionnee: { type: Object, default: null }
 })
 
-const emit = defineEmits(['contrat-cree', 'telecharger-pdf-preview'])
+const emit = defineEmits(['contrat-cree'])
 
 /* ───── État du wizard ───── */
 const etape = ref(1)
@@ -225,24 +202,16 @@ const enCoursCreation = ref(false)
 const candidatSelectionne = ref('')
 
 const form = ref({
-  locataire: '',
+  nom: '',
+  prenom: '',
   locataireId: null,
+  demandeLocationId: null,
   bienId: '',
   dateDebut: '',
   montantLoyer: 0,
   montantCaution: 0,
-  clausesSelectionnees: [],
   conditionsParticulieres: ''
 })
-
-/* ───── Clauses standards ───── */
-const clausesStandards = [
-  { id: 1, texte: 'Interdiction de fumer dans le logement' },
-  { id: 2, texte: 'Animaux domestiques non autorisés' },
-  { id: 3, texte: 'Sous-location interdite' },
-  { id: 4, texte: 'Entretien des espaces communs à la charge du locataire' },
-  { id: 5, texte: 'Assurance habitation obligatoire' }
-]
 
 /* ───── Computed ───── */
 const bienSelectionne = computed(() =>
@@ -261,17 +230,9 @@ const bienSelectionneAdresse = computed(() =>
   bienSelectionne.value?.adresse ?? '—'
 )
 
-const toutesLesClauses = computed(() => {
-  const clauses = [...form.value.clausesSelectionnees]
-  if (form.value.conditionsParticulieres.trim()) {
-    clauses.push(form.value.conditionsParticulieres.trim())
-  }
-  return clauses
-})
-
 const etapeValide = computed(() => {
   if (etape.value === 1) {
-    return form.value.locataire && form.value.bienId && form.value.dateDebut && form.value.montantLoyer > 0
+    return form.value.nom && form.value.prenom && form.value.bienId && form.value.dateDebut && form.value.montantLoyer > 0
   }
   return true // Étapes 2, 3, 4 sont toujours valides
 })
@@ -280,12 +241,47 @@ const etapeValide = computed(() => {
 function remplirDepuisCandidat() {
   const candidat = props.candidats.find(c => c.id === Number(candidatSelectionne.value))
   if (!candidat) return
-  form.value.locataire = `${candidat.locataire.prenom} ${candidat.locataire.nom}`
+  form.value.nom = candidat.locataire.nom
+  form.value.prenom = candidat.locataire.prenom
   form.value.locataireId = candidat.locataire.id
   form.value.bienId = candidat.bien.id
   form.value.montantLoyer = candidat.bien.loyer
   form.value.montantCaution = candidat.bien.loyer * 2
 }
+
+/* ───── Préremplissage depuis une demande de location confirmée ───── */
+function preremplirDepuisDemande(demande) {
+  if (!demande) return
+  form.value.demandeLocationId = demande.id ?? null
+
+  const candidatCorrespondant = props.candidats.find(
+    (c) => c.locataire?.id === (demande.locataire?.id ?? demande.locataireId)
+  )
+  if (candidatCorrespondant) {
+    candidatSelectionne.value = candidatCorrespondant.id
+    remplirDepuisCandidat()
+    return
+  }
+
+  // Candidat pas encore chargé / introuvable : préremplissage direct depuis la demande
+  const loc = demande.locataire || {}
+  const bien = demande.bien || {}
+  form.value.nom = loc.nom || ''
+  form.value.prenom = loc.prenom || ''
+  form.value.locataireId = loc.id ?? demande.locataireId ?? null
+  form.value.bienId = bien.id ?? demande.bienId ?? ''
+  form.value.montantLoyer = bien.loyer ?? 0
+  form.value.montantCaution = (bien.loyer ?? 0) * 2
+}
+
+watch(
+  () => props.candidats,
+  () => {
+    if (!props.demandePreselectionnee || candidatSelectionne.value) return
+    preremplirDepuisDemande(props.demandePreselectionnee)
+  },
+  { immediate: true }
+)
 
 function etapeSuivante() {
   if (etape.value < 4 && etapeValide.value) etape.value++
@@ -305,15 +301,16 @@ async function confirmerContrat() {
   try {
     const bienObj = bienSelectionne.value
     const contratData = {
-      dateDebut: form.value.dateDebut,
+      demandeLocationId: form.value.demandeLocationId,
+      dateDebut: String(form.value.dateDebut),
       dateFin: calculerDateFin(form.value.dateDebut, 12),
       montantLoyer: form.value.montantLoyer,
       montantCaution: form.value.montantCaution,
-      conditions: toutesLesClauses.value.join('. '),
+      conditions: form.value.conditionsParticulieres.trim(),
       locataire: {
         id: form.value.locataireId,
-        nom: form.value.locataire.split(' ').slice(1).join(' '),
-        prenom: form.value.locataire.split(' ')[0]
+        nom: form.value.nom,
+        prenom: form.value.prenom
       },
       bien: bienObj ? {
         id: bienObj.id,
@@ -383,7 +380,6 @@ function calculerDateFin(dateDebut, mois) {
   padding: 48px 24px;
 }
 
-/* ===== Étape 2 : Clauses ===== */
 .section-label {
   font-size: 14px;
   font-weight: 600;
@@ -391,27 +387,9 @@ function calculerDateFin(dateDebut, mois) {
   margin-bottom: 16px;
 }
 
-.clauses-liste {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.clause-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 14px;
-  color: var(--texte-principal);
-  cursor: pointer;
-}
-
-.clause-item input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--couleur-succes);
-  cursor: pointer;
-  flex-shrink: 0;
+/* ===== Étape 2 : Conditions ===== */
+.champ-conditions textarea {
+  resize: vertical;
 }
 
 /* ===== Étape 3 : Aperçu ===== */
@@ -437,16 +415,11 @@ function calculerDateFin(dateDebut, mois) {
   line-height: 1.7;
 }
 
-.apercu-clauses {
-  list-style: disc;
-  padding-left: 24px;
-  margin-top: 4px;
-}
-
-.apercu-clauses li {
+.apercu-conditions {
   font-size: 13px;
   color: var(--texte-secondaire);
-  margin-bottom: 4px;
+  white-space: pre-wrap;
+  margin-top: 4px;
 }
 
 .texte-secondaire {
@@ -464,13 +437,6 @@ function calculerDateFin(dateDebut, mois) {
   font-weight: 600;
   color: var(--texte-principal);
   margin-bottom: 24px;
-}
-
-.confirmation-actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  justify-content: center;
 }
 
 /* ===== Footer du wizard ===== */
@@ -517,16 +483,6 @@ function calculerDateFin(dateDebut, mois) {
 @media (max-width: 768px) {
   .grille-2 {
     grid-template-columns: 1fr;
-  }
-
-  .confirmation-actions {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .confirmation-actions .btn-secondaire {
-    width: 100%;
-    justify-content: center;
   }
 }
 </style>

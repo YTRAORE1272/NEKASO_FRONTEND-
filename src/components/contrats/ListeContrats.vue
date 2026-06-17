@@ -1,6 +1,6 @@
 <!--
   ListeContrats — Tableau des contrats existants.
-  Affiche les colonnes : Bien, Locataire, Début, Durée, Loyer, Statut, Actions (PDF).
+  Affiche les colonnes : Bien, Locataire, Début, Loyer, Statut, Actions (PDF).
   Correspond à l'écran "Voir la liste" des captures.
 -->
 <template>
@@ -11,7 +11,6 @@
           <th>Bien</th>
           <th>Locataire</th>
           <th>Début</th>
-          <th>Durée</th>
           <th>Loyer</th>
           <th>Statut</th>
           <th>Actions</th>
@@ -24,13 +23,18 @@
           </td>
           <td>{{ formatLocataire(contrat.locataire) }}</td>
           <td>{{ contrat.dateDebut }}</td>
-          <td>{{ calculerDuree(contrat) }} mois</td>
           <td>{{ formatMontant(contrat.montantLoyer) }} FCFA</td>
           <td>
             <BadgeStatut :statut="contrat.statut" />
           </td>
           <td>
-            <button class="btn-pdf" @click="$emit('telecharger-pdf', contrat.id)">
+            <a
+              v-if="contrat.cheminPDF"
+              class="btn-pdf"
+              :href="contrat.cheminPDF"
+              target="_blank"
+              rel="noopener"
+            >
               <svg
                 width="16"
                 height="16"
@@ -46,7 +50,8 @@
                 <line x1="12" y1="15" x2="12" y2="3" />
               </svg>
               PDF
-            </button>
+            </a>
+            <span v-else class="texte-secondaire">—</span>
           </td>
         </tr>
       </tbody>
@@ -60,8 +65,6 @@ import BadgeStatut from '@/components/biens/common/BadgeStatut.vue'
 defineProps({
   contrats: { type: Array, required: true },
 })
-
-defineEmits(['telecharger-pdf'])
 
 function formatNomBien(bien) {
   if (!bien) return '—'
@@ -80,13 +83,6 @@ function formatLocataire(loc) {
 function formatMontant(montant) {
   if (!montant) return '0'
   return montant.toLocaleString('fr-FR')
-}
-
-function calculerDuree(contrat) {
-  if (!contrat.dateDebut || !contrat.dateFin) return '—'
-  const d = new Date(contrat.dateDebut)
-  const f = new Date(contrat.dateFin)
-  return (f.getFullYear() - d.getFullYear()) * 12 + (f.getMonth() - d.getMonth())
 }
 </script>
 
@@ -107,6 +103,7 @@ function calculerDuree(contrat) {
   color: var(--texte-principal);
   font-size: 13px;
   cursor: pointer;
+  text-decoration: none;
   transition: all 0.2s;
 }
 
@@ -114,5 +111,9 @@ function calculerDuree(contrat) {
   background: var(--fond-general);
   border-color: var(--couleur-primaire);
   color: var(--couleur-primaire);
+}
+
+.texte-secondaire {
+  color: var(--texte-secondaire);
 }
 </style>

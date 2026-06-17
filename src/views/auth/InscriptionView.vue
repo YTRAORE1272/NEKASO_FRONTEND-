@@ -50,13 +50,25 @@
             <h2 class="auth-title">Votre identité</h2>
             
             <form @submit.prevent="submitStep1" class="auth-form">
-              <div class="form-group">
-                <label>Nom complet</label>
-                <div class="input-wrapper">
-                  <span class="input-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                  </span>
-                  <input type="text" v-model="form.nom" placeholder="Aminata Diop" required />
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Nom</label>
+                  <div class="input-wrapper">
+                    <span class="input-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </span>
+                    <input type="text" v-model="form.nom" placeholder="Diop" required />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Prénom</label>
+                  <div class="input-wrapper">
+                    <span class="input-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </span>
+                    <input type="text" v-model="form.prenom" placeholder="Aminata" required />
+                  </div>
                 </div>
               </div>
 
@@ -91,6 +103,7 @@
             
             <h2 class="auth-title">Vérification WhatsApp</h2>
             <p class="auth-subtitle">Code envoyé au +221 {{ form.telephone }}</p>
+            <p class="demo-code-hint">Code démo : <strong>{{ codeDemo }}</strong></p>
 
             <div class="code-inputs">
               <input v-for="(digit, index) in 4" :key="index" type="text" maxlength="1" class="code-input" 
@@ -160,9 +173,11 @@ const currentStep = ref(1)
 const showBanner = ref(true)
 const showPassword = ref(false)
 const codeInputRefs = ref([])
+const codeDemo = ref('1234')
 
 const form = reactive({
   nom: '',
+  prenom: '',
   telephone: '',
   code: ['', '', '', ''],
   motDePasse: '',
@@ -173,7 +188,7 @@ const isCodeComplete = computed(() => form.code.every(digit => digit.length === 
 const canSubmit = computed(() => form.motDePasse.length >= 8 && form.motDePasse === form.confirmPassword)
 
 const submitStep1 = async () => {
-  if (!form.nom || !form.telephone) {
+  if (!form.nom || !form.prenom || !form.telephone) {
     toast.error('Veuillez remplir tous les champs')
     return
   }
@@ -196,7 +211,7 @@ const submitStep3 = async () => {
     toast.error('Les mots de passe ne correspondent pas')
     return
   }
-  const result = await authStore.register(form.nom, form.telephone, form.motDePasse)
+  const result = await authStore.register(form.nom, form.prenom, form.telephone, form.motDePasse)
   if (result.success) {
     toast.success('Compte créé avec succès')
     router.push('/locataire/mes-locations')
@@ -366,6 +381,15 @@ const handleCodeKeydown = (index, event) => {
   margin-bottom: 24px;
 }
 
+.demo-code-hint {
+  font-size: 13px;
+  color: #b45309;
+  background-color: #fffbeb;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 24px;
+}
+
 .text-center {
   text-align: center;
 }
@@ -389,6 +413,16 @@ const handleCodeKeydown = (index, event) => {
   flex-direction: column;
   gap: 20px;
   margin-top: 24px;
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.form-row .form-group {
+  flex: 1;
+  min-width: 0;
 }
 
 .form-group {
@@ -535,6 +569,11 @@ const handleCodeKeydown = (index, event) => {
 @media (max-width: 640px) {
   .auth-body {
     padding: 24px 20px 32px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 20px;
   }
 }
 </style>

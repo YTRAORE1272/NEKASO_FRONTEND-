@@ -233,6 +233,23 @@ textarea {
   padding: 24px;
 }
 
+/* ===== EN-TÊTE DE PAGE ===== */
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--texte-principal);
+  margin-bottom: 8px;
+}
+
+.page-subtitle {
+  font-size: 15px;
+  color: var(--texte-secondaire);
+}
+
 /* ===== FORMULAIRES ===== */
 .champ {
   margin-bottom: 16px;

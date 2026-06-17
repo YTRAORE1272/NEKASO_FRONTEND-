@@ -1,159 +1,321 @@
 <template>
   <div class="page-demandes">
-
-    <!-- ── Barre supérieure ─────────────────────────────── -->
-    <div class="page-topbar">
-      <div class="topbar-left">
-        <button class="btn-retour" @click="$router.back()">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12"/>
-            <polyline points="12 19 5 12 12 5"/>
-          </svg>
-          Retour
-        </button>
-        <span class="sep">|</span>
-        <span class="topbar-subtitle">Toutes les demandes de location reçues</span>
+    <!-- ── En-tête de page ──────────────────────────────── -->
+    <div class="page-header page-header--flex">
+      <div>
+        <h1 class="page-title">Demandes de location</h1>
+        <p class="page-subtitle">Toutes les demandes de location reçues</p>
       </div>
       <button class="btn-nouvelle" @click="modaleOuverte = true">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
         </svg>
         Nouvelle demande
       </button>
     </div>
 
-    <!-- ── Section 1 : En attente ──────────────────────── -->
-    <div class="carte section-carte">
-      <div class="section-header">
-        <h3 class="section-title">
-          En attente
-          <span v-if="demandesEnAttente.length > 0" class="badge-count">{{ demandesEnAttente.length }}</span>
-        </h3>
+    <ChargementSpinner v-if="demandesStore.chargement" message="Chargement des demandes..." />
+
+    <template v-else>
+      <div
+        v-if="demandesStore.erreur"
+        class="section-vide"
+        style="color: #dc2626; margin-bottom: 12px"
+      >
+        {{ demandesStore.erreur }}
+      </div>
+      <!-- ── Onglets ──────────────────────────────────────── -->
+      <div class="tabs-container">
+        <div class="tabs">
+          <button
+            class="tab"
+            :class="{ active: ongletActif === 'attente' }"
+            @click="ongletActif = 'attente'"
+          >
+            En attente
+            <span v-if="demandesEnAttente.length > 0" class="tab-badge">{{
+              demandesEnAttente.length
+            }}</span>
+          </button>
+          <button
+            class="tab"
+            :class="{ active: ongletActif === 'confirmees' }"
+            @click="ongletActif = 'confirmees'"
+          >
+            Confirmées
+            <span v-if="demandesValidees.length > 0" class="tab-badge tab-badge--green">{{
+              demandesValidees.length
+            }}</span>
+          </button>
+        </div>
       </div>
 
-      <div v-if="demandesEnAttente.length > 0" class="table-wrap">
-        <table class="tbl">
-          <thead>
-            <tr>
-              <th>Candidat</th>
-              <th>Contact</th>
-              <th>Bien</th>
-              <th>Date</th>
-              <th class="th-actions">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="demande in demandesAttentesPaginees" :key="demande.id" class="row">
-              <td class="td-candidat">{{ demande.locataire ? `${demande.locataire.prenom || ''} ${demande.locataire.nom || ''}`.trim() : `Locataire #${demande.locataireId}` }}</td>
-              <td class="td-contact">{{ demande.locataire?.telephone || '—' }}</td>
-              <td>{{ demande.bien?.adresse || demande.bien?.libelle || (demande.bienId ? `Bien #${demande.bienId}` : '—') }}</td>
-              <td>{{ demande.dateDemande || '—' }}</td>
-              <td class="td-actions">
-                <button class="btn-act btn-confirmer" @click="demandesStore.valider(demande.id)">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
-                  Confirmer
-                </button>
-                <button class="btn-act btn-refuser" @click="demandesStore.refuser(demande.id)">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                  </svg>
-                  Refuser
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div v-else class="section-vide">Aucune demande en attente</div>
+      <!-- ── Onglet : En attente ──────────────────────────── -->
+      <div v-if="ongletActif === 'attente'" class="carte section-carte">
+        <div v-if="demandesEnAttente.length > 0" class="table-wrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Candidat</th>
+                <th>Contact</th>
+                <th>Bien</th>
+                <th>Date</th>
+                <th class="th-actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="demande in demandesAttentesPaginees" :key="demande.id" class="row">
+                <td class="td-candidat">
+                  {{
+                    demande.locataire
+                      ? `${demande.locataire.prenom || ''} ${demande.locataire.nom || ''}`.trim()
+                      : `Locataire #${demande.locataireId}`
+                  }}
+                </td>
+                <td class="td-contact">{{ demande.locataire?.telephone || '—' }}</td>
+                <td>
+                  {{
+                    demande.bien?.adresse ||
+                    demande.bien?.libelle ||
+                    (demande.bienId ? `Bien #${demande.bienId}` : '—')
+                  }}
+                </td>
+                <td>{{ demande.dateDemande || '—' }}</td>
+                <td class="td-actions">
+                  <button class="btn-act btn-confirmer" @click="demandesStore.valider(demande.id)">
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    Confirmer
+                  </button>
+                  <button class="btn-act btn-refuser" @click="demandesStore.refuser(demande.id)">
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                    Refuser
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div v-else class="section-vide">Aucune demande en attente</div>
 
-      <!-- Pagination En attente -->
-      <div v-if="totalPagesAttentes > 1" class="pagination-bar">
-        <button class="pagination-btn" :disabled="pageAttentes === 1" @click="pageAttentes--">Précédent</button>
-        <button
-          v-for="p in totalPagesAttentes"
-          :key="p"
-          class="pagination-btn"
-          :class="{ 'pagination-btn--active': p === pageAttentes }"
-          @click="pageAttentes = p"
-        >{{ p }}</button>
-        <button class="pagination-btn" :disabled="pageAttentes === totalPagesAttentes" @click="pageAttentes++">Suivant</button>
+        <!-- Pagination En attente -->
+        <div v-if="totalPagesAttentes > 1" class="pagination-bar">
+          <button class="pagination-btn" :disabled="pageAttentes === 1" @click="pageAttentes--">
+            Précédent
+          </button>
+          <button
+            v-for="p in totalPagesAttentes"
+            :key="p"
+            class="pagination-btn"
+            :class="{ 'pagination-btn--active': p === pageAttentes }"
+            @click="pageAttentes = p"
+          >
+            {{ p }}
+          </button>
+          <button
+            class="pagination-btn"
+            :disabled="pageAttentes === totalPagesAttentes"
+            @click="pageAttentes++"
+          >
+            Suivant
+          </button>
+        </div>
       </div>
-    </div>
 
-    <!-- ── Section 2 : Demandes confirmées ─────────────── -->
-    <div class="carte section-carte">
-      <div class="section-header">
-        <h3 class="section-title">
-          Demandes confirmées
-          <span v-if="demandesValidees.length > 0" class="badge-count badge-count--green">{{ demandesValidees.length }}</span>
-        </h3>
-      </div>
+      <!-- ── Onglet : Demandes confirmées ─────────────────── -->
+      <div v-if="ongletActif === 'confirmees'" class="carte section-carte">
+        <div v-if="demandesValidees.length > 0" class="table-wrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Candidat</th>
+                <th>Contact</th>
+                <th>Bien</th>
+                <th>Date</th>
+                <th class="th-actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="demande in demandesValideesPaginees"
+                :key="demande.id"
+                class="row row--confirmed"
+              >
+                <td class="td-candidat">
+                  {{
+                    demande.locataire
+                      ? `${demande.locataire.prenom || ''} ${demande.locataire.nom || ''}`.trim()
+                      : `Locataire #${demande.locataireId}`
+                  }}
+                </td>
+                <td class="td-contact">{{ demande.locataire?.telephone || '—' }}</td>
+                <td>
+                  {{
+                    demande.bien?.adresse ||
+                    demande.bien?.libelle ||
+                    (demande.bienId ? `Bien #${demande.bienId}` : '—')
+                  }}
+                </td>
+                <td>{{ demande.dateDemande || '—' }}</td>
+                <td class="td-actions">
+                  <button class="btn-act btn-contrat" @click="ouvrirCreationContrat(demande)">
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                    </svg>
+                    Créer contrat
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div v-else class="section-vide">Aucune demande confirmée pour le moment</div>
 
-      <div v-if="demandesValidees.length > 0" class="table-wrap">
-        <table class="tbl">
-          <thead>
-            <tr>
-              <th>Candidat</th>
-              <th>Contact</th>
-              <th>Bien</th>
-              <th>Date</th>
-              <th class="th-actions">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="demande in demandesValideesPaginees" :key="demande.id" class="row row--confirmed">
-              <td class="td-candidat">{{ demande.locataire ? `${demande.locataire.prenom || ''} ${demande.locataire.nom || ''}`.trim() : `Locataire #${demande.locataireId}` }}</td>
-              <td class="td-contact">{{ demande.locataire?.telephone || '—' }}</td>
-              <td>{{ demande.bien?.adresse || demande.bien?.libelle || (demande.bienId ? `Bien #${demande.bienId}` : '—') }}</td>
-              <td>{{ demande.dateDemande || '—' }}</td>
-              <td class="td-actions">
-                <button class="btn-act btn-contrat" @click="$router.push('/gestionnaire/contrats')">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    <polyline points="14 2 14 8 20 8"/>
-                  </svg>
-                  Créer contrat
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <!-- Pagination Confirmées -->
+        <div v-if="totalPagesValidees > 1" class="pagination-bar">
+          <button class="pagination-btn" :disabled="pageValidees === 1" @click="pageValidees--">
+            Précédent
+          </button>
+          <button
+            v-for="p in totalPagesValidees"
+            :key="p"
+            class="pagination-btn"
+            :class="{ 'pagination-btn--active': p === pageValidees }"
+            @click="pageValidees = p"
+          >
+            {{ p }}
+          </button>
+          <button
+            class="pagination-btn"
+            :disabled="pageValidees === totalPagesValidees"
+            @click="pageValidees++"
+          >
+            Suivant
+          </button>
+        </div>
       </div>
-      <div v-else class="section-vide">Aucune demande confirmée pour le moment</div>
-
-      <!-- Pagination Confirmées -->
-      <div v-if="totalPagesValidees > 1" class="pagination-bar">
-        <button class="pagination-btn" :disabled="pageValidees === 1" @click="pageValidees--">Précédent</button>
-        <button
-          v-for="p in totalPagesValidees"
-          :key="p"
-          class="pagination-btn"
-          :class="{ 'pagination-btn--active': p === pageValidees }"
-          @click="pageValidees = p"
-        >{{ p }}</button>
-        <button class="pagination-btn" :disabled="pageValidees === totalPagesValidees" @click="pageValidees++">Suivant</button>
-      </div>
-    </div>
+    </template>
 
     <!-- ── Modale nouvelle demande ──────────────────────── -->
     <NouvelleDemandeModal v-if="modaleOuverte" @close="modaleOuverte = false" />
 
+    <!-- ── Wizard de création de contrat ───────────────── -->
+    <div v-if="wizardOuvert" class="wizard-overlay" @click.self="fermerWizard">
+      <div class="wizard-modal">
+        <button class="wizard-fermer" @click="fermerWizard" aria-label="Fermer">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+        <WizardContrat
+          :candidats="contratsStore.candidats"
+          :biens="contratsStore.biensDisponibles"
+          :demande-preselectionnee="demandeSelectionnee"
+          @contrat-cree="onContratCree"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useDemandesLocationStore } from '@/stores/demandesLocation.store'
+import { useContratsStore } from '@/stores/contrats.store'
+import { useBiensStore } from '@/stores/biens.store'
+import { useNotification } from '@/composables/useNotification'
+import ChargementSpinner from '@/components/biens/common/ChargementSpinner.vue'
 import NouvelleDemandeModal from '@/components/demandesLocation/NouvelleDemandeModal.vue'
+import WizardContrat from '@/components/contrats/WizardContrat.vue'
 
 const demandesStore = useDemandesLocationStore()
+const contratsStore = useContratsStore()
+const biensStore = useBiensStore()
+const { succes, erreur } = useNotification()
 const modaleOuverte = ref(false)
+const ongletActif = ref('attente')
 
 onMounted(() => demandesStore.charger())
+
+/* ───── Wizard de création de contrat ───── */
+const wizardOuvert = ref(false)
+const demandeSelectionnee = ref(null)
+
+function ouvrirCreationContrat(demande) {
+  demandeSelectionnee.value = demande
+  wizardOuvert.value = true
+  contratsStore.chargerCandidats()
+  contratsStore.chargerBiens({ page: 1, size: 20 })
+}
+
+function fermerWizard() {
+  wizardOuvert.value = false
+  demandeSelectionnee.value = null
+}
+
+async function onContratCree(contratData) {
+  try {
+    await contratsStore.creer(contratData)
+    const bienId = contratData.bienId ?? contratData.bien?.id
+    if (bienId) biensStore.louer(bienId)
+    succes('Contrat créé avec succès !')
+    fermerWizard()
+  } catch (e) {
+    erreur('Erreur lors de la création du contrat')
+  }
+}
 
 // Sections — utilise les computed du store (gèrent VALIDEE + ACCEPTEE, REFUSEE + REFUSE)
 const demandesEnAttente = computed(() => demandesStore.enAttente)
@@ -189,46 +351,12 @@ const demandesValideesPaginees = computed(() => {
   padding: 0;
 }
 
-/* ── Topbar ───────────────────────────────────────────── */
-.page-topbar {
+/* ── En-tête ──────────────────────────────────────────── */
+.page-header--flex {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-.topbar-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.btn-retour {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #ffffff;
-  border: 1px solid #d1d5db;
-  border-radius: 7px;
-  padding: 7px 14px;
-  font-size: 13.5px;
-  font-weight: 500;
-  color: #374151;
-  cursor: pointer;
-  transition: background 0.15s;
-  white-space: nowrap;
-}
-.btn-retour:hover { background: #f9fafb; }
-
-.sep {
-  color: #d1d5db;
-  font-size: 16px;
-  user-select: none;
-}
-
-.topbar-subtitle {
-  font-size: 13.5px;
-  color: #9ca3af;
+  gap: 16px;
 }
 
 .btn-nouvelle {
@@ -246,34 +374,50 @@ const demandesValideesPaginees = computed(() => {
   white-space: nowrap;
   transition: background 0.15s;
 }
-.btn-nouvelle:hover { background: #1f2937; }
+.btn-nouvelle:hover {
+  background: #1f2937;
+}
 
-/* ── Sections ─────────────────────────────────────────── */
-.section-carte {
+/* ── Onglets (pilules) ──────────────────────────────────── */
+.tabs-container {
   margin-bottom: 20px;
-  padding: 0;
-  overflow: hidden;
 }
 
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid #f3f4f6;
+.tabs {
+  display: inline-flex;
+  background-color: #ffffff;
+  padding: 4px;
+  border-radius: 30px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f5f9;
 }
 
-.section-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0;
-  display: flex;
+.tab {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
+  background: transparent;
+  border: none;
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
 }
 
-.badge-count {
+.tab.active {
+  background-color: #1e293b;
+  color: #ffffff;
+}
+
+.tab:hover:not(.active) {
+  color: #1e293b;
+}
+
+.tab-badge {
   background: #e2e8f0;
   color: #475569;
   border-radius: 20px;
@@ -282,9 +426,21 @@ const demandesValideesPaginees = computed(() => {
   font-weight: 600;
 }
 
-.badge-count--green {
+.tab.active .tab-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.tab-badge--green {
   background: #dcfce7;
   color: #16a34a;
+}
+
+/* ── Sections ─────────────────────────────────────────── */
+.section-carte {
+  margin-bottom: 20px;
+  padding: 0;
+  overflow: hidden;
 }
 
 .section-vide {
@@ -319,7 +475,9 @@ const demandesValideesPaginees = computed(() => {
   white-space: nowrap;
 }
 
-.th-actions { text-align: right; }
+.th-actions {
+  text-align: right;
+}
 
 .tbl td {
   padding: 15px 20px;
@@ -330,10 +488,18 @@ const demandesValideesPaginees = computed(() => {
   white-space: nowrap;
 }
 
-.tbl tbody tr:last-child td { border-bottom: none; }
-.row:hover td { background: #fafafa; }
-.row--confirmed td { background: #f0fdf4; }
-.row--confirmed:hover td { background: #dcfce7; }
+.tbl tbody tr:last-child td {
+  border-bottom: none;
+}
+.row:hover td {
+  background: #fafafa;
+}
+.row--confirmed td {
+  background: #f0fdf4;
+}
+.row--confirmed:hover td {
+  background: #dcfce7;
+}
 
 .td-candidat {
   font-weight: 600;
@@ -368,21 +534,27 @@ const demandesValideesPaginees = computed(() => {
   border: none;
   margin-right: 6px;
 }
-.btn-confirmer:hover { background: #15803d; }
+.btn-confirmer:hover {
+  background: #15803d;
+}
 
 .btn-refuser {
   background: white;
   color: #374151;
   border: 1px solid #d1d5db;
 }
-.btn-refuser:hover { background: #f9fafb; }
+.btn-refuser:hover {
+  background: #f9fafb;
+}
 
 .btn-contrat {
   background: #1e293b;
   color: white;
   border: none;
 }
-.btn-contrat:hover { background: #0f172a; }
+.btn-contrat:hover {
+  background: #0f172a;
+}
 
 /* ── Pagination ───────────────────────────────────────── */
 .pagination-bar {
@@ -403,7 +575,75 @@ const demandesValideesPaginees = computed(() => {
   cursor: pointer;
   transition: all 0.15s;
 }
-.pagination-btn:hover:not(:disabled) { background: #f8fafc; color: #1e293b; }
-.pagination-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.pagination-btn--active { font-weight: 700; color: #1e293b; border-color: #cbd5e1; }
+.pagination-btn:hover:not(:disabled) {
+  background: #f8fafc;
+  color: #1e293b;
+}
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.pagination-btn--active {
+  font-weight: 700;
+  color: #1e293b;
+  border-color: #cbd5e1;
+}
+
+/* ── Wizard de création de contrat ───────────────────── */
+.wizard-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(1px);
+  padding: 24px;
+}
+
+.wizard-modal {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  animation: fadeSlide 0.18s ease-out;
+}
+
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.wizard-fermer {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: #ffffff;
+  border: none;
+  border-radius: 6px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: background 0.15s;
+  z-index: 1;
+}
+
+.wizard-fermer:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
 </style>

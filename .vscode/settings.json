@@ -1,0 +1,16 @@
+{
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "tsconfig.json": "tsconfig.*.json, env.d.ts, typed-router.d.ts",
+    "vite.config.*": "jsconfig*, vitest.config.*, cypress.config.*, playwright.config.*",
+    "package.json": "package-lock.json, pnpm*, .yarnrc*, yarn*, .eslint*, eslint*, .oxlint*, oxlint*, .oxfmt*, .prettier*, prettier*, .editorconfig"
+  },
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "chat.tools.terminal.autoApprove": {
+    "/^git add -A && git commit -m \"WIP : sauvegarde des modifications locales avant merge\" \\|\\| echo 'no commit'$/": {
+      "approve": true,
+      "matchCommandLine": true
+    }
+  }
+}

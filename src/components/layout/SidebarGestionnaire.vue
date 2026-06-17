@@ -1,9 +1,9 @@
 <template>
   <aside class="sidebar">
     <!-- Logo et nom de l'application -->
-    <div class="sidebar-logo-wrapper">
+    <RouterLink to="/gestionnaire/dashboard" class="sidebar-logo-wrapper">
       <img src="/logo-nekaso.png?v=2" alt="NEKASO" class="sidebar-logo" />
-    </div>
+    </RouterLink>
 
     <!-- Liens de navigation -->
     <nav class="sidebar-nav">
@@ -252,6 +252,7 @@ function seDeconnecter() {
   padding: 28px 24px 24px;
   display: flex;
   justify-content: center;
+  text-decoration: none;
 }
 
 .sidebar-logo {

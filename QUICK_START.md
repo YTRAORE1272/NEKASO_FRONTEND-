@@ -87,7 +87,7 @@ import { useAuthStore } from '@/stores/auth.store'
 
 const authStore = useAuthStore()
 authStore.login(telephone, motDePasse)
-authStore.register(nom, telephone, motDePasse)
+authStore.register(nom, prenom, telephone, motDePasse)
 authStore.logout()
 ```
 

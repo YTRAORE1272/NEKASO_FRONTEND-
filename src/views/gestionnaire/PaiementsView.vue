@@ -1,6 +1,12 @@
 <template>
   <div class="page-paiements">
 
+    <!-- ── En-tête ──────────────────────────────────────── -->
+    <div class="page-header">
+      <h1 class="page-title">Paiements</h1>
+      <p class="page-subtitle">Suivez les paiements reçus et relancez les loyers en retard</p>
+    </div>
+
     <!-- ── 3 cartes statistiques ──────────────────────── -->
     <div class="stats-row">
       <div class="stat-card">
@@ -39,15 +45,22 @@
       </div>
     </div>
 
-    <!-- ── Section 1 : Paiements effectués ───────────── -->
-    <section class="panel section-panel">
-      <div class="panel__header">
-        <h2 class="panel__title">
-          Paiements effectués
-          <span v-if="paiementsPayes.length > 0" class="badge-compte">{{ paiementsPayes.length }}</span>
-        </h2>
+    <!-- ── Onglets ──────────────────────────────────────── -->
+    <div class="tabs-container">
+      <div class="tabs">
+        <button class="tab" :class="{ active: ongletActif === 'effectues' }" @click="ongletActif = 'effectues'">
+          Effectués
+          <span v-if="paiementsPayes.length > 0" class="tab-badge">{{ paiementsPayes.length }}</span>
+        </button>
+        <button class="tab" :class="{ active: ongletActif === 'recevoir' }" @click="ongletActif = 'recevoir'">
+          À recevoir
+          <span v-if="paiementsImpayes.length > 0" class="tab-badge tab-badge--red">{{ paiementsImpayes.length }}</span>
+        </button>
       </div>
+    </div>
 
+    <!-- ── Onglet : Paiements effectués ───────────── -->
+    <section v-if="ongletActif === 'effectues'" class="panel section-panel">
       <div v-if="paiementsStore.chargement" class="etat-vide">
         <div class="spinner"></div><p>Chargement…</p>
       </div>
@@ -99,13 +112,9 @@
       </div>
     </section>
 
-    <!-- ── Section 2 : Paiements à recevoir ──────────── -->
-    <section class="panel section-panel">
-      <div class="panel__header">
-        <h2 class="panel__title">
-          Paiements à recevoir
-          <span v-if="paiementsImpayes.length > 0" class="badge-compte badge-compte--red">{{ paiementsImpayes.length }}</span>
-        </h2>
+    <!-- ── Onglet : Paiements à recevoir ──────────── -->
+    <section v-if="ongletActif === 'recevoir'" class="panel section-panel">
+      <div class="panel-actions">
         <button id="btn-enregistrer-paiement" class="btn-nouveau" @click="ouvrirNouveau">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
             <path d="M6 1v10M1 6h10" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
@@ -206,6 +215,7 @@ const contratsStore = useContratsStore()
 const { succes, erreur } = useNotification()
 
 /* ── État local ──────────────────────────────────────── */
+const ongletActif = ref('effectues')
 const modalEncaisser = ref(false)
 const modalNouveau = ref(false)
 const paiementSelectionne = ref(null)
@@ -335,7 +345,6 @@ onMounted(async () => {
 
 .stat-card {
   background: var(--fond-carte, #fff);
-  border: 1px solid var(--bordure, #e5e7eb);
   border-radius: var(--bordure-radius, 12px);
   padding: 20px 22px;
   display: flex;
@@ -406,30 +415,46 @@ onMounted(async () => {
 
 .panel {
   background: var(--fond-carte, #fff);
-  border: 1px solid var(--bordure, #e5e7eb);
   border-radius: var(--bordure-radius, 12px);
+  box-shadow: var(--ombre-carte);
   overflow: hidden;
 }
 
-.panel__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 22px;
-  border-bottom: 1px solid #f3f4f6;
+/* ── Onglets (pilules) ────────────────────────────────── */
+.tabs-container {
+  margin-bottom: 20px;
 }
-
-.panel__title {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--texte-principal, #1f2937);
-  margin: 0;
-  display: flex;
+.tabs {
+  display: inline-flex;
+  background-color: #ffffff;
+  padding: 4px;
+  border-radius: 30px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f5f9;
+}
+.tab {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
+  background: transparent;
+  border: none;
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
 }
-
-.badge-compte {
+.tab.active {
+  background-color: #1e293b;
+  color: #ffffff;
+}
+.tab:hover:not(.active) {
+  color: #1e293b;
+}
+.tab-badge {
   background: #e2e8f0;
   color: #475569;
   border-radius: 20px;
@@ -437,10 +462,20 @@ onMounted(async () => {
   font-size: 12px;
   font-weight: 600;
 }
-
-.badge-compte--red {
+.tab.active .tab-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+.tab-badge--red {
   background: #fee2e2;
   color: #dc2626;
+}
+
+/* ── Barre d'actions de l'onglet ──────────────────────── */
+.panel-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 18px 22px 0;
 }
 
 /* ── Bouton Enregistrer ──────────────────────────────── */
@@ -641,7 +676,6 @@ onMounted(async () => {
 }
 @media (max-width: 560px) {
   .stats-row { grid-template-columns: 1fr; }
-  .panel__header { flex-direction: column; align-items: flex-start; gap: 12px; }
   .filtres-row { flex-wrap: wrap; }
 }
 </style>
