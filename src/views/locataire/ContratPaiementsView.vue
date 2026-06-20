@@ -8,7 +8,6 @@
         </p>
       </div>
 
-      
       <div class="tabs-container">
         <div class="tabs">
           <button
@@ -28,7 +27,6 @@
         </div>
       </div>
 
-      
       <div v-if="activeTab === 'contrat'" class="tab-content">
         <div class="contrat-card">
           <div class="contrat-header">
@@ -147,7 +145,6 @@
         </div>
       </div>
 
-      
       <div v-if="activeTab === 'historique'" class="tab-content">
         <div class="info-banner top-banner">
           <div class="alert-icon">
@@ -265,15 +262,6 @@ const contrat = ref(null)
 const paiements = ref([])
 const isLoading = ref(false)
 
-const mockPaiements = [
-  { id: 1, mois: 'Avril 2026', montant: 350000, dateValidation: null, statut: 'attente' },
-  { id: 2, mois: 'Mars 2026', montant: 350000, dateValidation: '03/03/2026', statut: 'paye' },
-  { id: 3, mois: 'Février 2026', montant: 350000, dateValidation: '02/02/2026', statut: 'paye' },
-  { id: 4, mois: 'Janvier 2026', montant: 350000, dateValidation: '15/01/2026', statut: 'retard' },
-  { id: 5, mois: 'Décembre 2025', montant: 350000, dateValidation: '02/12/2025', statut: 'paye' },
-  { id: 6, mois: 'Novembre 2025', montant: 350000, dateValidation: '01/11/2025', statut: 'paye' },
-]
-
 onMounted(async () => {
   isLoading.value = true
   await contratsStore.chargerContratsActifs({ page: 1, size: 20 })
@@ -285,16 +273,14 @@ onMounted(async () => {
   }
 
   if (contrat.value) {
-    await paiementsStore.chargerPaiements(contrat.value.id, { page: 1, size: 20 })
+    await paiementsStore.chargerHistorique(contrat.value.id, { page: 0, size: 20 })
     paiements.value = paiementsStore.paiements
   }
 
   isLoading.value = false
 })
 
-const displayPaiements = computed(() => {
-  return mockPaiements
-})
+const displayPaiements = computed(() => paiements.value)
 
 const formatMontant = (montant) => {
   if (!montant) return '—'
@@ -358,7 +344,6 @@ const getPaiementStatusClass = (statut) => {
   color: #64748b;
 }
 
-
 .tabs-container {
   margin-bottom: 32px;
 }
@@ -385,14 +370,13 @@ const getPaiementStatusClass = (statut) => {
 }
 
 .tab.active {
-  background-color: #1e293b; 
+  background-color: #1e293b;
   color: #ffffff;
 }
 
 .tab:hover:not(.active) {
   color: #1e293b;
 }
-
 
 .tab-content {
   background-color: white;
@@ -489,12 +473,11 @@ const getPaiementStatusClass = (statut) => {
   color: #1e293b;
 }
 
-
 .info-banner {
   display: flex;
   align-items: center;
   gap: 12px;
-  background-color: #f1f5f9; 
+  background-color: #f1f5f9;
   border-radius: 8px;
   padding: 16px;
   font-size: 14px;
@@ -515,10 +498,9 @@ const getPaiementStatusClass = (statut) => {
 .top-banner {
   margin: 32px 32px 0 32px;
   background-color: #ffffff;
-  border: 1px solid #f1f5f9; 
+  border: 1px solid #f1f5f9;
   color: #64748b;
 }
-
 
 .paiements-table-container {
   padding: 32px;

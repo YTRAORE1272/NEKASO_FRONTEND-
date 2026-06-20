@@ -1,6 +1,7 @@
 # Intégration API NEKASO — guide de test
 
 Backend : `http://74.248.184.17:8080` — toutes les routes sont sous `/api/...`.
+Swagger (agent) : `http://74.248.184.17:8080/swagger-ui/index.html#/`.
 
 ## Configuration
 
@@ -8,23 +9,28 @@ En **dev**, on passe par un **proxy Vite** pour éviter le CORS : le navigateur
 n'appelle que `localhost:5173/api/...` et Vite relaie vers le backend.
 
 `.env.development` :
+
 ```
 VITE_API_URL=/api
 VITE_PROXY_TARGET=http://74.248.184.17:8080
 VITE_DEV_LOCATAIRE_ID=2
 VITE_DEV_GESTIONNAIRE_ID=1
 ```
+
 Le proxy est configuré dans `vite.config.js` (`server.proxy['/api']`).
 
 ⚠️ **Après toute modif de `vite.config.js` ou `.env`, redémarre `npm run dev`.**
 
 ### En production
+
 `.env.production` garde `VITE_API_URL=https://nekaso.me/api`. Pour que ça marche,
 soit le frontend et `/api` sont servis depuis le même domaine (pas de CORS), soit
 le backend doit ajouter l'en-tête `Access-Control-Allow-Origin` pour le domaine du front.
 
 ## Compte de test déjà créé
+
 Un locataire de test a été créé pour vérifier l'intégration :
+
 - **Téléphone** : `780000199`
 - **Mot de passe** : `Test1234`
 
@@ -45,16 +51,16 @@ Un locataire de test a été créé pour vérifier l'intégration :
 
 ## Ce qui est branché sur le VRAI backend ✅
 
-| Écran / fonction | Endpoint | Comment tester |
-|---|---|---|
-| **Connexion** | `POST /v1/auth/login` | `/login` → téléphone `780000199`, mdp `Test1234`. Le rôle vient de `roles[]`. |
-| **Inscription** | `POST /v1/auth/register` (+ login auto) | onglet Inscription → crée un compte, te connecte automatiquement. |
-| **Biens du gestionnaire** | `GET /biens/gestionnaire` | connecté en gestionnaire → page **Biens** se remplit. |
-| **Créer un bien** | `POST /biens/create` (multipart) | bouton « Ajouter un bien ». `gestionnaireId` injecté automatiquement. |
-| **Modifier / changer statut** | `PATCH /biens/gestionnaire/update-bien/{id}` | éditer un bien, archiver. |
-| **Catalogue locataire** | `GET /biens/locataire/biens_disponibles` | page catalogue / accueil locataire. ⚠️ voir bug #2. |
-| **Historique paiements** | `GET /paiements/historiques-paiements/contrat/{id}` | `paiementsStore.chargerHistorique(contratId)`. |
-| **Enregistrer paiement** | `POST /paiements/gestionnaire/create/{idContrat}/{mois}/{methode}` | `paiementsStore.enregistrerPaiementBackend(id, "Juin", "OM")`. |
+| Écran / fonction              | Endpoint                                                           | Comment tester                                                                |
+| ----------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
+| **Connexion**                 | `POST /v1/auth/login`                                              | `/login` → téléphone `780000199`, mdp `Test1234`. Le rôle vient de `roles[]`. |
+| **Inscription**               | `POST /v1/auth/register` (+ login auto)                            | onglet Inscription → crée un compte, te connecte automatiquement.             |
+| **Biens du gestionnaire**     | `GET /biens/gestionnaire`                                          | connecté en gestionnaire → page **Biens** se remplit.                         |
+| **Créer un bien**             | `POST /biens/create` (multipart)                                   | bouton « Ajouter un bien ». `gestionnaireId` injecté automatiquement.         |
+| **Modifier / changer statut** | `PATCH /biens/gestionnaire/update-bien/{id}`                       | éditer un bien, archiver.                                                     |
+| **Catalogue locataire**       | `GET /biens/locataire/biens_disponibles`                           | page catalogue / accueil locataire. ⚠️ voir bug #2.                           |
+| **Historique paiements**      | `GET /paiements/historiques-paiements/contrat/{id}`                | `paiementsStore.chargerHistorique(contratId)`.                                |
+| **Enregistrer paiement**      | `POST /paiements/gestionnaire/create/{idContrat}/{mois}/{methode}` | `paiementsStore.enregistrerPaiementBackend(id, "Juin", "OM")`.                |
 
 Tous les autres services (visites, demandes, pré-contrats, contrats) sont **écrits et prêts** (chemins + mappers), mais leurs vues ne sont pas encore rebranchées (voir plus bas).
 

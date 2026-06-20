@@ -55,7 +55,7 @@ export const useDemandesLocationStore = defineStore('demandesLocation', () => {
         demandesEnAttente: enAttente,
         nbEnAttente: enAttente.length,
         prioritaireId: enAttente[0]?.id ?? null,
-        validee: triees.find(d => d.statut === STATUT_DEMANDE.VALIDEE) || null,
+        validee: triees.find(d => d.statut === STATUT_DEMANDE.ACCEPTEE) || null,
       }
     })
   })

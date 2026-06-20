@@ -12,38 +12,27 @@
       </header>
 
       <div class="modal-body">
-        
         <section>
-          <h4 class="label">1. Choisir un créneau (selon les disponibilités des agents)</h4>
-          <div v-if="creneaux.length === 0" class="vide">
-            Aucun créneau disponible. Ajoutez des disponibilités à vos agents.
-          </div>
-          <div v-else class="creneaux">
-            <button
-              v-for="c in creneaux"
-              :key="`${c.date}-${c.heure}`"
-              type="button"
-              class="creneau"
-              :class="{ actif: estCreneauActif(c) }"
-              @click="choisirCreneau(c)"
-            >
-              <span class="creneau-date">{{ formatDate(c.date) }}</span>
-              <span class="creneau-heure">{{ c.heure }}</span>
-              <span class="creneau-agents">{{ c.agents.length }} agent(s) dispo</span>
-            </button>
+          <h4 class="label">1. Date et heure de la visite</h4>
+          <div class="dh-inputs">
+            <input type="date" v-model="dateVisite" class="dh-input" />
+            <input type="time" v-model="heureVisite" class="dh-input" />
           </div>
         </section>
 
-<section v-if="creneauChoisi">
-          <h4 class="label">2. Affecter un agent disponible</h4>
-          <div class="agents">
+        <section>
+          <h4 class="label">2. Affecter un agent</h4>
+          <div v-if="!agents.length" class="vide">
+            Aucun agent sélectionnable. Créez un agent dans « Agents » (les agents créés dans cette session sont utilisables pour la validation).
+          </div>
+          <div v-else class="agents">
             <label
-              v-for="a in agentsPourCreneau"
+              v-for="a in agents"
               :key="a.id"
               class="agent"
-              :class="{ actif: agentChoisi === a.id }"
+              :class="{ actif: agentChoisi === a.idAgent }"
             >
-              <input type="radio" :value="a.id" v-model="agentChoisi" />
+              <input type="radio" :value="a.idAgent" v-model="agentChoisi" />
               <span class="agent-nom">{{ a.prenom }} {{ a.nom }}</span>
               <span class="agent-tel">{{ a.telephone }}</span>
             </label>
@@ -64,7 +53,6 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useAgentsStore } from '@/stores/agents.store'
-import { useFormat } from '@/composables/useFormat'
 import { nomComplet } from '@/utils/constants'
 
 const props = defineProps({
@@ -73,42 +61,22 @@ const props = defineProps({
 const emit = defineEmits(['close', 'valider'])
 
 const agentsStore = useAgentsStore()
-const { formatDate } = useFormat()
 
 const bien = computed(() => props.visite.bien || {})
 const nomClient = computed(() => nomComplet(props.visite.client || props.visite.locataire))
 
-const creneaux = computed(() => agentsStore.creneauxDisponibles)
-const creneauChoisi = ref(null)
+const agents = computed(() => agentsStore.agents.filter((a) => a.idAgent != null))
+const dateVisite = ref('')
+const heureVisite = ref('')
 const agentChoisi = ref(null)
 
-const agentsPourCreneau = computed(() => {
-  if (!creneauChoisi.value) return []
-  return agentsStore
-    .agentsDisponibles(creneauChoisi.value.date, creneauChoisi.value.heure)
-    .map((a) => ({ id: a.id, nom: a.nom, prenom: a.prenom, telephone: a.telephone }))
-})
-
-function estCreneauActif(c) {
-  return (
-    creneauChoisi.value &&
-    creneauChoisi.value.date === c.date &&
-    creneauChoisi.value.heure === c.heure
-  )
-}
-
-function choisirCreneau(c) {
-  creneauChoisi.value = { date: c.date, heure: c.heure }
-  agentChoisi.value = null
-}
-
-const peutValider = computed(() => creneauChoisi.value && agentChoisi.value)
+const peutValider = computed(() => dateVisite.value && heureVisite.value && agentChoisi.value)
 
 function confirmer() {
   if (!peutValider.value) return
   emit('valider', {
-    date: creneauChoisi.value.date,
-    heure: creneauChoisi.value.heure,
+    date: dateVisite.value,
+    heure: heureVisite.value,
     agentId: agentChoisi.value,
   })
 }
@@ -177,6 +145,19 @@ function confirmer() {
   border-radius: 8px;
   padding: 16px;
   text-align: center;
+}
+.dh-inputs {
+  display: flex;
+  gap: 12px;
+}
+.dh-input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
 }
 .creneaux {
   display: grid;

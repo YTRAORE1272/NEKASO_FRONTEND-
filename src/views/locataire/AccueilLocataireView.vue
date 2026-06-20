@@ -83,14 +83,14 @@
 import { computed, onMounted } from 'vue'
 import { useContratsStore } from '@/stores/contrats.store'
 import { useVisitesStore } from '@/stores/visites.store'
-import { useDemandesLocationStore } from '@/stores/demandesLocation.store'
+import { useDemandesLocataireStore } from '@/stores/demandesLocataire.store'
 import { useBiensPublicsStore } from '@/stores/biensPublics.store'
 import { useAuthStore } from '@/stores/auth.store'
 import CarteBienPublic from '@/components/locataire/CarteBienPublic.vue'
 
 const contratsStore = useContratsStore()
 const visitesStore = useVisitesStore()
-const demandesStore = useDemandesLocationStore()
+const demandesStore = useDemandesLocataireStore()
 const biensStore = useBiensPublicsStore()
 const authStore = useAuthStore()
 
@@ -110,6 +110,9 @@ const preContratAValider = computed(() => contratsStore.mesPreContratsAValider[0
 
 onMounted(() => {
   if (!biensStore.biens.length) biensStore.chargerBiens({ page: 0, size: 20 })
+  visitesStore.chargerLocataire()
+  demandesStore.chargerDemandes()
+  contratsStore.chargerLocataire()
 })
 const biensDispo = computed(() => biensStore.biensDisponibles.slice(0, 3))
 </script>

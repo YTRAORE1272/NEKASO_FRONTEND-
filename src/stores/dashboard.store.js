@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { dashboardService } from '@/services/dashboard.service'
-import { getToken } from '@/services/storage'
+import { useAuthStore } from '@/stores/auth.store'
 
 export const useDashboardStore = defineStore('dashboard', () => {
   const stats = ref(null)
@@ -30,11 +30,12 @@ export const useDashboardStore = defineStore('dashboard', () => {
     chargement.value = true
     erreur.value = null
     try {
-      const data = await dashboardService.load()
+      const data = await dashboardService.load(useAuthStore().userId)
       stats.value = data
-      sourceDonnees.value = getToken() ? 'api' : 'demo'
-    } catch {
+      sourceDonnees.value = 'api'
+    } catch (e) {
       erreur.value = 'Impossible de charger le tableau de bord'
+      console.error('charger dashboard:', e)
     } finally {
       chargement.value = false
     }

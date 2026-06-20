@@ -120,9 +120,9 @@ export const usePreContratsStore = defineStore('preContrats', () => {
     }
   }
 
-  async function modifier(id) {
+  async function modifier(id, payload = {}) {
     try {
-      await preContratsService.modifier(id)
+      await preContratsService.modifier(id, payload)
       await chargerGestionnaire()
     } catch (e) {
       erreur.value = 'Impossible de modifier le pré-contrat.'

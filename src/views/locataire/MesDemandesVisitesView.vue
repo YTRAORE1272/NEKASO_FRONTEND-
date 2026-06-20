@@ -32,34 +32,20 @@
             <span class="etape-label" :class="`tl-${statut(v).ton}`">{{ statut(v).label }}</span>
           </div>
 
-<div v-if="v.statut === 'VALIDEE'" class="panneau">
-            <div class="pn-lignes">
-              <div class="pn-l"><span>Créneau proposé</span><strong>{{ formatDate(v.creneau?.date) }} à {{ v.creneau?.heure }}</strong></div>
-              <div class="pn-l"><span>Agent</span><strong>{{ nom(v.agent) }}</strong></div>
-              <div class="pn-l"><span>Téléphone</span><a class="tel" :href="`tel:${v.agent?.telephone}`">{{ v.agent?.telephone }}</a></div>
-            </div>
+<div v-if="v.statut === 'CONFIRMEE'" class="panneau">
+            <p class="pn-info">Votre visite est confirmée. Une fois effectuée, validez-la ci-dessous.</p>
             <div class="pn-actions">
-              <button class="btn-vert" @click="accepter(v)">Accepter le créneau</button>
-              <button class="btn-annuler" @click="annuler(v)">Annuler</button>
-            </div>
-          </div>
-
-<div v-else-if="v.statut === 'CONFIRMEE'" class="panneau">
-            <div class="pn-lignes">
-              <div class="pn-l"><span>Créneau confirmé</span><strong>{{ formatDate(v.creneau?.date) }} à {{ v.creneau?.heure }}</strong></div>
-              <div class="pn-l"><span>Agent</span><strong>{{ nom(v.agent) }} · {{ v.agent?.telephone }}</strong></div>
-            </div>
-            <div class="pn-actions">
+              <button class="btn-vert" @click="ouvrirCloture(v)">Valider la visite</button>
               <button class="btn-annuler" @click="annuler(v)">Annuler la visite</button>
             </div>
           </div>
 
 <router-link
-            v-else-if="v.statut === 'CLOTUREE_AVEC_CONTRAT' && preContratDe(v)"
+            v-else-if="v.statut === 'TERMINEE' && preContratDe(v)"
             :to="`/locataire/contrat/${preContratDe(v).id}`"
             class="lien-precontrat"
           >
-            Un pré-contrat vous a été proposé — le consulter →
+            Visite terminée — consulter le pré-contrat proposé →
           </router-link>
 
 <p v-else-if="message(v)" class="message" :class="`msg-${statut(v).ton}`">{{ message(v) }}</p>
@@ -69,11 +55,18 @@
       <Pagination v-model="page" :total-pages="totalPages" />
     </div>
 
+    <ModalValiderVisiteLocataire
+      v-if="visiteACloturer"
+      :visite="visiteACloturer"
+      :en-cours="enCoursCloture"
+      @close="visiteACloturer = null"
+      @valider="confirmerCloture"
+    />
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useVisitesLocataireStore } from '@/stores/visitesLocataire.store'
 import { useContratsStore } from '@/stores/contrats.store'
@@ -82,17 +75,19 @@ import { useFormat } from '@/composables/useFormat'
 import BadgeStatut from '@/components/locataire/BadgeStatut.vue'
 import EtapesProgression from '@/components/locataire/EtapesProgression.vue'
 import Pagination from '@/components/common/Pagination.vue'
+import ModalValiderVisiteLocataire from '@/components/visites/ModalValiderVisiteLocataire.vue'
 import { usePagination } from '@/composables/usePagination'
+import { extraireMessageErreur } from '@/utils/apiResponse'
 
 const router = useRouter()
 const visitesStore = useVisitesLocataireStore()
 const contratsStore = useContratsStore()
-const { succes, info } = useNotification()
+const { succes, info, erreur } = useNotification()
 const { formatDate } = useFormat()
 
 onMounted(() => visitesStore.chargerVisites())
 
-const ETAPES = ['Demandée', 'Créneau proposé', 'Confirmée', 'Visite']
+const ETAPES = ['Demandée', 'Confirmée', 'Terminée']
 
 const visites = computed(() => visitesStore.visites)
 const { page, totalPages, itemsPage } = usePagination(visites, 5)
@@ -119,10 +114,8 @@ function preContratDe(v) {
 
 const STATUTS = {
   EN_ATTENTE: { label: 'En attente', variant: 'amber', etape: 0, ton: 'green' },
-  VALIDEE: { label: 'Créneau proposé', variant: 'info', etape: 1, ton: 'green' },
-  CONFIRMEE: { label: 'Confirmée', variant: 'green', etape: 2, ton: 'green' },
-  CLOTUREE_AVEC_CONTRAT: { label: 'Clôturée', variant: 'green', etape: 3, ton: 'green' },
-  CLOTUREE_SANS_CONTRAT: { label: 'Clôturée', variant: 'neutral', etape: 3, ton: 'green' },
+  CONFIRMEE: { label: 'Confirmée', variant: 'green', etape: 1, ton: 'green' },
+  TERMINEE: { label: 'Terminée', variant: 'green', etape: 2, ton: 'green' },
   REFUSEE: { label: 'Refusée', variant: 'red', etape: 0, ton: 'red' },
   ANNULEE: { label: 'Annulée', variant: 'neutral', etape: 0, ton: 'red' },
 }
@@ -131,20 +124,38 @@ function statut(v) {
 }
 function message(v) {
   return {
-    EN_ATTENTE: 'Votre intérêt a été transmis. En attente du créneau et de l\'agent proposés par le gestionnaire.',
-    CLOTUREE_SANS_CONTRAT: 'Visite effectuée et clôturée.',
+    EN_ATTENTE: 'Votre demande a été transmise. En attente de confirmation par le gestionnaire.',
+    TERMINEE: 'Visite terminée.',
     REFUSEE: 'Votre demande n\'a pas été retenue.',
     ANNULEE: 'Vous avez annulé cette visite.',
   }[v.statut] || ''
 }
 
-async function accepter(v) {
-  succes('Votre réponse a bien été prise en compte.')
-  await visitesStore.chargerVisites()
-}
 async function annuler(v) {
   info('Demande d\'annulation envoyée. La liste sera mise à jour prochainement.')
   await visitesStore.chargerVisites()
+}
+
+const visiteACloturer = ref(null)
+const enCoursCloture = ref(false)
+function ouvrirCloture(v) {
+  visiteACloturer.value = v
+}
+async function confirmerCloture({ choix, payload }) {
+  enCoursCloture.value = true
+  try {
+    await visitesStore.cloturer(visiteACloturer.value.id, choix, payload)
+    succes(
+      choix === 'AVEC_CONTRAT'
+        ? 'Visite validée — votre pré-contrat a été créé.'
+        : 'Visite clôturée sans suite.',
+    )
+    visiteACloturer.value = null
+  } catch (e) {
+    erreur(extraireMessageErreur(e, 'Impossible de valider la visite'))
+  } finally {
+    enCoursCloture.value = false
+  }
 }
 </script>
 

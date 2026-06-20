@@ -309,6 +309,7 @@ function buildFormData() {
     }
   }
 
+  // Champs strictement conformes au schéma backend (BienImmobilierForm / BienImmobilierUpdateForm).
   const fields = formData.value
   if (fields.libelle) fd.append('libelle', fields.libelle)
   if (fields.adresse) fd.append('adresse', fields.adresse)
@@ -316,11 +317,9 @@ function buildFormData() {
   if (fields.surface) fd.append('surface', String(fields.surface))
   if (fields.nombrePieces) fd.append('nombrePieces', String(fields.nombrePieces))
   if (fields.loyer) fd.append('loyer', String(fields.loyer))
-  if (fields.charges) fd.append('charges', String(fields.charges))
   if (fields.description) fd.append('description', fields.description)
-  if (!props.isEdit) {
-    fd.append('statutBien', 'DISPONIBLE')
-  } else if (props.initialData && props.initialData.statutBien) {
+  // statutBien n'existe que dans le schéma de mise à jour, jamais à la création.
+  if (props.isEdit && props.initialData?.statutBien) {
     fd.append('statutBien', props.initialData.statutBien)
   }
 

@@ -23,7 +23,7 @@
     </div>
     <div v-else class="demande-statut-final">
       <span
-        v-if="demande.statut === 'VALIDEE'"
+        v-if="demande.statut === 'ACCEPTEE'"
         style="color: var(--couleur-succes); font-weight: 600"
         >Validée ✓</span
       >

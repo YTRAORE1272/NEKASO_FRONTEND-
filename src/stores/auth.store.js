@@ -3,16 +3,36 @@ import { ref, computed } from 'vue'
 import { authService } from '@/services/auth.service'
 import { getToken, setToken, removeToken, getUser, setUser, removeUser } from '@/services/storage'
 import { parseJwt } from '@/utils/jwt'
+import { extraireMessageErreur } from '@/utils/apiResponse'
 
 function construireUser(payload) {
-  const u = payload?.user || payload || {}
-  const roles = u.roles || (u.role ? [u.role] : (payload?.roles || (payload?.role ? [payload.role] : [])))
-  const role = roles[0] || 'LOCATAIRE'
+  const u = payload?.user ?? payload ?? {}
+
+  // Rôles : accepter plusieurs formes possibles (u.role, u.roles, payload.role/roles, etc.)
+  const rawRoles = u.roles ?? u.role ?? payload?.roles ?? payload?.role
+  const roles = Array.isArray(rawRoles) ? rawRoles : rawRoles ? [rawRoles] : []
+
+  // Toujours standardiser en texte attendu par le front (GESTIONNAIRE / LOCATAIRE)
+  const role =
+    roles.find((r) => r === 'GESTIONNAIRE' || r === 'LOCATAIRE') || roles[0] || 'LOCATAIRE'
+
+  // Identifiant : backends possibles (id, userId, gestionnaireId, locataireId)
+  const id =
+    u.id ??
+    payload?.id ??
+    u.userId ??
+    payload?.userId ??
+    u.gestionnaireId ??
+    payload?.gestionnaireId ??
+    u.locataireId ??
+    payload?.locataireId ??
+    null
+
   return {
-    id: u.id ?? payload?.id ?? null,
-    nom: u.nom || payload?.nom || '',
-    prenom: u.prenom || payload?.prenom || '',
-    telephone: u.telephone || payload?.telephone || '',
+    id,
+    nom: u.nom ?? payload?.nom ?? '',
+    prenom: u.prenom ?? payload?.prenom ?? '',
+    telephone: u.telephone ?? payload?.telephone ?? '',
     role,
     roles,
     statut: u.statut ?? payload?.statut ?? 'ACTIF',
@@ -33,7 +53,7 @@ export const useAuthStore = defineStore('auth', () => {
         telephone: jwtPayload.sub,
         role: 'LOCATAIRE',
         roles: ['LOCATAIRE'],
-        statut: 'ACTIF'
+        statut: 'ACTIF',
       }
     }
   }
@@ -79,7 +99,7 @@ export const useAuthStore = defineStore('auth', () => {
       if (err.response?.status === 401 || err.response?.status === 404) {
         errorMessage = 'Téléphone ou mot de passe incorrect'
       } else if (err.response?.status === 400) {
-        errorMessage = err.response.data?.message || 'Champs obligatoires manquants'
+        errorMessage = extraireMessageErreur(err, 'Champs obligatoires manquants')
       } else if (err.response?.status === 500) {
         errorMessage = 'Erreur serveur. Veuillez réessayer plus tard.'
       } else if (!err.response) {

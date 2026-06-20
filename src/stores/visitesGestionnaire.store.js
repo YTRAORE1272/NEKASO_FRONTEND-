@@ -11,13 +11,9 @@ export const useVisitesGestionnaireStore = defineStore('visitesGestionnaire', ()
   const erreur = ref(null)
 
   const enAttente  = computed(() => visites.value.filter((v) => v.statut === 'EN_ATTENTE'))
-  const validees   = computed(() => visites.value.filter((v) => ['VALIDEE', 'CONFIRMEE'].includes(v.statut)))
   const confirmees = computed(() => visites.value.filter((v) => v.statut === 'CONFIRMEE'))
-  const cloturees  = computed(() =>
-    visites.value.filter((v) =>
-      ['CLOTUREE_AVEC_CONTRAT', 'CLOTUREE_SANS_CONTRAT'].includes(v.statut),
-    ),
-  )
+  const terminees  = computed(() => visites.value.filter((v) => v.statut === 'TERMINEE'))
+  const refusees   = computed(() => visites.value.filter((v) => ['REFUSEE', 'ANNULEE'].includes(v.statut)))
 
   async function chargerAnnuaireLocataires() {
     try {
@@ -73,8 +69,8 @@ export const useVisitesGestionnaireStore = defineStore('visitesGestionnaire', ()
     await charger()
   }
 
-  async function confirmer(id, idBien, idAgent) {
-    await visitesService.confirmer(id, idBien, idAgent)
+  async function confirmer(id, idBien, idAgent, dateCreneau) {
+    await visitesService.confirmer(id, idBien, idAgent, dateCreneau)
     await charger()
   }
 
@@ -83,9 +79,9 @@ export const useVisitesGestionnaireStore = defineStore('visitesGestionnaire', ()
     chargement,
     erreur,
     enAttente,
-    validees,
     confirmees,
-    cloturees,
+    terminees,
+    refusees,
     charger,
     changerStatut,
     refuser,

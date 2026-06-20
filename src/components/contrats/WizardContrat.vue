@@ -1,76 +1,47 @@
 <template>
   <div class="carte wizard">
     <div class="wizard-header">
-      <h3 class="wizard-titre">Création de pré-contrat — Étape {{ etape }}/5</h3>
+      <h3 class="wizard-titre">Création de pré-contrat — Étape {{ etape }}/3</h3>
       <div class="wizard-progress">
         <div
-          v-for="i in 5"
+          v-for="i in 3"
           :key="i"
           :class="['progress-segment', { 'progress-segment--actif': i <= etape }]"
         ></div>
       </div>
     </div>
 
-<div v-if="etape === 1" class="wizard-body">
-      <div class="champ">
-        <label>Client *</label>
-        <select v-model="form.clientId" @change="majMontants">
-          <option value="" disabled>Sélectionner un client...</option>
-          <option v-for="c in clients" :key="c.id" :value="c.id">
-            {{ c.prenom }} {{ c.nom }} — {{ c.telephone }}
-          </option>
-        </select>
-      </div>
-      <div class="champ">
-        <label>Bien *</label>
-        <select v-model="form.bienId" @change="majMontants">
-          <option value="" disabled>Choisir un bien</option>
-          <option v-for="b in biens" :key="b.id" :value="b.id">
-            {{ b.intitule }} — {{ b.adresse }}
-          </option>
-        </select>
-      </div>
-      <div v-if="clientChoisi" class="recap-client">
-        <span>{{ clientChoisi.prenom }} {{ clientChoisi.nom }}</span>
-        <span class="gris">{{ clientChoisi.telephone }}</span>
-      </div>
+    <div v-if="etape === 1" class="wizard-body">
+      <p v-if="!demandes.length" class="gris ta-center">
+        Aucune demande de location acceptée. Validez d'abord une demande côté « Demandes de location ».
+      </p>
+      <template v-else>
+        <div class="champ">
+          <label>Demande de location acceptée *</label>
+          <select v-model="form.demandeId" @change="majMontants">
+            <option value="" disabled>Sélectionner une demande...</option>
+            <option v-for="d in demandes" :key="d.id" :value="d.id">
+              {{ libelleDemande(d) }}
+            </option>
+          </select>
+        </div>
+        <div v-if="demandeChoisie" class="recap-client">
+          <span>{{ demandeChoisie.bien?.intitule || 'Bien #' + demandeChoisie.bienId }}</span>
+          <span class="gris">{{ demandeChoisie.bien?.adresse }}</span>
+          <span class="gris">Loyer : {{ formatMontant(demandeChoisie.bien?.loyer || 0) }} FCFA</span>
+        </div>
+      </template>
     </div>
 
-<div v-if="etape === 2" class="wizard-body">
+    <div v-if="etape === 2" class="wizard-body">
       <div class="grille-2">
         <div class="champ">
-          <label>Date de début *</label>
+          <label>Date de début prévue *</label>
           <input v-model="form.dateDebut" type="date" />
         </div>
         <div class="champ">
-          <label>Durée (mois) *</label>
-          <input v-model.number="form.dureeMois" type="number" min="1" />
-        </div>
-      </div>
-      <div class="grille-2">
-        <div class="champ">
-          <label>Fréquence des échéances</label>
-          <select v-model="form.frequence">
-            <option value="MENSUELLE">Mensuelle</option>
-            <option value="ANNUELLE">Annuelle</option>
-          </select>
-        </div>
-        <div class="champ">
-          <label>Date de fin (calculée)</label>
-          <input :value="dateFin" type="date" readonly class="input-readonly" />
-        </div>
-      </div>
-    </div>
-
-<div v-if="etape === 3" class="wizard-body">
-      <div class="grille-2">
-        <div class="champ">
-          <label>Loyer mensuel *</label>
-          <input v-model.number="form.montantLoyer" type="number" min="0" />
-        </div>
-        <div class="champ">
-          <label>Caution</label>
-          <input v-model.number="form.montantCaution" type="number" min="0" />
+          <label>Jour d'échéance du loyer (1-28) *</label>
+          <input v-model.number="form.jourEcheance" type="number" min="1" max="28" />
         </div>
       </div>
       <div class="champ">
@@ -78,42 +49,27 @@
         <textarea
           v-model="form.conditions"
           rows="6"
-          placeholder="Décrivez les conditions spécifiques au contrat..."
+          placeholder="Décrivez les conditions spécifiques au pré-contrat..."
         ></textarea>
       </div>
     </div>
 
-<div v-if="etape === 4" class="wizard-body">
+    <div v-if="etape === 3" class="wizard-body">
       <h4 class="section-label">Résumé du pré-contrat</h4>
       <div class="apercu">
         <h4 class="apercu-titre">PRÉ-CONTRAT DE BAIL — RÉPUBLIQUE DU SÉNÉGAL</h4>
-        <p>Locataire : <strong>{{ clientChoisi?.prenom }} {{ clientChoisi?.nom }}</strong></p>
-        <p>Bien : <strong>{{ bienChoisi?.intitule }}</strong> — {{ bienChoisi?.adresse }}</p>
-        <p>Période : du {{ form.dateDebut }} au {{ dateFin }} ({{ form.dureeMois }} mois)</p>
-        <p>
-          Loyer : {{ formatMontant(form.montantLoyer) }} FCFA ({{ form.frequence.toLowerCase() }})
-          — Caution : {{ formatMontant(form.montantCaution) }} FCFA
-        </p>
+        <p>Bien : <strong>{{ demandeChoisie?.bien?.intitule || 'Bien #' + demandeChoisie?.bienId }}</strong> — {{ demandeChoisie?.bien?.adresse }}</p>
+        <p>Loyer de référence : <strong>{{ formatMontant(demandeChoisie?.bien?.loyer || 0) }} FCFA</strong></p>
+        <p>Début prévu : {{ form.dateDebut }} — échéance le {{ form.jourEcheance }} de chaque mois</p>
         <p v-if="form.conditions.trim()" class="conditions">{{ form.conditions }}</p>
         <p v-else class="gris">Aucune condition particulière.</p>
       </div>
     </div>
 
-<div v-if="etape === 5" class="wizard-body wizard-body--centrer">
-      <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-        <circle cx="28" cy="28" r="27" stroke="#00d15a" stroke-width="2" />
-        <path d="M17 28.5L24.5 36L39 21" stroke="#00d15a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
-      <p class="confirm-txt">Prêt à créer le pré-contrat</p>
-      <p class="gris ta-center">
-        Le client sera notifié et pourra valider ce pré-contrat ou faire des suggestions.
-      </p>
-    </div>
-
-<div class="wizard-footer">
+    <div class="wizard-footer">
       <button v-if="etape > 1" class="btn-secondaire" @click="etape--">Précédent</button>
       <span v-else></span>
-      <button v-if="etape < 5" class="btn-primaire" :disabled="!etapeValide" @click="etape++">
+      <button v-if="etape < 3" class="btn-primaire" :disabled="!etapeValide" @click="etape++">
         Suivant
       </button>
       <button v-else class="btn-confirmer" :disabled="enCours" @click="confirmer">
@@ -128,8 +84,7 @@ import { ref, reactive, computed } from 'vue'
 import { useFormat } from '@/composables/useFormat'
 
 const props = defineProps({
-  clients: { type: Array, default: () => [] },
-  biens: { type: Array, default: () => [] },
+  demandes: { type: Array, default: () => [] },
 })
 const emit = defineEmits(['cree'])
 const { formatMontant } = useFormat()
@@ -138,37 +93,25 @@ const etape = ref(1)
 const enCours = ref(false)
 
 const form = reactive({
-  clientId: '',
-  bienId: '',
+  demandeId: '',
   dateDebut: new Date().toISOString().split('T')[0],
-  dureeMois: 12,
-  frequence: 'MENSUELLE',
-  montantLoyer: 0,
-  montantCaution: 0,
+  jourEcheance: 5,
   conditions: '',
 })
 
-const clientChoisi = computed(() => props.clients.find((c) => c.id === form.clientId))
-const bienChoisi = computed(() => props.biens.find((b) => b.id === form.bienId))
+const demandeChoisie = computed(() => props.demandes.find((d) => d.id === form.demandeId))
 
-const dateFin = computed(() => {
-  if (!form.dateDebut) return ''
-  const d = new Date(form.dateDebut)
-  d.setMonth(d.getMonth() + (form.dureeMois || 0))
-  return d.toISOString().split('T')[0]
-})
-
-function majMontants() {
-  if (bienChoisi.value) {
-    form.montantLoyer = bienChoisi.value.loyer
-    form.montantCaution = bienChoisi.value.loyer * 2
-  }
+function libelleDemande(d) {
+  const bien = d.bien?.intitule || 'Bien #' + d.bienId
+  const lieu = d.bien?.adresse ? ' — ' + d.bien.adresse : ''
+  return bien + lieu
 }
 
+function majMontants() {}
+
 const etapeValide = computed(() => {
-  if (etape.value === 1) return form.clientId && form.bienId
-  if (etape.value === 2) return form.dateDebut && form.dureeMois > 0
-  if (etape.value === 3) return form.montantLoyer > 0
+  if (etape.value === 1) return !!form.demandeId
+  if (etape.value === 2) return form.dateDebut && form.jourEcheance >= 1 && form.jourEcheance <= 28
   return true
 })
 
@@ -176,15 +119,10 @@ async function confirmer() {
   enCours.value = true
   try {
     emit('cree', {
-      clientId: form.clientId,
-      bienId: form.bienId,
-      dateDebut: form.dateDebut,
-      dateFin: dateFin.value,
-      montantLoyer: form.montantLoyer,
-      montantCaution: form.montantCaution,
+      demandeLocationId: form.demandeId,
+      dateDebutPrevu: form.dateDebut,
+      jourEcheancePaiement: form.jourEcheance,
       conditions: form.conditions.trim(),
-      frequence: form.frequence,
-      origine: { type: 'MANUEL', refId: null },
     })
   } finally {
     enCours.value = false
@@ -222,13 +160,6 @@ async function confirmer() {
 .wizard-body {
   padding: 24px;
 }
-.wizard-body--centrer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 40px 24px;
-}
 .grille-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -255,13 +186,10 @@ async function confirmer() {
   font-family: inherit;
   outline: none;
 }
-.input-readonly {
-  background: #f8fafc;
-  color: #64748b;
-}
 .recap-client {
   display: flex;
-  gap: 12px;
+  flex-direction: column;
+  gap: 4px;
   background: #f8fafc;
   border-radius: 8px;
   padding: 12px;
@@ -298,11 +226,6 @@ async function confirmer() {
 }
 .ta-center {
   text-align: center;
-}
-.confirm-txt {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1e293b;
 }
 .wizard-footer {
   display: flex;

@@ -3,8 +3,6 @@ import { ref, computed } from 'vue'
 import { biensService } from '@/services/biens.service'
 import { mapBiens } from '@/services/mappers'
 import { pageMeta } from '@/utils/apiResponse'
-import { useAuthStore } from '@/stores/auth.store'
-
 
 function bienToFormData(bien, overrides = {}) {
   const b = { ...bien, ...overrides }
@@ -17,7 +15,6 @@ function bienToFormData(bien, overrides = {}) {
   if (b.surface != null) fd.append('surface', String(b.surface))
   if (b.nombrePieces != null) fd.append('nombrePieces', String(b.nombrePieces))
   if (b.loyer != null) fd.append('loyer', String(b.loyer))
-  if (b.gestionnaireId != null) fd.append('gestionnaireId', String(b.gestionnaireId))
 
   if (b.photosFichiers && Array.isArray(b.photosFichiers)) {
     b.photosFichiers.forEach((file) => {
@@ -65,21 +62,14 @@ export const useBiensStore = defineStore('biens', () => {
     return biens.value.find((b) => String(b.id) === String(id)) || null
   }
 
-  function injecterGestionnaire(formData) {
-    const gid = useAuthStore().userId
-    if (formData instanceof FormData) {
-      if (gid != null && !formData.has('gestionnaireId')) {
-        formData.append('gestionnaireId', String(gid))
-      }
-      return formData
-    }
-    return bienToFormData({ ...formData, gestionnaireId: formData.gestionnaireId ?? gid })
+  function versFormData(donnees) {
+    return donnees instanceof FormData ? donnees : bienToFormData(donnees)
   }
 
   async function creer(donnees) {
     chargement.value = true
     try {
-      await biensService.creer(injecterGestionnaire(donnees))
+      await biensService.creer(versFormData(donnees))
       await charger()
     } finally {
       chargement.value = false
@@ -89,7 +79,7 @@ export const useBiensStore = defineStore('biens', () => {
   async function modifier(id, donnees) {
     chargement.value = true
     try {
-      await biensService.modifier(id, injecterGestionnaire(donnees))
+      await biensService.modifier(id, versFormData(donnees))
       await charger()
     } finally {
       chargement.value = false
@@ -99,8 +89,7 @@ export const useBiensStore = defineStore('biens', () => {
   async function changerStatut(id, statutBien) {
     const bien = getBien(id)
     if (!bien) return
-    const gid = useAuthStore().userId
-    await biensService.modifier(id, bienToFormData(bien, { statutBien, gestionnaireId: bien.gestionnaireId ?? gid }))
+    await biensService.modifier(id, bienToFormData(bien, { statutBien }))
     await charger()
   }
   const archiver = (id) => changerStatut(id, 'ARCHIVE')

@@ -8,6 +8,10 @@ export const visitesService = {
 
   refuser: (id) => api.patch(`/visites/gestionnaire/demande/${id}/statut/REFUSEE`),
 
-  confirmer: (id, idBien, idAgent) =>
-    api.patch(`/visites/gestionnaire/demande/${id}/confirmer/bien/${idBien}/agent/${idAgent}`),
+  confirmer: (id, idBien, idAgent, dateCreneau) =>
+    api.patch(
+      `/visites/gestionnaire/demande/${id}/confirmer/bien/${idBien}/agent/${idAgent}`,
+      null,
+      dateCreneau ? { params: { dateCreneau } } : undefined,
+    ),
 }

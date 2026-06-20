@@ -51,19 +51,22 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watchEffect } from 'vue'
+import { ref, reactive, computed, watchEffect, onMounted } from 'vue'
 import { useAgentsStore } from '@/stores/agents.store'
 import { useNotification } from '@/composables/useNotification'
 import { useFormat } from '@/composables/useFormat'
 import { usePagination } from '@/composables/usePagination'
+import { extraireMessageErreur } from '@/utils/apiResponse'
 import ModalAgent from '@/components/agents/ModalAgent.vue'
 import Pagination from '@/components/common/Pagination.vue'
 
 const agentsStore = useAgentsStore()
-const { succes } = useNotification()
+const { succes, erreur } = useNotification()
 const { formatDate } = useFormat()
 
 const modalOuverte = ref(false)
+
+onMounted(() => agentsStore.charger())
 
 const { page, totalPages, itemsPage: agentsPage } = usePagination(
   computed(() => agentsStore.agents),
@@ -82,10 +85,15 @@ function initiales(a) {
 }
 
 async function creerAgent(data) {
-  await agentsStore.creerAgent(data)
-  succes('Agent enregistré.')
-  modalOuverte.value = false
+  try {
+    await agentsStore.creerAgent(data)
+    succes('Agent enregistré.')
+    modalOuverte.value = false
+  } catch (e) {
+    erreur(extraireMessageErreur(e, "Impossible d'enregistrer l'agent"))
+  }
 }
+
 
 function ajouterCreneau(agentId) {
   const c = nouveauCreneau[agentId]

@@ -251,13 +251,16 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
 import { useBiensStore } from '@/stores/biens.store'
 import { useFormat } from '@/composables/useFormat'
+import { extraireMessageErreur } from '@/utils/apiResponse'
 import FormulaireBien from '@/components/biens/FormulaireBien.vue'
 import ModalConfirmation from '@/components/biens/common/ModalConfirmation.vue'
 
 const router = useRouter()
 const biensStore = useBiensStore()
+const toast = useToast()
 const { formatMontant } = useFormat()
 
 onMounted(() => {
@@ -370,8 +373,10 @@ const handleAddSave = async (data) => {
   try {
     await biensStore.creer(data)
     showAddModal.value = false
+    toast.success('Bien ajouté avec succès')
   } catch (error) {
     console.error('Erreur lors de la création', error)
+    toast.error(extraireMessageErreur(error, "Impossible d'ajouter le bien"))
   }
 }
 
@@ -381,8 +386,10 @@ const handleEditSave = async (data) => {
       await biensStore.modifier(selectedBien.value.id, data)
     }
     showEditModal.value = false
+    toast.success('Bien modifié avec succès')
   } catch (error) {
     console.error('Erreur lors de la modification', error)
+    toast.error(extraireMessageErreur(error, 'Impossible de modifier le bien'))
   }
 }
 

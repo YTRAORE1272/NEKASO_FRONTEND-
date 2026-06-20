@@ -82,13 +82,8 @@ export const useVisitesStore = defineStore('visites', () => {
   }
 
   const enAttente = computed(() => visites.value.filter(v => v.statut === STATUT_VISITE.EN_ATTENTE))
-  const validees = computed(() => visites.value.filter(v => v.statut === STATUT_VISITE.VALIDEE))
   const confirmees = computed(() => visites.value.filter(v => v.statut === STATUT_VISITE.CONFIRMEE))
-  const cloturees = computed(() =>
-    visites.value.filter(v =>
-      [STATUT_VISITE.CLOTUREE_AVEC_CONTRAT, STATUT_VISITE.CLOTUREE_SANS_CONTRAT].includes(v.statut),
-    ),
-  )
+  const terminees = computed(() => visites.value.filter(v => v.statut === STATUT_VISITE.TERMINEE))
   const mesVisites = computed(() => visites.value)
 
 
@@ -144,7 +139,7 @@ export const useVisitesStore = defineStore('visites', () => {
   }
 
   function peutAnnuler(visite) {
-    return [STATUT_VISITE.VALIDEE, STATUT_VISITE.CONFIRMEE].includes(visite.statut)
+    return visite.statut === STATUT_VISITE.CONFIRMEE
   }
 
   async function annulerClient(id) {
@@ -158,25 +153,12 @@ export const useVisitesStore = defineStore('visites', () => {
     }
   }
 
-  async function cloturer(id, { issue }) {
-    try {
-      const statut = issue === 'AVEC_CONTRAT' ? 'CLOTUREE_AVEC_CONTRAT' : 'CLOTUREE_SANS_CONTRAT'
-      await visitesService.changerStatut(id, statut)
-      await chargerGestionnaire()
-    } catch (e) {
-      console.error('cloturer visite:', e)
-      throw e
-    }
-    return null
-  }
-
   return {
     visites,
     chargement,
     enAttente,
-    validees,
     confirmees,
-    cloturees,
+    terminees,
     mesVisites,
     chargerGestionnaire,
     chargerLocataire,
@@ -187,6 +169,5 @@ export const useVisitesStore = defineStore('visites', () => {
     accepterClient,
     annulerClient,
     peutAnnuler,
-    cloturer,
   }
 })

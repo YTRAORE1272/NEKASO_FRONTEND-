@@ -101,3 +101,76 @@ export function enrichDashboardStats(stats, { paiements = [], visites = [], bien
     visitesEnAttente: stats.visitesEnAttente ?? visitesListe.length,
   }
 }
+
+function normaliserSerieMontant(raw) {
+  if (Array.isArray(raw)) {
+    return raw.map((it) => ({
+      mois: it.mois ?? it.label ?? it.cle ?? it.periode ?? '',
+      montant: Number(it.montant ?? it.valeur ?? it.value ?? it.total ?? 0),
+    }))
+  }
+  if (raw && typeof raw === 'object') {
+    return Object.entries(raw).map(([mois, montant]) => ({ mois, montant: Number(montant) || 0 }))
+  }
+  return []
+}
+
+function buildPortefeuilleFromMap(raw) {
+  let entries = []
+  if (Array.isArray(raw)) {
+    entries = raw.map((it) => [
+      it.type ?? it.libelle ?? it.cle ?? '',
+      Number(it.count ?? it.valeur ?? it.nombre ?? it.value ?? 0),
+    ])
+  } else if (raw && typeof raw === 'object') {
+    entries = Object.entries(raw).map(([k, v]) => [k, Number(v) || 0])
+  }
+  const total = entries.reduce((s, [, v]) => s + v, 0)
+  if (!total) return []
+  return entries.map(([type, count], i) => ({
+    type: labelTypeBien(type),
+    count,
+    percent: Math.round((count / total) * 100),
+    color: PORTEFEUILLE_COLORS[i % PORTEFEUILLE_COLORS.length],
+  }))
+}
+
+function normaliserTaux(valeur) {
+  let t = Number(valeur) || 0
+  if (t > 0 && t <= 1) t *= 100
+  return Math.round(t)
+}
+
+/**
+ * Transforme le DashboardResponseDTO backend (+ visites en attente) en l'objet
+ * attendu par le store dashboard. Tolérant aux formats libres des séries.
+ * @param {object} dto DashboardResponseDTO
+ * @param {Array} [visites] Items DemandeVisiteDTOList bruts
+ * @returns {object}
+ */
+export function mapDashboardDTO(dto = {}, visites = []) {
+  const visitesListe = mapVisitesEnAttente(visites)
+  const loyersListe = (dto.listeLoyersEnRetard || []).map((l, i) => ({
+    id: i,
+    locataire: l.locataireNom ?? '—',
+    echeance: l.echeanceDate ?? '',
+    montant: Number(l.montantDu) || 0,
+  }))
+  return {
+    totalBiens: Number(dto.totalBiensPortefeuille) || 0,
+    biensLoues: Number(dto.totalBiensLoues) || 0,
+    revenusMois: Number(dto.revenusCeMois) || 0,
+    montantLoyersEnRetard: Number(dto.totalLoyersEnRetard) || 0,
+    loyersEnRetard: Number(dto.nombreLocatairesEnRetard) || 0,
+    tauxOccupation: normaliserTaux(dto.tauxOccupation),
+    variationRevenus: Math.round((Number(dto.evolutionRevenusPourcentage) || 0) * 10) / 10,
+    variationOccupation: 0,
+    variationLoyersRetard: 0,
+    revenusParMois: mapRevenusGraphique(normaliserSerieMontant(dto.evolutionChiffreAffaires)),
+    portefeuille: buildPortefeuilleFromMap(dto.repartitionPortefeuille),
+    loyersEnRetardListe: loyersListe,
+    visitesEnAttenteListe: visitesListe,
+    visitesEnAttente: visitesListe.length,
+    notificationsNonLues: 0,
+  }
+}

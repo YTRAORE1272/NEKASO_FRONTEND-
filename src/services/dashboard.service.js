@@ -1,70 +1,33 @@
 import api from './api'
-import { mockStats, mockBiens, mockPaiements, mockVisites } from './mockData'
-import { enrichDashboardStats } from '@/utils/dashboard.mapper'
-import { getToken } from './storage'
+import { visitesService } from './visites.service'
+import { mapDashboardDTO } from '@/utils/dashboard.mapper'
+import { unwrap, pageMeta } from '@/utils/apiResponse'
 
-const USE_MOCK_ONLY = import.meta.env.VITE_USE_MOCK === 'true'
-
-function getMockDashboard() {
-  const apiShape = {
-    totalBiens: mockStats.totalBiens,
-    biensLoues: mockStats.biensLoues,
-    biensDisponibles: mockStats.biensDisponibles,
-    biensReserves: mockStats.biensReserves,
-    revenusMois: mockStats.revenusMois,
-    loyersEnRetard: mockStats.loyersEnRetard,
-    visitesEnAttente: mockStats.visitesEnAttente,
-    demandesLocationEnAttente: mockStats.demandesLocationEnAttente,
-    contratsExpirantBientot: mockStats.contratsExpirantBientot,
-    notificationsNonLues: mockStats.notificationsNonLues,
-    revenusParMois: mockStats.revenusParMois.map((m) => ({
-      mois: m.mois,
-      montant: m.encaisse ?? m.montant,
-    })),
-  }
-
-  const enriched = enrichDashboardStats(apiShape, {
-    paiements: mockPaiements,
-    visites: mockVisites,
-    biens: mockBiens,
-  })
-
-  return {
-    ...enriched,
-    variationRevenus: mockStats.variationRevenus,
-    variationOccupation: mockStats.variationOccupation,
-    variationLoyersRetard: mockStats.variationLoyersRetard,
-    revenusParMois: mockStats.revenusParMois,
-    montantLoyersEnRetard: mockStats.montantLoyersEnRetard,
-  }
-}
-
+/**
+ * Service du tableau de bord gestionnaire.
+ * Agrège le DTO analytique backend et la liste des visites en attente,
+ * puis renvoie un objet déjà mis en forme pour le store (via mapDashboardDTO).
+ * Endpoints : Dashboard Management + demande-visite-controller.
+ */
 export const dashboardService = {
-  async load() {
-    if (USE_MOCK_ONLY) {
-      return getMockDashboard()
+  /**
+   * Charge l'ensemble des KPIs du tableau de bord d'un gestionnaire.
+   * GET /api/v1/dashboard/gestionnaire/{gestionnaireId}
+   * @param {number|string} gestionnaireId Identifiant du gestionnaire connecté
+   * @returns {Promise<object>} Statistiques prêtes pour le store
+   */
+  async load(gestionnaireId) {
+    if (gestionnaireId == null) {
+      throw new Error('gestionnaireId manquant pour charger le tableau de bord')
     }
-
-    const token = getToken()
-    if (!token) {
-      return getMockDashboard()
-    }
-
+    const dashboardRes = await api.get(`/v1/dashboard/gestionnaire/${gestionnaireId}`)
+    let visites = []
     try {
-      const [statsRes, paiementsRes, visitesRes, biensRes] = await Promise.all([
-        api.get('/dashboard/stats'),
-        api.get('/paiements/gestionnaire'),
-        api.get('/visites/gestionnaire/demande'),
-        api.get('/biens/gestionnaire'),
-      ])
-
-      return enrichDashboardStats(statsRes.data, {
-        paiements: paiementsRes.data,
-        visites: visitesRes.data,
-        biens: biensRes.data,
-      })
+      const visitesRes = await visitesService.getListe({ page: 0, size: 100 })
+      visites = pageMeta(visitesRes).items
     } catch {
-      return getMockDashboard()
+      visites = []
     }
+    return mapDashboardDTO(unwrap(dashboardRes), visites)
   },
 }

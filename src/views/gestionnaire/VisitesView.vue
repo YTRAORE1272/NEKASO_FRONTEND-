@@ -3,7 +3,7 @@
     <div class="page-header">
       <h1 class="page-title">Demandes de visites</h1>
       <p class="page-subtitle">
-        Validez les visites en affectant un créneau et un agent, puis suivez-les jusqu'à la clôture.
+        Affectez un agent et un créneau aux demandes ; le client valide la visite après son déroulement.
       </p>
     </div>
 
@@ -49,83 +49,52 @@
       <p v-else class="vide">Aucune demande en attente.</p>
     </div>
 
-<div v-if="ongletActif === 'validees'" class="carte section-carte">
-      <table v-if="visitesStore.validees.length" class="tableau">
+<div v-if="ongletActif === 'confirmees'" class="carte section-carte">
+      <table v-if="visitesStore.confirmees.length" class="tableau">
         <thead>
           <tr>
             <th>Client</th>
+            <th>Contact</th>
             <th>Bien</th>
-            <th>Créneau</th>
-            <th>Agent affecté</th>
+            <th>Demande</th>
             <th>Statut</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="v in itemsPage" :key="v.id">
             <td class="fort">{{ nom(v.client) }}</td>
+            <td class="gris">{{ v.client?.telephone || '—' }}</td>
             <td>{{ v.bien?.intitule }}</td>
-            <td>{{ formatDate(v.creneau?.date) }} à {{ v.creneau?.heure }}</td>
-            <td>{{ nom(v.agent) }} <span class="gris">· {{ v.agent?.telephone }}</span></td>
-            <td><span class="chip chip--attente">En attente d'acceptation client</span></td>
-          </tr>
-        </tbody>
-      </table>
-      <p v-else class="vide">Aucune visite validée.</p>
-    </div>
-
-<div v-if="ongletActif === 'confirmees'" class="carte section-carte">
-      <table v-if="visitesStore.confirmees.length" class="tableau">
-        <thead>
-          <tr>
-            <th>Client</th>
-            <th>Bien</th>
-            <th>Créneau</th>
-            <th>Agent</th>
-            <th class="ta-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="v in itemsPage" :key="v.id">
-            <td class="fort">{{ nom(v.client) }}</td>
-            <td>{{ v.bien?.intitule }}</td>
-            <td>{{ formatDate(v.creneau?.date) }} à {{ v.creneau?.heure }}</td>
-            <td>{{ nom(v.agent) }}</td>
-            <td class="ta-right">
-              <button class="btn-act btn-cloturer" @click="ouvrirCloture(v)">Clôturer</button>
-            </td>
+            <td class="gris">{{ formatDateHeure(v.dateCreation) }}</td>
+            <td><span class="chip chip--attente">En attente de validation du client</span></td>
           </tr>
         </tbody>
       </table>
       <p v-else class="vide">Aucune visite confirmée.</p>
     </div>
 
-<div v-if="ongletActif === 'cloturees'" class="carte section-carte">
-      <table v-if="visitesStore.cloturees.length" class="tableau">
+<div v-if="ongletActif === 'terminees'" class="carte section-carte">
+      <table v-if="visitesStore.terminees.length" class="tableau">
         <thead>
           <tr>
             <th>Client</th>
+            <th>Contact</th>
             <th>Bien</th>
-            <th>Issue</th>
-            <th>Compte-rendu</th>
+            <th>Demande</th>
+            <th>Statut</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="v in itemsPage" :key="v.id">
             <td class="fort">{{ nom(v.client) }}</td>
+            <td class="gris">{{ v.client?.telephone || '—' }}</td>
             <td>{{ v.bien?.intitule }}</td>
-            <td>
-              <span
-                class="chip"
-                :class="v.statut === 'CLOTUREE_AVEC_CONTRAT' ? 'chip--ok' : 'chip--neutre'"
-              >
-                {{ v.statut === 'CLOTUREE_AVEC_CONTRAT' ? 'Avec contrat' : 'Sans suite' }}
-              </span>
-            </td>
-            <td class="gris">{{ v.compteRendu?.texte || '—' }}</td>
+            <td class="gris">{{ formatDateHeure(v.dateCreation) }}</td>
+            <td><span class="chip chip--ok">Terminée</span></td>
           </tr>
         </tbody>
       </table>
-      <p v-else class="vide">Aucune visite clôturée.</p>
+      <p v-else class="vide">Aucune visite terminée.</p>
     </div>
 
     <Pagination v-model="page" :total-pages="totalPages" />
@@ -136,48 +105,37 @@
       @close="visiteAValider = null"
       @valider="confirmerValidation"
     />
-    <ModalCloturerVisite
-      v-if="visiteACloturer"
-      :visite="visiteACloturer"
-      @close="visiteACloturer = null"
-      @cloturer="confirmerCloture"
-    />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useVisitesGestionnaireStore } from '@/stores/visitesGestionnaire.store'
 import { useNotification } from '@/composables/useNotification'
 import { useFormat } from '@/composables/useFormat'
 import { usePagination } from '@/composables/usePagination'
 import ModalValiderVisite from '@/components/visites/ModalValiderVisite.vue'
-import ModalCloturerVisite from '@/components/visites/ModalCloturerVisite.vue'
 import Pagination from '@/components/common/Pagination.vue'
 
-const router = useRouter()
 const visitesStore = useVisitesGestionnaireStore()
 const { succes, info } = useNotification()
-const { formatDate, formatDateHeure } = useFormat()
+const { formatDateHeure } = useFormat()
 
 onMounted(() => visitesStore.charger())
 
 const ongletActif = ref('attente')
 const onglets = computed(() => [
   { cle: 'attente', libelle: 'En attente', liste: visitesStore.enAttente, badge: '' },
-  { cle: 'validees', libelle: 'Validées', liste: visitesStore.validees, badge: 'tab-badge--blue' },
   { cle: 'confirmees', libelle: 'Confirmées', liste: visitesStore.confirmees, badge: 'tab-badge--green' },
-  { cle: 'cloturees', libelle: 'Clôturées', liste: visitesStore.cloturees, badge: '' },
+  { cle: 'terminees', libelle: 'Terminées', liste: visitesStore.terminees, badge: '' },
 ])
 
 const listeActive = computed(
   () =>
     ({
       attente: visitesStore.enAttente,
-      validees: visitesStore.validees,
       confirmees: visitesStore.confirmees,
-      cloturees: visitesStore.cloturees,
+      terminees: visitesStore.terminees,
     })[ongletActif.value] || [],
 )
 const { page, totalPages, itemsPage } = usePagination(listeActive, 8)
@@ -191,31 +149,21 @@ const visiteAValider = ref(null)
 function ouvrirValidation(v) {
   visiteAValider.value = v
 }
+function versCreneau(date, heure) {
+  if (!date) return undefined
+  const [y, m, d] = date.split('-')
+  return `${d}/${m}/${y} ${heure || '00:00'}`
+}
 async function confirmerValidation(payload) {
   const { date, heure, agentId } = payload
-  await visitesStore.confirmer(visiteAValider.value.id, visiteAValider.value.bien?.id || visiteAValider.value.bienId, agentId)
-  succes('Visite validée : le client a été notifié du créneau et de l\'agent.')
+  const bienId = visiteAValider.value.bien?.id || visiteAValider.value.bienId
+  await visitesStore.confirmer(visiteAValider.value.id, bienId, agentId, versCreneau(date, heure))
+  succes('Visite confirmée : un agent a été affecté.')
   visiteAValider.value = null
 }
 async function refuser(id) {
   await visitesStore.refuser(id)
   info('Demande de visite refusée.')
-}
-
-const visiteACloturer = ref(null)
-function ouvrirCloture(v) {
-  visiteACloturer.value = v
-}
-async function confirmerCloture(payload) {
-  const statut = payload.issue === 'AVEC_CONTRAT' ? 'CLOTUREE_AVEC_CONTRAT' : 'CLOTUREE_SANS_CONTRAT'
-  await visitesStore.changerStatut(visiteACloturer.value.id, statut)
-  visiteACloturer.value = null
-  if (payload.issue === 'AVEC_CONTRAT') {
-    succes('Visite clôturée. Contactez le locataire pour créer le contrat.')
-  } else {
-    info('Visite clôturée sans suite.')
-  }
-  ongletActif.value = 'cloturees'
 }
 </script>
 

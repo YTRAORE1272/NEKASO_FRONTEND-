@@ -6,7 +6,7 @@ export const demandesLocationService = {
   changerStatut: (idDemande, statut) =>
     api.patch(`/demandes/gestionnaire/demande/${idDemande}/statut/${statut}`),
 
-  valider: (id) => api.patch(`/demandes/gestionnaire/demande/${id}/statut/VALIDEE`),
+  valider: (id) => api.patch(`/demandes/gestionnaire/demande/${id}/statut/ACCEPTEE`),
   refuser: (id) => api.patch(`/demandes/gestionnaire/demande/${id}/statut/REFUSEE`),
   annuler: (id) => api.patch(`/demandes/gestionnaire/demande/${id}/statut/ANNULEE`),
 }

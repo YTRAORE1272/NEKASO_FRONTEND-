@@ -29,5 +29,11 @@ export const useVisitesLocataireStore = defineStore('visitesLocataire', () => {
     return res
   }
 
-  return { visites, chargement, erreur, chargerVisites, demander }
+  async function cloturer(idDemande, choix, payload = {}) {
+    const res = await visitesLocataireService.cloturer(idDemande, choix, payload)
+    await chargerVisites()
+    return res
+  }
+
+  return { visites, chargement, erreur, chargerVisites, demander, cloturer }
 })

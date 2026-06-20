@@ -70,8 +70,7 @@
       <div class="wizard-modal">
         <button class="x" @click="wizardOuvert = false" aria-label="Fermer">✕</button>
         <WizardContrat
-          :clients="clients"
-          :biens="biensDisponibles"
+          :demandes="demandesAcceptees"
           @cree="onPreContratCree"
         />
       </div>
@@ -85,6 +84,7 @@ import { useRouter } from 'vue-router'
 import { useContratsStore } from '@/stores/contrats.store'
 import { usePreContratsStore } from '@/stores/preContrats.store'
 import { useBiensStore } from '@/stores/biens.store'
+import { useDemandesLocationStore } from '@/stores/demandesLocation.store'
 import { useNotification } from '@/composables/useNotification'
 import { useFormat } from '@/composables/useFormat'
 import { usePagination } from '@/composables/usePagination'
@@ -96,6 +96,7 @@ const router = useRouter()
 const contratsStore = useContratsStore()
 const preContratsStore = usePreContratsStore()
 const biensStore = useBiensStore()
+const demandesStore = useDemandesLocationStore()
 const { succes, erreur: notifErreur } = useNotification()
 const { formatMontant } = useFormat()
 
@@ -103,7 +104,11 @@ const recherche = ref('')
 const filtreStatut = ref('tous')
 const wizardOuvert = ref(false)
 
-onMounted(() => contratsStore.chargerGestionnaire())
+onMounted(() => {
+  contratsStore.chargerGestionnaire()
+  biensStore.charger({ page: 0, size: 100 })
+  demandesStore.chargerDemandesBackend()
+})
 
 const tabs = [
   { cle: 'tous', libelle: 'Tous' },
@@ -111,9 +116,13 @@ const tabs = [
   { cle: 'actifs', libelle: 'Actifs' },
 ]
 
-const clients = ref([])
-const biensDisponibles = computed(() =>
-  biensStore.biens.filter((b) => ['DISPONIBLE', 'RESERVE'].includes(b.statutBien)),
+const demandesAcceptees = computed(() =>
+  demandesStore.demandes
+    .filter((d) => d.statut === 'ACCEPTEE')
+    .map((d) => ({
+      ...d,
+      bien: d.bien || biensStore.biens.find((b) => Number(b.id) === Number(d.bienId)) || null,
+    })),
 )
 
 const tousLesContrats = computed(() => {

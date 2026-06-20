@@ -36,6 +36,14 @@ export function pageMeta(res) {
   }
 }
 
+export function extraireMessageErreur(err, fallback = "Une erreur s'est produite") {
+  if (!err?.response) return 'Impossible de contacter le serveur. Vérifiez votre connexion.'
+  const msg = err.response.data?.message
+  if (msg && typeof msg === 'object') return Object.values(msg).join(' ')
+  if (typeof msg === 'string') return msg
+  return fallback
+}
+
 export function listeOuVide(promesse) {
   return promesse
     .then((res) => unwrapList(res))

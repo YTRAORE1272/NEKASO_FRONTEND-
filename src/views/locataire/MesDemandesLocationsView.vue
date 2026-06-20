@@ -37,7 +37,7 @@
               Annuler la demande
             </button>
             <router-link
-              v-else-if="d.statut === 'VALIDEE' && preContratDe(d)"
+              v-else-if="d.statut === 'ACCEPTEE' && preContratDe(d)"
               :to="`/locataire/contrat/${preContratDe(d).id}`"
               class="btn-vert lien"
             >
@@ -95,7 +95,7 @@ function preContratDe(d) {
 function st(d) {
   if (d.statut === 'ANNULEE') return { label: 'Annulée', variant: 'neutral', etape: 0, ton: 'red' }
   if (d.statut === 'REFUSEE') return { label: 'Non retenue', variant: 'red', etape: 0, ton: 'red' }
-  if (d.statut === 'VALIDEE') {
+  if (d.statut === 'ACCEPTEE') {
     const c = preContratDe(d)
     if (c?.statut === 'ACTIF') return { label: 'Bail actif', variant: 'green', etape: 2, ton: 'green' }
     return { label: 'Retenue', variant: 'green', etape: 1, ton: 'green' }
@@ -105,7 +105,7 @@ function st(d) {
 function message(d) {
   return {
     EN_ATTENTE: 'En attente de validation par le gestionnaire.',
-    VALIDEE: 'Félicitations ! Votre demande a été retenue, un pré-contrat vous est proposé.',
+    ACCEPTEE: 'Félicitations ! Votre demande a été retenue, un pré-contrat vous est proposé.',
     ANNULEE: 'Cette demande a été annulée.',
     REFUSEE: 'Ce bien ne vous a pas été octroyé.',
   }[d.statut] || ''

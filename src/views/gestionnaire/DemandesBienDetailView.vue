@@ -100,7 +100,7 @@ const nom = (p) => nomComplet(p)
 function libelleStatut(s) {
   return {
     EN_ATTENTE: 'En attente',
-    VALIDEE: 'Retenue',
+    ACCEPTEE: 'Retenue',
     ANNULEE: 'Annulée',
     REFUSEE: 'Refusée',
   }[s] || s
@@ -108,7 +108,7 @@ function libelleStatut(s) {
 function chipClass(s) {
   return {
     EN_ATTENTE: 'chip--attente',
-    VALIDEE: 'chip--ok',
+    ACCEPTEE: 'chip--ok',
     ANNULEE: 'chip--neutre',
     REFUSEE: 'chip--danger',
   }[s] || ''
