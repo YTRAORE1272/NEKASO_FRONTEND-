@@ -538,7 +538,7 @@ const confirmerVisite = async () => {
   erreurVisite.value = ''
 
   try {
-    const res = await visitesLocataireService.demander(authStore.user?.id, Number(bien.value.id))
+    const res = await visitesLocataireService.demander(Number(bien.value.id))
     const message = res?.message || ''
     router.push({
       path: `/locataire/succes-visite/${bien.value.id}`,

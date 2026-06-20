@@ -88,20 +88,19 @@ import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { useNotification } from '@/composables/useNotification'
-import { getClient, SESSION } from '@/mocks/db'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const { succes } = useNotification()
 
-const client = getClient(SESSION.clientId)
+const user = authStore.user
 const form = reactive({
-  prenom: client?.prenom || '',
-  nom: client?.nom || '',
-  telephone: client?.telephone || '',
-  email: client?.email || '',
-  profession: client?.profession || '',
-  ville: client?.ville || 'Dakar',
+  prenom: user?.prenom || '',
+  nom: user?.nom || '',
+  telephone: user?.telephone || '',
+  email: user?.email || '',
+  profession: user?.profession || '',
+  ville: user?.ville || 'Dakar',
 })
 
 const edition = ref(false)
@@ -121,25 +120,24 @@ const initiales = computed(() =>
 )
 
 function enregistrer() {
-  // Persiste dans la base mock réactive (le temps de la session)
-  if (client) {
-    client.prenom = form.prenom
-    client.nom = form.nom
-    client.telephone = form.telephone
-    client.email = form.email
-    client.profession = form.profession
-    client.ville = form.ville
+  // Ici vous pourrez appeler une API (ex: authService.updateProfile)
+  // Pour l'instant, on met à jour le store localement
+  if (authStore.user) {
+    authStore.user.prenom = form.prenom
+    authStore.user.nom = form.nom
+    authStore.user.telephone = form.telephone
+    // ... email, profession, ville si gérés par le store
   }
   edition.value = false
   succes('Informations enregistrées.')
 }
 function annuler() {
-  form.prenom = client?.prenom || ''
-  form.nom = client?.nom || ''
-  form.telephone = client?.telephone || ''
-  form.email = client?.email || ''
-  form.profession = client?.profession || ''
-  form.ville = client?.ville || 'Dakar'
+  form.prenom = user?.prenom || ''
+  form.nom = user?.nom || ''
+  form.telephone = user?.telephone || ''
+  form.email = user?.email || ''
+  form.profession = user?.profession || ''
+  form.ville = user?.ville || 'Dakar'
   edition.value = false
 }
 function logout() {

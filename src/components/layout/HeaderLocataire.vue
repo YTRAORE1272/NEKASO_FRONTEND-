@@ -24,7 +24,7 @@
             <circle cx="12" cy="8" r="4" />
             <path d="M4 21a8 8 0 0 1 16 0" />
           </svg>
-          Profil
+          {{ authStore.nomComplet || 'Profil' }}
         </router-link>
         <button @click="logout" class="btn-logout" title="Se déconnecter" type="button">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -54,7 +54,7 @@
         <router-link to="/locataire/mes-locations" class="mobile-link" @click="mobileOpen = false">Mes locations</router-link>
         <router-link to="/locataire/mes-demandes-visites" class="mobile-link" @click="mobileOpen = false">Mes demandes de visite</router-link>
         <router-link to="/locataire/mes-demandes-locations" class="mobile-link" @click="mobileOpen = false">Mes demandes de location</router-link>
-        <router-link to="/locataire/profil" class="mobile-link" @click="mobileOpen = false">Profil</router-link>
+        <router-link to="/locataire/profil" class="mobile-link" @click="mobileOpen = false">{{ authStore.nomComplet || 'Profil' }}</router-link>
         <button class="mobile-link mobile-logout" @click="mobileOpen = false; logout()">Se déconnecter</button>
       </div>
     </Transition>

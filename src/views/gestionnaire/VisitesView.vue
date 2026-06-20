@@ -161,21 +161,22 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useVisitesStore } from '@/stores/visites.store'
+import { useVisitesGestionnaireStore } from '@/stores/visitesGestionnaire.store'
 import { useNotification } from '@/composables/useNotification'
 import { useFormat } from '@/composables/useFormat'
 import { usePagination } from '@/composables/usePagination'
-import { nomComplet } from '@/mocks/db'
 import ModalValiderVisite from '@/components/visites/ModalValiderVisite.vue'
 import ModalCloturerVisite from '@/components/visites/ModalCloturerVisite.vue'
 import Pagination from '@/components/common/Pagination.vue'
 
 const router = useRouter()
-const visitesStore = useVisitesStore()
+const visitesStore = useVisitesGestionnaireStore()
 const { succes, info } = useNotification()
 const { formatDate, formatDateHeure } = useFormat()
+
+onMounted(() => visitesStore.charger())
 
 const ongletActif = ref('attente')
 const onglets = computed(() => [
@@ -200,7 +201,7 @@ watch(ongletActif, () => {
   page.value = 1
 })
 
-const nom = (p) => nomComplet(p)
+const nom = (p) => p ? `${p.prenom || ''} ${p.nom || ''}`.trim() || p.telephone || '—' : '—'
 
 /* Validation */
 const visiteAValider = ref(null)
@@ -208,7 +209,8 @@ function ouvrirValidation(v) {
   visiteAValider.value = v
 }
 async function confirmerValidation(payload) {
-  await visitesStore.valider(visiteAValider.value.id, payload)
+  const { date, heure, agentId } = payload
+  await visitesStore.confirmer(visiteAValider.value.id, visiteAValider.value.bien?.id || visiteAValider.value.bienId, agentId)
   succes('Visite validée : le client a été notifié du créneau et de l\'agent.')
   visiteAValider.value = null
 }
@@ -223,15 +225,16 @@ function ouvrirCloture(v) {
   visiteACloturer.value = v
 }
 async function confirmerCloture(payload) {
-  const contrat = await visitesStore.cloturer(visiteACloturer.value.id, payload)
+  // Clôture via changement de statut backend selon l'issue.
+  const statut = payload.issue === 'AVEC_CONTRAT' ? 'CLOTUREE_AVEC_CONTRAT' : 'CLOTUREE_SANS_CONTRAT'
+  await visitesStore.changerStatut(visiteACloturer.value.id, statut)
   visiteACloturer.value = null
-  if (payload.issue === 'AVEC_CONTRAT' && contrat) {
-    succes('Visite clôturée. Pré-contrat créé et envoyé au client.')
-    router.push(`/gestionnaire/contrats/${contrat.id}`)
+  if (payload.issue === 'AVEC_CONTRAT') {
+    succes('Visite clôturée. Contactez le locataire pour créer le contrat.')
   } else {
     info('Visite clôturée sans suite.')
-    ongletActif.value = 'cloturees'
   }
+  ongletActif.value = 'cloturees'
 }
 </script>
 

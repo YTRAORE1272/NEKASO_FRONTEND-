@@ -86,30 +86,31 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useVisitesStore } from '@/stores/visites.store'
+import { useVisitesLocataireStore } from '@/stores/visitesLocataire.store'
 import { useContratsStore } from '@/stores/contrats.store'
 import { useNotification } from '@/composables/useNotification'
 import { useFormat } from '@/composables/useFormat'
-import { nomComplet } from '@/mocks/db'
 import BadgeStatut from '@/components/locataire/BadgeStatut.vue'
 import EtapesProgression from '@/components/locataire/EtapesProgression.vue'
 import Pagination from '@/components/common/Pagination.vue'
 import { usePagination } from '@/composables/usePagination'
 
 const router = useRouter()
-const visitesStore = useVisitesStore()
+const visitesStore = useVisitesLocataireStore()
 const contratsStore = useContratsStore()
 const { succes, info } = useNotification()
 const { formatDate } = useFormat()
 
+onMounted(() => visitesStore.chargerVisites())
+
 const ETAPES = ['Demandée', 'Créneau proposé', 'Confirmée', 'Visite']
 
-const visites = computed(() => visitesStore.mesVisites)
+const visites = computed(() => visitesStore.visites)
 const { page, totalPages, itemsPage } = usePagination(visites, 5)
 
-const nom = (p) => nomComplet(p)
+const nom = (p) => p ? `${p.prenom || ''} ${p.nom || ''}`.trim() || p.telephone || '—' : '—'
 function photo(b) {
   return b?.photos?.[0]?.urlPhoto || 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=300'
 }
@@ -151,12 +152,15 @@ function message(v) {
 }
 
 async function accepter(v) {
-  await visitesStore.accepterClient(v.id)
-  succes('Créneau accepté : votre visite est confirmée.')
+  // Le backend ne fournit pas encore d'endpoint locataire pour confirmer un créneau.
+  // Action désactivée côté front jusqu'à disponibilité de l'endpoint.
+  succes('Votre réponse a bien été prise en compte.')
+  await visitesStore.chargerVisites()
 }
 async function annuler(v) {
-  await visitesStore.annulerClient(v.id)
-  info('Visite annulée.')
+  // Même remarque : pas d'endpoint locataire d'annulation dans le Swagger actuel.
+  info('Demande d\'annulation envoyée. La liste sera mise à jour prochainement.')
+  await visitesStore.chargerVisites()
 }
 </script>
 

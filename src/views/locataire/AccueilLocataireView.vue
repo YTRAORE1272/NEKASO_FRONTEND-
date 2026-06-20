@@ -95,15 +95,22 @@ import { useContratsStore } from '@/stores/contrats.store'
 import { useVisitesStore } from '@/stores/visites.store'
 import { useDemandesLocationStore } from '@/stores/demandesLocation.store'
 import { useBiensPublicsStore } from '@/stores/biensPublics.store'
+import { useAuthStore } from '@/stores/auth.store'
 import CarteBienPublic from '@/components/locataire/CarteBienPublic.vue'
-import { SESSION, getClient } from '@/mocks/db'
 
 const contratsStore = useContratsStore()
 const visitesStore = useVisitesStore()
 const demandesStore = useDemandesLocationStore()
 const biensStore = useBiensPublicsStore()
+const authStore = useAuthStore()
 
-const prenom = computed(() => getClient(SESSION.clientId)?.prenom || 'Locataire')
+const prenom = computed(() => {
+  if (authStore.user?.prenom) return authStore.user.prenom
+  if (authStore.user?.nom) return authStore.user.nom
+  if (authStore.nomComplet) return authStore.nomComplet
+  if (authStore.user?.telephone) return authStore.user.telephone
+  return 'Locataire'
+})
 
 const nbLocations = computed(() => contratsStore.mesContratsActifs.length)
 const nbVisites = computed(() => visitesStore.mesVisites.length)

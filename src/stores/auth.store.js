@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { authService } from '@/services/auth.service'
 import { getToken, setToken, removeToken, getUser, setUser, removeUser } from '@/services/storage'
+import { parseJwt } from '@/utils/jwt'
 
 /*
   Construit l'objet utilisateur à partir de la charge utile renvoyée par le
@@ -12,22 +13,41 @@ import { getToken, setToken, removeToken, getUser, setUser, removeUser } from '@
   backend l'envoie, mais il n'est plus nécessaire pour les appels API.
 */
 function construireUser(payload) {
-  const roles = payload.roles || (payload.role ? [payload.role] : [])
+  const u = payload?.user || payload || {}
+  const roles = u.roles || (u.role ? [u.role] : (payload?.roles || (payload?.role ? [payload.role] : [])))
   const role = roles[0] || 'LOCATAIRE'
   return {
-    id: payload.id ?? null,
-    nom: payload.nom,
-    prenom: payload.prenom,
-    telephone: payload.telephone,
+    id: u.id ?? payload?.id ?? null,
+    nom: u.nom || payload?.nom || '',
+    prenom: u.prenom || payload?.prenom || '',
+    telephone: u.telephone || payload?.telephone || '',
     role,
     roles,
-    statut: payload.statut ?? 'ACTIF',
+    statut: u.statut ?? payload?.statut ?? 'ACTIF',
   }
 }
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref(getToken())
   const user = ref(getUser())
+
+  // Si on a un token mais pas d'infos utilisateur en stockage,
+  // on décode le JWT pour récupérer au moins le téléphone (sub) de manière résiliente.
+  if (token.value && !user.value) {
+    const jwtPayload = parseJwt(token.value)
+    if (jwtPayload && jwtPayload.sub) {
+      user.value = {
+        id: null,
+        nom: '',
+        prenom: '',
+        telephone: jwtPayload.sub,
+        role: 'LOCATAIRE',
+        roles: ['LOCATAIRE'],
+        statut: 'ACTIF'
+      }
+    }
+  }
+
   const isLoading = ref(false)
   const error = ref(null)
 
@@ -36,7 +56,13 @@ export const useAuthStore = defineStore('auth', () => {
 
   const utilisateurCourant = computed(() => user.value)
   const isAuthenticated = computed(() => !!token.value)
-  const nomComplet = computed(() => (user.value ? `${user.value.prenom} ${user.value.nom}` : ''))
+  const nomComplet = computed(() => {
+    if (!user.value) return ''
+    if (user.value.prenom || user.value.nom) {
+      return `${user.value.prenom || ''} ${user.value.nom || ''}`.trim()
+    }
+    return user.value.telephone || ''
+  })
   const isGestionnaire = computed(() => user.value?.role === 'GESTIONNAIRE')
   const userId = computed(() => user.value?.id ?? null)
 
