@@ -46,8 +46,8 @@
               <span class="rang">{{ i + 1 }}</span>
               <span v-if="d.id === groupe.prioritaireId" class="badge-prio">Prioritaire</span>
             </td>
-            <td class="fort">{{ nom(d.client) }}</td>
-            <td class="gris">{{ d.client?.telephone }}</td>
+            <td class="fort">{{ nomClient(d) }}</td>
+            <td class="gris">{{ d.client?.telephone || '—' }}</td>
             <td>
               <span class="source" :class="d.source === 'DIRECTE' ? 'source--express' : ''">
                 {{ d.source === 'DIRECTE' ? 'Express' : 'Visite' }}
@@ -95,7 +95,13 @@ const photo = computed(
   () => groupe.value?.bien?.photos?.[0]?.urlPhoto || 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400',
 )
 
-const nom = (p) => nomComplet(p)
+// Le backend ne renvoie que locataireId (cf. DemandeLocationDTO) — ni nom ni
+// téléphone. À défaut, on identifie la demande par l'id du locataire.
+function nomClient(d) {
+  const complet = nomComplet(d.client)
+  if (complet && complet !== '—') return complet
+  return d.clientId ? `Locataire #${d.clientId}` : '—'
+}
 
 function libelleStatut(s) {
   return {
@@ -116,7 +122,7 @@ function chipClass(s) {
 
 async function valider(d) {
   const contrat = await store.validerDemande(d.id)
-  succes(`Demande de ${nom(d.client)} validée. Les autres demandes ont été annulées et notifiées.`)
+  succes(`Demande de ${nomClient(d)} validée. Les autres demandes ont été annulées et notifiées.`)
   if (contrat) router.push(`/gestionnaire/contrats/${contrat.id}`)
 }
 

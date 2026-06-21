@@ -52,3 +52,31 @@ export function listeOuVide(promesse) {
       throw e
     })
 }
+
+const CHAMPS_DATE = [
+  'dateCreation',
+  'dateAjout',
+  'dateDemande',
+  'dateSignature',
+  'datePaiement',
+  'dateDebut',
+  'dateDebutPrevu',
+]
+
+function valeurDate(item, champ) {
+  if (champ) return item?.[champ]
+  for (const c of CHAMPS_DATE) {
+    if (item?.[c]) return item[c]
+  }
+  return null
+}
+
+export function trierParDateDecroissante(liste, champ = null) {
+  if (!Array.isArray(liste)) return []
+  return [...liste].sort((a, b) => {
+    const da = new Date(valeurDate(a, champ) || 0).getTime()
+    const db = new Date(valeurDate(b, champ) || 0).getTime()
+    if (db !== da) return db - da
+    return (Number(b?.id) || 0) - (Number(a?.id) || 0)
+  })
+}

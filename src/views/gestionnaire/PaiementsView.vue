@@ -2,204 +2,391 @@
   <div class="paiements-page">
     <div class="page-header">
       <h1 class="page-title">Paiements</h1>
-      <p class="page-subtitle">Suivi des loyers par contrat. Ouvrez un contrat pour enregistrer un paiement.</p>
+      <p class="page-subtitle">Historique des loyers encaissés.</p>
     </div>
 
-    <div class="barre-filtres carte">
-      <div class="recherche">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2">
-          <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-        </svg>
-        <input v-model="recherche" type="text" placeholder="Téléphone, nom client ou n° de contrat..." />
+    <div class="stats">
+      <div class="stat-carte">
+        <span class="stat-label">Total perçu ce mois</span>
+        <span class="stat-val vert">{{ formatMontant(totalPercuCeMois) }} FCFA</span>
+      </div>
+      <div class="stat-carte">
+        <span class="stat-label">Nombre de paiements</span>
+        <span class="stat-val">{{ paiementsListe.length }}</span>
       </div>
     </div>
 
+    <div class="filtres">
+      <select v-model="filtreMois" class="select-filtre">
+        <option value="">Tous les mois</option>
+        <option v-for="m in moisDisponibles" :key="m" :value="m">{{ formatMois(m) }}</option>
+      </select>
+      <select v-model="filtreLocataire" class="select-filtre">
+        <option value="">Tous locataires</option>
+        <option v-for="loc in locatairesDisponibles" :key="loc.id" :value="loc.id">{{ loc.nom }}</option>
+      </select>
+    </div>
+
     <div class="carte liste-carte">
-      <table v-if="lignes.length" class="tableau">
+      <div class="barre-action">
+        <button class="btn-ajouter" @click="modalOuvert = true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Enregistrer un paiement
+        </button>
+      </div>
+
+      <div v-if="chargement" class="vide">Chargement des paiements…</div>
+
+      <table v-else class="tableau">
         <thead>
           <tr>
-            <th>N° contrat</th>
-            <th>Client</th>
-            <th>Téléphone</th>
             <th>Bien</th>
-            <th>Avancement</th>
-            <th>Prochaine échéance</th>
-            <th class="ta-right">Action</th>
+            <th>Locataire</th>
+            <th>Mois</th>
+            <th>Méthode</th>
+            <th class="ta-right">Montant payé</th>
+            <th class="ta-right">Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="l in lignesPage" :key="l.contrat.id">
-            <td class="fort">{{ l.contrat.numero }}</td>
-            <td>{{ nom(l.contrat.client) }}</td>
-            <td class="gris">{{ l.contrat.client?.telephone }}</td>
-            <td>{{ l.contrat.bien?.intitule }}</td>
+          <tr v-for="l in paiementsPage" :key="l.id">
             <td>
-              <div class="avancement">
-                <div class="barre"><div class="barre-fill" :style="{ width: l.progression + '%' }"></div></div>
-                <span class="gris">{{ l.payes }}/{{ l.total }}</span>
-              </div>
+              <div class="bien-nom">{{ l.bien?.intitule || '—' }}</div>
+              <div class="bien-adresse">{{ l.bien?.adresse || '' }}</div>
             </td>
-            <td>
-              <span v-if="l.prochaine" class="chip chip--warn">
-                {{ l.prochaine.libelle }} · {{ formatMontant(l.prochaine.montant) }}
-              </span>
-              <span v-else class="chip chip--green">À jour</span>
-            </td>
+            <td>{{ l.locataireNom }}</td>
+            <td>{{ l.mois }}</td>
+            <td class="gris">{{ l.methodeLibelle }}</td>
+            <td class="ta-right montant-vert">{{ formatMontant(l.montant) }} FCFA</td>
             <td class="ta-right">
-              <button class="btn-gerer" @click="$router.push(`/gestionnaire/contrats/${l.contrat.id}`)">
-                Gérer
+              <button class="btn-quittance" @click="ouvrirQuittance(l)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="4" y="2" width="16" height="20" rx="2" /><line x1="8" y1="7" x2="16" y2="7" /><line x1="8" y1="11" x2="16" y2="11" />
+                </svg>
+                Quittance
               </button>
             </td>
           </tr>
+          <tr v-if="!paiementsFiltres.length">
+            <td colspan="6" class="vide">Aucun paiement enregistré.</td>
+          </tr>
         </tbody>
       </table>
-      <p v-else class="vide">Aucun contrat actif.</p>
     </div>
 
-    <Pagination v-model="page" :total-pages="totalPages" />
+    <Pagination v-if="paiementsFiltres.length" v-model="page" :total-pages="totalPages" />
+
+    <ModalEnregistrerPaiement
+      v-if="modalOuvert"
+      :contrats="contratsActifs"
+      :en-cours="enregistrementEnCours"
+      @close="modalOuvert = false"
+      @enregistrer="enregistrerPaiement"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useContratsStore } from '@/stores/contrats.store'
-import { usePaiementsStore } from '@/stores/paiements.store'
+import { paiementsService } from '@/services/paiements.service'
+import { mapPaiements } from '@/services/mappers'
 import { useFormat } from '@/composables/useFormat'
+import { useNotification } from '@/composables/useNotification'
 import { usePagination } from '@/composables/usePagination'
 import { nomComplet, STATUT_CONTRAT } from '@/utils/constants'
+import ModalEnregistrerPaiement from '@/components/paiements/ModalEnregistrerPaiement.vue'
 import Pagination from '@/components/common/Pagination.vue'
 
 const contratsStore = useContratsStore()
-const paiementsStore = usePaiementsStore()
-const { formatMontant } = useFormat()
+const { formatMontant, formatMois } = useFormat()
+const { succes, erreur, info } = useNotification()
 
-const recherche = ref('')
+const filtreMois = ref('')
+const filtreLocataire = ref('')
 
-const lignes = computed(() =>
-  contratsStore
-    .filtrer(recherche.value)
-    .filter((c) => c.statut === STATUT_CONTRAT.ACTIF)
-    .map((contrat) => {
-      const total = contrat.echeances.length
-      const payes = contrat.echeances.filter((e) => e.statut === 'PAYE').length
-      return {
-        contrat,
-        total,
-        payes,
-        progression: total ? Math.round((payes / total) * 100) : 0,
-        prochaine: paiementsStore.echeanceCourante(contrat),
-      }
-    }),
+const paiementsReels = ref([])
+const chargement = ref(false)
+const modalOuvert = ref(false)
+const enregistrementEnCours = ref(false)
+
+const contratsActifs = computed(() =>
+  contratsStore.contrats.filter((c) => c.statut === STATUT_CONTRAT.ACTIF),
 )
 
-const { page, totalPages, itemsPage: lignesPage } = usePagination(lignes, 8)
+onMounted(async () => {
+  await contratsStore.chargerGestionnaire()
+  await chargerPaiements()
+})
 
-const nom = (p) => nomComplet(p)
+async function chargerPaiements() {
+  chargement.value = true
+  const tous = []
+  for (const contrat of contratsActifs.value) {
+    try {
+      const res = await paiementsService.getHistorique(contrat.id, { page: 0, size: 100 })
+      const body = res?.data ?? res
+      const items = body?.data || body?.content || body?.items || (Array.isArray(body) ? body : [])
+      mapPaiements(items).forEach((p) => {
+        tous.push({ ...p, contrat })
+      })
+    } catch (e) {
+      if (e?.response?.status !== 404) console.error('chargerPaiements:', e)
+    }
+  }
+  paiementsReels.value = tous
+  chargement.value = false
+}
+
+function normaliserMois(valeur) {
+  if (!valeur) return ''
+  if (/^\d{4}-\d{2}/.test(valeur)) return valeur.slice(0, 10)
+  return valeur
+}
+
+const moisCourant = computed(() => {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+})
+
+const paiementsListe = computed(() =>
+  paiementsReels.value
+    .map((p) => ({
+      id: `pay-${p.id}`,
+      bien: p.contrat.bien,
+      locataireNom: nomComplet(p.contrat.locataire),
+      locataireId: p.contrat.locataire?.id ?? p.contrat.id,
+      mois: normaliserMois(p.mois || p.datePaiement),
+      moisCle: (p.mois || '').slice(0, 7),
+      montant: p.montant,
+      methodeLibelle: p.methodeLibelle,
+      quittance: p.quittance,
+    }))
+    .sort((a, b) => (b.mois || '').localeCompare(a.mois || '')),
+)
+
+const paiementsFiltres = computed(() =>
+  paiementsListe.value.filter((l) => {
+    if (filtreMois.value && l.moisCle !== filtreMois.value) return false
+    if (filtreLocataire.value && String(l.locataireId) !== String(filtreLocataire.value)) return false
+    return true
+  }),
+)
+
+const { page, totalPages, itemsPage: paiementsPage } = usePagination(paiementsFiltres, 8)
+
+const moisDisponibles = computed(() => {
+  const set = new Set()
+  paiementsListe.value.forEach((l) => l.moisCle && set.add(l.moisCle))
+  return [...set].sort().reverse()
+})
+
+const locatairesDisponibles = computed(() => {
+  const map = new Map()
+  paiementsListe.value.forEach((l) => {
+    if (l.locataireId && !map.has(l.locataireId)) map.set(l.locataireId, { id: l.locataireId, nom: l.locataireNom })
+  })
+  return [...map.values()]
+})
+
+const totalPercuCeMois = computed(() =>
+  paiementsListe.value
+    .filter((l) => l.moisCle === moisCourant.value)
+    .reduce((s, l) => s + Number(l.montant || 0), 0),
+)
+
+async function enregistrerPaiement(payload) {
+  enregistrementEnCours.value = true
+  try {
+    await paiementsService.enregistrer(payload.contratId, payload.mois, payload.methodePaiement, {
+      montant: payload.montant,
+      reference: payload.reference,
+      mois: payload.mois,
+    })
+    succes('Paiement enregistré.')
+    modalOuvert.value = false
+    await chargerPaiements()
+  } catch (e) {
+    console.error('enregistrerPaiement:', e)
+    erreur("Impossible d'enregistrer le paiement.")
+  } finally {
+    enregistrementEnCours.value = false
+  }
+}
+
+function ouvrirQuittance(ligne) {
+  if (ligne.quittance) {
+    const baseUrl = 'http://74.248.184.17:8080'
+    const url = ligne.quittance.startsWith('http')
+      ? ligne.quittance
+      : `${baseUrl}${ligne.quittance.startsWith('/') ? '' : '/'}${ligne.quittance}`
+    window.open(url, '_blank')
+  } else {
+    info('La quittance sera bientôt disponible.')
+  }
+}
 </script>
 
 <style scoped>
 .paiements-page {
   padding: 0;
 }
-.barre-filtres {
-  margin-bottom: 20px;
-  padding: 14px 20px;
+.page-header {
+  margin-bottom: 22px;
 }
-.recherche {
+.page-title {
+  font-size: 30px;
+  font-weight: 700;
+  color: #1e293b;
+}
+.page-subtitle {
+  font-size: 15px;
+  color: #64748b;
+  margin-top: 6px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+}
+.stat-carte {
+  background: #fff;
+  border-radius: 14px;
+  padding: 22px 24px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
   display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #f8fafc;
-  border-radius: 8px;
-  padding: 8px 12px;
+  flex-direction: column;
+  gap: 10px;
 }
-.recherche input {
-  border: none;
-  background: transparent;
-  outline: none;
+.stat-label {
   font-size: 14px;
-  width: 100%;
+  color: #64748b;
+}
+.stat-val {
+  font-size: 30px;
+  font-weight: 700;
+  color: #1e293b;
+}
+.stat-val.vert {
+  color: #16a34a;
+}
+
+.filtres {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.select-filtre {
+  padding: 11px 16px;
+  border: none;
+  background: #fff;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #475569;
   font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  min-width: 200px;
+  outline: none;
+}
+
+.carte {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
 }
 .liste-carte {
   padding: 0;
   overflow: hidden;
 }
+.barre-action {
+  display: flex;
+  justify-content: flex-end;
+  padding: 18px 24px 0;
+}
+.btn-ajouter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #1e293b;
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .tableau {
   width: 100%;
   border-collapse: collapse;
 }
 .tableau th {
   text-align: left;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
-  color: #94a3b8;
-  padding: 14px 20px;
-  border-bottom: 1px solid #f1f5f9;
+  color: #64748b;
+  padding: 18px 24px;
 }
 .tableau td {
-  padding: 15px 20px;
+  padding: 18px 24px;
   font-size: 14px;
-  color: #374151;
-  border-bottom: 1px solid #f8fafc;
-}
-.tableau tr:last-child td {
-  border-bottom: none;
-}
-.fort {
-  font-weight: 600;
-  color: #111827;
-}
-.gris {
-  color: #94a3b8;
+  color: #1e293b;
+  border-top: 1px solid #f1f5f9;
+  vertical-align: middle;
 }
 .ta-right {
   text-align: right;
 }
-.avancement {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.bien-nom {
+  font-weight: 600;
+  color: #1e293b;
 }
-.barre {
-  width: 90px;
-  height: 6px;
-  background: #e2e8f0;
-  border-radius: 3px;
-  overflow: hidden;
-}
-.barre-fill {
-  height: 100%;
-  background: #00d15a;
-}
-.btn-gerer {
-  background: #212d4d;
-  color: #fff;
-  border: none;
-  border-radius: 7px;
-  padding: 7px 14px;
+.bien-adresse {
   font-size: 13px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+.gris {
+  color: #64748b;
+}
+.montant-vert {
+  color: #16a34a;
+  font-weight: 600;
+}
+.btn-quittance {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-}
-.chip {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-}
-.chip--warn {
-  background: #fef3c7;
-  color: #b45309;
-}
-.chip--green {
-  background: #dcfce7;
-  color: #16a34a;
 }
 .vide {
   text-align: center;
   color: #94a3b8;
   padding: 40px;
+}
+
+@media (max-width: 860px) {
+  .stats {
+    grid-template-columns: 1fr;
+  }
+  .filtres {
+    flex-direction: column;
+  }
+  .select-filtre {
+    min-width: 0;
+  }
 }
 </style>

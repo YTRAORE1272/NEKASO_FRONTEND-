@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { biensService } from '@/services/biens.service'
 import { mapBiens } from '@/services/mappers'
-import { pageMeta } from '@/utils/apiResponse'
+import { pageMeta, trierParDateDecroissante } from '@/utils/apiResponse'
 
 function bienToFormData(bien, overrides = {}) {
   const b = { ...bien, ...overrides }
@@ -43,7 +43,7 @@ export const useBiensStore = defineStore('biens', () => {
     try {
       const res = await biensService.getMesBiens(params)
       const meta = pageMeta(res)
-      biens.value = mapBiens(meta.items)
+      biens.value = trierParDateDecroissante(mapBiens(meta.items), 'dateAjout')
       pagination.value = {
         page: meta.page,
         size: meta.size,

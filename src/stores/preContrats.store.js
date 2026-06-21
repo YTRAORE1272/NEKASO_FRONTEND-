@@ -1,17 +1,17 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { preContratsService } from '@/services/pre-contrats.service'
-import { listeOuVide, unwrap } from '@/utils/apiResponse'
+import { listeOuVide, unwrap, trierParDateDecroissante } from '@/utils/apiResponse'
 import { mapPreContrats } from '@/services/mappers'
 import { useAuthStore } from '@/stores/auth.store'
 import { useVisitesLocataireStore } from '@/stores/visitesLocataire.store'
 
 // L'API pré-contrat ne renvoie que bienImmobilierId/bienLibelle, sans adresse.
-// On reconstitue le bien complet via la demande de visite liée (qui contient le bien entier).
+// On reconstitue le bien complet via la visite liée au même bien (qui contient le bien entier).
 function enrichirBien(preContrats) {
   const visitesLocataireStore = useVisitesLocataireStore()
   return preContrats.map((p) => {
-    const visite = visitesLocataireStore.visites.find((v) => Number(v.id) === Number(p.demandeVisiteId))
+    const visite = visitesLocataireStore.visites.find((v) => Number(v.bien?.id ?? v.bienId) === Number(p.bienId))
     return {
       ...p,
       bien: { id: p.bienId, intitule: p.bienIntitule, adresse: visite?.bien?.adresse ?? null },
@@ -71,7 +71,7 @@ export const usePreContratsStore = defineStore('preContrats', () => {
         size: size.value,
         ...params,
       })
-      preContrats.value = enrichirBien(mapPreContrats(_extrairePage(res)))
+      preContrats.value = trierParDateDecroissante(enrichirBien(mapPreContrats(_extrairePage(res))), 'dateCreation')
     } catch (e) {
       if (e?.response?.status === 404) {
         preContrats.value = []
@@ -97,7 +97,7 @@ export const usePreContratsStore = defineStore('preContrats', () => {
         }),
         visitesLocataireStore.visites.length ? Promise.resolve() : visitesLocataireStore.chargerVisites({ size: 100 }),
       ])
-      preContrats.value = enrichirBien(mapPreContrats(_extrairePage(res)))
+      preContrats.value = trierParDateDecroissante(enrichirBien(mapPreContrats(_extrairePage(res))), 'dateCreation')
     } catch (e) {
       if (e?.response?.status === 404) {
         preContrats.value = []

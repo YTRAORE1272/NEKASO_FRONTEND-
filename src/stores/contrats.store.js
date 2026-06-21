@@ -6,6 +6,7 @@ import { useBiensStore } from '@/stores/biens.store'
 import { useVisitesLocataireStore } from '@/stores/visitesLocataire.store'
 import { contratsService } from '@/services/contrats.service'
 import { mapContrat, mapBien } from '@/services/mappers'
+import { trierParDateDecroissante } from '@/utils/apiResponse'
 import { useAuthStore } from '@/stores/auth.store'
 
 export const useContratsStore = defineStore('contrats', () => {
@@ -50,11 +51,11 @@ export const useContratsStore = defineStore('contrats', () => {
       if (b) bien.adresse = b.adresse
     }
 
-    // Pour le locataire : l'API contrat/pré-contrat ne renvoie pas l'adresse du bien.
-    // On la récupère via la demande de visite liée (qui contient le bien complet).
-    if (bien && !bien.adresse && m.demandeVisiteId) {
+    // Pour le locataire : l'API contrat ne renvoie pas l'adresse du bien.
+    // On la récupère via la visite liée au même bien (qui contient le bien complet).
+    if (bien && !bien.adresse && bien.id) {
       const visitesLocataireStore = useVisitesLocataireStore()
-      const visite = visitesLocataireStore.visites.find(v => Number(v.id) === Number(m.demandeVisiteId))
+      const visite = visitesLocataireStore.visites.find(v => Number(v.bien?.id ?? v.bienId) === Number(bien.id))
       if (visite?.bien?.adresse) bien.adresse = visite.bien.adresse
     }
 
@@ -91,7 +92,7 @@ export const useContratsStore = defineStore('contrats', () => {
     try {
       await preContratsStore.chargerGestionnaire({ size: 100 })
       const res = await contratsService.getParGestionnaire({ size: 100 })
-      contratsDefinitifs.value = _extraire(res).map(normaliser)
+      contratsDefinitifs.value = trierParDateDecroissante(_extraire(res).map(normaliser), 'dateSignature')
     } catch (e) {
       console.error('Erreur chargerGestionnaire contrats:', e)
       erreur.value = 'Erreur lors du chargement des contrats'
@@ -110,7 +111,7 @@ export const useContratsStore = defineStore('contrats', () => {
         visitesLocataireStore.chargerVisites({ size: 100 }),
       ])
       const res = await contratsService.getParLocataire({ size: 100 })
-      contratsDefinitifs.value = _extraire(res).map(normaliser)
+      contratsDefinitifs.value = trierParDateDecroissante(_extraire(res).map(normaliser), 'dateSignature')
     } catch (e) {
       console.error('Erreur chargerLocataire contrats:', e)
       erreur.value = 'Erreur lors du chargement des contrats'
@@ -129,6 +130,45 @@ export const useContratsStore = defineStore('contrats', () => {
       return res?.data ?? null
     } catch (e) {
       console.error('Erreur création contrat définitif:', e)
+      throw e
+    } finally {
+      chargement.value = false
+    }
+  }
+
+  async function demanderRupture(id) {
+    chargement.value = true
+    try {
+      await contratsService.demanderRupture(id)
+      await chargerGestionnaire()
+    } catch (e) {
+      console.error('Erreur demande de rupture:', e)
+      throw e
+    } finally {
+      chargement.value = false
+    }
+  }
+
+  async function accepterRupture(id) {
+    chargement.value = true
+    try {
+      await contratsService.accepterRupture(id)
+      await chargerLocataire()
+    } catch (e) {
+      console.error('Erreur acceptation rupture:', e)
+      throw e
+    } finally {
+      chargement.value = false
+    }
+  }
+
+  async function refuserRupture(id) {
+    chargement.value = true
+    try {
+      await contratsService.refuserRupture(id)
+      await chargerLocataire()
+    } catch (e) {
+      console.error('Erreur refus rupture:', e)
       throw e
     } finally {
       chargement.value = false
@@ -158,6 +198,9 @@ export const useContratsStore = defineStore('contrats', () => {
     ),
   )
   const mesContratsActifs = computed(() => contratsDefinitifs.value)
+  const mesContratsEnRupture = computed(() =>
+    contratsDefinitifs.value.filter(c => c.statut === STATUT_CONTRAT.EN_RUPTURE),
+  )
 
   function getContratHydrate(id) {
     return contrats.value.find(c => Number(c.id) === Number(id)) ?? null
@@ -204,9 +247,13 @@ export const useContratsStore = defineStore('contrats', () => {
     mesContrats,
     mesPreContratsAValider,
     mesContratsActifs,
+    mesContratsEnRupture,
     chargerGestionnaire,
     chargerLocataire,
     creerContratDefinitif,
+    demanderRupture,
+    accepterRupture,
+    refuserRupture,
     filtrer,
     getContratHydrate,
     genererEcheances,

@@ -153,28 +153,6 @@
               </p>
             </div>
 
-            
-            <div class="section-block">
-              <h2 class="section-title">Équipements</h2>
-              <div class="equipements-grid">
-                <div class="equipement-item" v-for="equip in equipements" :key="equip">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                  {{ equip }}
-                </div>
-              </div>
-            </div>
           </div>
 
           
@@ -466,10 +444,6 @@ const showModalVisite = ref(false)
 const showModalLocation = ref(false)
 const erreurVisite = ref('')
 const erreurLocation = ref('')
-
-const equipements = computed(() => {
-  return ['Climatisation', 'Wifi', 'Parking', 'Cuisine équipée', 'Gardien 24/7', 'Balcon']
-})
 
 onMounted(async () => {
   bien.value =
@@ -776,26 +750,6 @@ const appeler = () => {
   color: #475569;
   line-height: 1.6;
 }
-
-.equipements-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-
-.equipement-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 15px;
-  color: #334155;
-}
-
-.equipement-item svg {
-  stroke: #22c55e;
-  flex-shrink: 0;
-}
-
 
 .sidebar {
   position: relative;

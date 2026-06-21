@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { STATUT_DEMANDE } from '@/utils/constants'
 import { demandesLocationService } from '@/services/demandes-location.service'
 import { demandesLocataireService } from '@/services/demandes-locataire.service'
-import { listeOuVide } from '@/utils/apiResponse'
+import { listeOuVide, trierParDateDecroissante } from '@/utils/apiResponse'
 import { mapBien } from '@/services/mappers'
 import { useAuthStore } from '@/stores/auth.store'
 
@@ -28,7 +28,7 @@ export const useDemandesLocationStore = defineStore('demandesLocation', () => {
     chargement.value = true
     try {
       const items = await listeOuVide(demandesLocationService.getListe({ size: 100 }))
-      demandesBackend.value = items.map(normaliser)
+      demandesBackend.value = trierParDateDecroissante(items.map(normaliser), 'dateCreation')
     } catch (e) {
       console.error('chargerDemandesBackend:', e)
       demandesBackend.value = []

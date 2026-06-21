@@ -60,6 +60,21 @@
         </span>
       </router-link>
 
+      <router-link
+        v-for="c in mesContratsEnRupture"
+        :key="`rupture-${c.id}`"
+        :to="`/locataire/contrat/${c.id}`"
+        class="banniere-rupture"
+      >
+        <span class="br-ic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12" y2="17" /></svg>
+        </span>
+        <span class="br-text">
+          <strong>Demande de rupture de contrat</strong>
+          <span> {{ c.bien?.intitule ? `« ${c.bien.intitule} » — ` : '' }}votre gestionnaire souhaite rompre le bail. Acceptez ou refusez.</span>
+        </span>
+      </router-link>
+
 <section class="decouvrir">
         <div class="sec-head">
           <div>
@@ -106,6 +121,7 @@ const nbVisites = computed(() => visitesStore.mesVisites.length)
 const nbDemandes = computed(() => demandesStore.mesDemandes.length)
 
 const mesPreContratsAValider = computed(() => contratsStore.mesPreContratsAValider)
+const mesContratsEnRupture = computed(() => contratsStore.mesContratsEnRupture)
 
 onMounted(() => {
   if (!biensStore.biens.length) biensStore.chargerBiens({ page: 0, size: 20 })
@@ -253,6 +269,50 @@ const biensDispo = computed(() => biensStore.biensDisponibles.slice(0, 3))
   font-weight: 700;
   color: #15803d;
   white-space: nowrap;
+}
+
+.banniere-rupture {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+  padding: 18px 22px;
+  border-radius: 14px;
+  background: linear-gradient(100deg, #fff7ed 0%, #fef2f2 100%);
+  border: 1px solid #fecaca;
+  text-decoration: none;
+  transition: box-shadow 0.18s;
+}
+.banniere-rupture:hover {
+  box-shadow: 0 6px 18px rgba(220, 38, 38, 0.15);
+}
+.br-ic {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  background: #dc2626;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.br-ic svg {
+  width: 20px;
+  height: 20px;
+}
+.br-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.br-text strong {
+  font-size: 15px;
+  color: #991b1b;
+}
+.br-text span {
+  font-size: 13.5px;
+  color: #dc2626;
 }
 
 .decouvrir {

@@ -95,10 +95,18 @@
               >
                 Créer contrat
               </button>
-              <template v-else-if="filtreStatut === 'contrats' || c.statut === 'ACTIF' || c.statut === 'ROMPU'">
+              <template v-else-if="filtreStatut === 'contrats' || ['ACTIF', 'EN_RUPTURE', 'ROMPU'].includes(c.statut)">
                 <div class="actions-contrat">
                   <button v-if="c.cheminPDF" class="btn-pdf" @click="ouvrirPDF(c.cheminPDF)">Voir PDF</button>
-                  <button class="btn-ouvrir" @click="ouvrir(c.id)">Gérer</button>
+                  <button
+                    v-if="c.statut === 'ACTIF'"
+                    class="btn-rompre"
+                    :disabled="enCours"
+                    @click="rompre(c)"
+                  >
+                    Rompre
+                  </button>
+                  <span v-else-if="c.statut === 'EN_RUPTURE'" class="rupture-attente">Rupture demandée</span>
                 </div>
               </template>
               <button v-else class="btn-ouvrir" @click="ouvrir(c.id)">Ouvrir</button>
@@ -120,6 +128,16 @@
         />
       </div>
     </div>
+
+    <ModalConfirmation
+      v-if="contratARompre"
+      titre="Demander la rupture du contrat ?"
+      :message="messageRupture"
+      label-confirmer="Rompre le contrat"
+      :en-cours="enCours"
+      @confirmer="confirmerRupture"
+      @annuler="contratARompre = null"
+    />
   </div>
 </template>
 
@@ -136,6 +154,7 @@ import { usePagination } from '@/composables/usePagination'
 import { nomComplet, STATUTS_PRE_CONTRAT, STATUT_CONTRAT } from '@/utils/constants'
 import WizardContrat from '@/components/contrats/WizardContrat.vue'
 import Pagination from '@/components/common/Pagination.vue'
+import ModalConfirmation from '@/components/common/ModalConfirmation.vue'
 
 const router = useRouter()
 const contratsStore = useContratsStore()
@@ -149,6 +168,7 @@ const recherche = ref('')
 const filtreStatut = ref('precontrats')
 const sousFiltre = ref('tous')
 const wizardOuvert = ref(false)
+const contratARompre = ref(null)
 
 const nbDemandesContrat = computed(
   () => preContratsStore.preContrats.filter((p) => p.statut === 'EN_ATTENTE').length,
@@ -173,6 +193,7 @@ const sousFiltresPrecontrat = [
 
 const sousFiltresContrat = [
   { cle: 'ACTIF', libelle: 'Actif' },
+  { cle: 'EN_RUPTURE', libelle: 'Rupture demandée' },
   { cle: 'ROMPU', libelle: 'Rompu' },
 ]
 
@@ -201,7 +222,7 @@ const contratsAffiches = computed(() => {
   if (filtreStatut.value === 'precontrats') {
     liste = liste.filter((c) => (STATUTS_PRE_CONTRAT.includes(c.statut) || c.statutPreContrat) && c.statut !== 'TERMINE' && c.statut !== 'ACTIF')
   } else if (filtreStatut.value === 'contrats') {
-    liste = liste.filter((c) => ['ACTIF', 'ROMPU'].includes(c.statut))
+    liste = liste.filter((c) => ['ACTIF', 'EN_RUPTURE', 'ROMPU'].includes(c.statut))
   }
 
   // Sous-filtre par statut exact
@@ -242,6 +263,31 @@ function ouvrirPDF(cheminPDF) {
     : `${baseUrl}${cheminPDF.startsWith('/') ? '' : '/'}${cheminPDF}`
   window.open(url, '_blank')
 }
+
+function rompre(contrat) {
+  contratARompre.value = contrat
+}
+
+async function confirmerRupture() {
+  if (enCours.value || !contratARompre.value) return
+  enCours.value = true
+  try {
+    await contratsStore.demanderRupture(contratARompre.value.id)
+    succes('Demande de rupture envoyée au locataire.')
+    contratARompre.value = null
+  } catch (e) {
+    notifErreur('Erreur lors de la demande de rupture.')
+  } finally {
+    enCours.value = false
+  }
+}
+
+const messageRupture = computed(() => {
+  const c = contratARompre.value
+  if (!c) return ''
+  const nomClient = nom(c.locataire || c.client) || 'ce locataire'
+  return `Contrat de ${nomClient}${c.bien?.intitule ? ` (${c.bien.intitule})` : ''}.\nLe locataire devra accepter ou refuser cette rupture.`
+})
 
 async function creerContrat(id) {
   if (enCours.value) return
@@ -284,6 +330,7 @@ function libelleStatut(s) {
     VALIDER: 'Validé',
     INVALIDER: 'Invalidé',
     ACTIF: 'Actif',
+    EN_RUPTURE: 'Rupture demandée',
     ROMPU: 'Rompu',
     TERMINE: 'Terminé',
     ANNULE: 'Annulé',
@@ -299,6 +346,7 @@ function chipClass(s) {
     VALIDER: 'chip--ok',
     INVALIDER: 'chip--danger',
     ACTIF: 'chip--green',
+    EN_RUPTURE: 'chip--warn',
     ROMPU: 'chip--danger',
     ANNULE: 'chip--danger',
   }[s] || 'chip--neutre'
@@ -479,6 +527,26 @@ function chipClass(s) {
   font-weight: 600;
   color: #dc2626;
   cursor: pointer;
+}
+.btn-rompre {
+  background: #dc2626;
+  border: none;
+  border-radius: 7px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+}
+.btn-rompre:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.rupture-attente {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #b45309;
+  white-space: nowrap;
 }
 .chip {
   display: inline-block;

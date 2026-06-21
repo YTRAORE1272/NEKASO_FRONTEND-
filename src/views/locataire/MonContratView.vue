@@ -61,7 +61,7 @@
       </template>
 
       <!-- ═══ CONTRAT ACTIF ═══ -->
-      <template v-else-if="contrat.statut === 'ACTIF' || contrat.statut === 'ROMPU'">
+      <template v-else-if="['ACTIF', 'EN_RUPTURE', 'ROMPU'].includes(contrat.statut)">
         <div class="page-header">
           <h1 class="page-title">Contrat &amp; Paiements</h1>
           <p class="page-subtitle">Consultez votre bail et l'historique des loyers validés par votre gestionnaire.</p>
@@ -101,7 +101,18 @@
             <div><span class="lbl">Contact</span><span class="val">{{ contrat.gestionnaire?.telephone || '—' }}</span></div>
           </div>
 
-          <div class="banniere-info">
+          <div v-if="contrat.statut === 'EN_RUPTURE'" class="banniere-rupture">
+            <div class="rupture-texte">
+              <strong>Votre gestionnaire a demandé la rupture de ce contrat.</strong>
+              <span>Acceptez pour mettre fin au bail, ou refusez pour le maintenir.</span>
+            </div>
+            <div class="rupture-actions">
+              <button class="btn-refuser-rupture" :disabled="ruptureEnCours" @click="refuserRupture">Refuser</button>
+              <button class="btn-accepter-rupture" :disabled="ruptureEnCours" @click="confirmationRupture = true">Accepter la rupture</button>
+            </div>
+          </div>
+
+          <div v-else class="banniere-info">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><line x1="12" y1="11" x2="12" y2="16" /><line x1="12" y1="8" x2="12" y2="8" /></svg>
             Pour toute modification, contactez directement votre gestionnaire via WhatsApp.
           </div>
@@ -126,6 +137,7 @@
                   <th>Montant</th>
                   <th>Date de validation</th>
                   <th>Statut</th>
+                  <th>Quittance</th>
                 </tr>
               </thead>
               <tbody>
@@ -134,6 +146,12 @@
                   <td class="fort">{{ formatMontant(p.montant) }} FCFA</td>
                   <td class="gris">{{ p.datePaiement ? formatDate(p.datePaiement) : '—' }}</td>
                   <td><BadgeStatut :label="statutPaiement(p).label" :variant="statutPaiement(p).variant" :icon="statutPaiement(p).icon" /></td>
+                  <td>
+                    <button class="btn-quittance" @click="telechargerQuittance(p)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+                      Télécharger
+                    </button>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -149,6 +167,16 @@
         {{ contrat.statut === 'ANNULE' ? 'Ce pré-contrat a été invalidé.' : 'Contrat terminé.' }}
       </div>
     </div>
+
+    <ModalConfirmation
+      v-if="confirmationRupture"
+      titre="Accepter la rupture du contrat ?"
+      message="Accepter mettra définitivement fin à votre bail. Cette action est irréversible."
+      label-confirmer="Accepter la rupture"
+      :en-cours="ruptureEnCours"
+      @confirmer="confirmerAcceptationRupture"
+      @annuler="confirmationRupture = false"
+    />
   </div>
 </template>
 
@@ -162,6 +190,7 @@ import { useFormat } from '@/composables/useFormat'
 import { nomComplet } from '@/utils/constants'
 import BadgeStatut from '@/components/locataire/BadgeStatut.vue'
 import Pagination from '@/components/common/Pagination.vue'
+import ModalConfirmation from '@/components/common/ModalConfirmation.vue'
 import { usePagination } from '@/composables/usePagination'
 import { paiementsLocataireService } from '@/services/paiements-locataire.service'
 import { mapPaiements } from '@/services/mappers'
@@ -178,6 +207,10 @@ const suggestion = ref('')
 // Paiements API
 const paiements = ref([])
 const chargementPaiements = ref(false)
+
+// Rupture
+const ruptureEnCours = ref(false)
+const confirmationRupture = ref(false)
 
 onMounted(async () => {
   await contratsStore.chargerLocataire()
@@ -293,6 +326,41 @@ async function annuler() {
     info('Pré-contrat refusé.')
   } catch (e) {
     erreur('Erreur lors du refus.')
+  }
+}
+async function confirmerAcceptationRupture() {
+  if (ruptureEnCours.value) return
+  ruptureEnCours.value = true
+  try {
+    await contratsStore.accepterRupture(contrat.value.id)
+    succes('Vous avez accepté la rupture du contrat.')
+    confirmationRupture.value = false
+  } catch (e) {
+    erreur("Erreur lors de l'acceptation de la rupture.")
+  } finally {
+    ruptureEnCours.value = false
+  }
+}
+async function refuserRupture() {
+  if (ruptureEnCours.value) return
+  ruptureEnCours.value = true
+  try {
+    await contratsStore.refuserRupture(contrat.value.id)
+    info('Vous avez refusé la rupture. Le contrat reste actif.')
+  } catch (e) {
+    erreur('Erreur lors du refus de la rupture.')
+  } finally {
+    ruptureEnCours.value = false
+  }
+}
+function telechargerQuittance(p) {
+  const chemin = p?.quittance
+  if (chemin) {
+    const baseUrl = 'http://74.248.184.17:8080'
+    const url = chemin.startsWith('http') ? chemin : `${baseUrl}${chemin.startsWith('/') ? '' : '/'}${chemin}`
+    window.open(url, '_blank')
+  } else {
+    info('La quittance de ce paiement n\'est pas encore disponible.')
   }
 }
 function telechargerPdf() {
@@ -547,6 +615,59 @@ function telechargerPdf() {
   flex-shrink: 0;
   color: #64748b;
 }
+.banniere-rupture {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+.rupture-texte {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.rupture-texte strong {
+  font-size: 14px;
+  color: #9a3412;
+}
+.rupture-texte span {
+  font-size: 13px;
+  color: #b45309;
+}
+.rupture-actions {
+  display: flex;
+  gap: 10px;
+}
+.btn-accepter-rupture {
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn-refuser-rupture {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  border-radius: 9px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn-accepter-rupture:disabled,
+.btn-refuser-rupture:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 .btn-foncé {
   align-self: flex-start;
   background: #1e293b;
@@ -638,6 +759,27 @@ function telechargerPdf() {
 }
 .gris {
   color: #94a3b8;
+}
+.btn-quittance {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-quittance:hover {
+  background: #f8fafc;
+}
+.btn-quittance svg {
+  width: 15px;
+  height: 15px;
 }
 
 @media (max-width: 640px) {

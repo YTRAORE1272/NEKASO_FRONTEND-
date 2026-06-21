@@ -73,7 +73,6 @@ const WARNINGS = [
 
 // ── Whitelist : fichiers/patterns légitimes à ignorer ───────────────────────
 const WHITELIST_FILES = [
-  'mockData.js',
   'security-check.cjs', // ce fichier lui-même
 ]
 

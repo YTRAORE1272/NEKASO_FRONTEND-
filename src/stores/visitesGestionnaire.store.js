@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { visitesService } from '@/services/visites.service'
 import { preContratsService } from '@/services/pre-contrats.service'
-import { listeOuVide } from '@/utils/apiResponse'
+import { listeOuVide, trierParDateDecroissante } from '@/utils/apiResponse'
 import { mapVisites, mapPreContrats } from '@/services/mappers'
 
 export const useVisitesGestionnaireStore = defineStore('visitesGestionnaire', () => {
@@ -84,13 +84,14 @@ export const useVisitesGestionnaireStore = defineStore('visitesGestionnaire', ()
         listeOuVide(visitesService.getListe({ page: 0, size: 50, ...params })),
         chargerContextePreContrats(),
       ])
-      visites.value = mapVisites(liste).map((v) => ({
+      const enrichies = mapVisites(liste).map((v) => ({
         ...v,
         client:
           v.client ||
           annuaire.get(String(v.locataireId)) ||
           { id: v.locataireId, nom: `Client #${v.locataireId}`, prenom: '', telephone: '' },
       }))
+      visites.value = trierParDateDecroissante(enrichies, 'dateCreation')
     } catch (e) {
       erreur.value = 'Impossible de charger les visites.'
       console.error('Erreur chargement visites gestionnaire:', e?.response?.status, e?.response?.data)
